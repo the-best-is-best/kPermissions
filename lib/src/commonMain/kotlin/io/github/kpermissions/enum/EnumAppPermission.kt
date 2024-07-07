@@ -2,8 +2,10 @@ package io.github.kpermissions.enum
 
 enum class EnumAppPermission {
     // Common for Android, iOS, JavaScript, and WebAssembly
-    CALENDAR,
-    CONTACTS,
+    CALENDARREAD,
+    CALENDARWRITE,
+    CONTACTSWRITE,
+    CONTACTSREAD,
     LOCATION,
     LOCATION_ALWAYS,
     LOCATION_WHEN_IN_USE,

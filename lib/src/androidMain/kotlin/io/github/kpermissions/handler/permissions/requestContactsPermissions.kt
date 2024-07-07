@@ -5,18 +5,20 @@ import androidx.core.app.ActivityCompat
 import io.github.kpermissions.handler.PermissionHandler
 import io.github.kpermissions.handler.permissionRequest
 
-fun requestReadCalendarPermission(onPermissionResult: (Boolean) -> Unit) {
+
+fun requestReadContactsPermission(onPermissionResult: (Boolean) -> Unit) {
     val context = PermissionHandler.getAppContext()
     val permission = ActivityCompat.checkSelfPermission(
-        context, Manifest.permission.READ_CALENDAR
+        context, Manifest.permission.READ_CONTACTS
     )
     permissionRequest(permission, onPermissionResult)
+
 }
 
-fun requestWriteCalendarPermission(onPermissionResult: (Boolean) -> Unit) {
+fun requestWriteContactsPermission(onPermissionResult: (Boolean) -> Unit) {
     val context = PermissionHandler.getAppContext()
     val permission = ActivityCompat.checkSelfPermission(
-        context, Manifest.permission.WRITE_CALENDAR
+        context, Manifest.permission.WRITE_CONTACTS
     )
     permissionRequest(permission, onPermissionResult)
 

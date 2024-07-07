@@ -30,7 +30,7 @@ internal fun App() = AppTheme {
             content = { Text("click test permissions") },
 
             onClick = {
-                permission.requestPermission(EnumAppPermission.CALENDAR) {
+                permission.requestPermission(EnumAppPermission.CONTACTSREAD) {
                     println("permission $it")
                 }
             }

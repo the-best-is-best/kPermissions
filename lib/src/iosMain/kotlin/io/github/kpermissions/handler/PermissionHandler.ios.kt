@@ -2,15 +2,21 @@ package io.github.kpermissions.handler
 
 import io.github.kpermissions.enum.EnumAppPermission
 import io.github.kpermissions.handler.permissions.requestCalendarPermission
+import io.github.kpermissions.handler.permissions.requestContactsPermission
 
 actual class PermissionHandler actual constructor() : PermissionCallback {
+
+
     override fun requestPermission(
         permission: EnumAppPermission,
         onPermissionResult: (Boolean) -> Unit
     ) {
         when (permission) {
-            EnumAppPermission.CALENDAR -> requestCalendarPermission(onPermissionResult)
-            EnumAppPermission.CONTACTS -> TODO()
+            EnumAppPermission.CALENDARWRITE,
+            EnumAppPermission.CALENDARREAD -> requestCalendarPermission(onPermissionResult)
+
+            EnumAppPermission.CONTACTSWRITE,
+            EnumAppPermission.CONTACTSREAD -> requestContactsPermission(onPermissionResult)
             EnumAppPermission.LOCATION -> TODO()
             EnumAppPermission.LOCATION_ALWAYS -> TODO()
             EnumAppPermission.LOCATION_WHEN_IN_USE -> TODO()
@@ -28,5 +34,13 @@ actual class PermissionHandler actual constructor() : PermissionCallback {
             EnumAppPermission.REMINDERS -> TODO()
             EnumAppPermission.SPEECH -> TODO()
         }
+    }
+
+
+    actual companion object {
+        //        fun init (openSetting:Boolean){
+//            this.openSetting = openSetting
+//        }
+        internal actual var openSetting: Boolean = false
     }
 }
