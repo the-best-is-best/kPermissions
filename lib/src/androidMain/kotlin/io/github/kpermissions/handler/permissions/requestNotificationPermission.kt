@@ -7,7 +7,7 @@ import io.github.kpermissions.handler.PermissionHandler
 import io.github.kpermissions.handler.openAppSettings
 import io.github.kpermissions.handler.permissionRequest
 
-fun requestNotificationPermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestNotificationPermission(onPermissionResult: (Boolean) -> Unit) {
     val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.POST_NOTIFICATIONS
     } else {

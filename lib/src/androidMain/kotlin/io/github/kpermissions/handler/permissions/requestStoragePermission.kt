@@ -4,7 +4,7 @@ import android.Manifest
 import android.os.Build
 import io.github.kpermissions.handler.permissionRequest
 
-fun requestReadStoragePermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestReadStoragePermission(onPermissionResult: (Boolean) -> Unit) {
     if (32 >= Build.VERSION.SDK_INT) {
         val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
         permissionRequest(arrayOf(permission), onPermissionResult)
@@ -14,7 +14,7 @@ fun requestReadStoragePermission(onPermissionResult: (Boolean) -> Unit) {
 }
 
 
-fun requestWriteStoragePermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestWriteStoragePermission(onPermissionResult: (Boolean) -> Unit) {
     if (32 >= Build.VERSION.SDK_INT) {
         val permission = Manifest.permission.READ_EXTERNAL_STORAGE
         permissionRequest(arrayOf(permission), onPermissionResult)

@@ -4,48 +4,61 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
-
-fun permissionRequest(permissions: Array<String>, onPermissionResult: (Boolean) -> Unit) {
+suspend fun permissionRequest(permissions: Array<String>, onPermissionResult: (Boolean) -> Unit) {
     val context = PermissionHandler.getAppContext()
     val activity = context as Activity
 
-    val ungrantedPermissions = permissions.filter {
-        ContextCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
-    }
+    // Launch a coroutine to handle permission request
+    CoroutineScope(Dispatchers.Main).launch {
+        // Execute on the main thread
+        val result = waitPermissionRequest(permissions, activity)
 
-    if (ungrantedPermissions.isEmpty()) {
-        // All permissions are already granted
-        onPermissionResult(true)
-        return
-    }
-
-    val shouldShowRationale = ungrantedPermissions.any {
-        ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
-    }
-
-    val requestCode = Random.nextInt(1000, 9999)
-
-    if (shouldShowRationale) {
-        // Show rationale and then request permissions
-        ActivityCompat.requestPermissions(
-            activity,
-            ungrantedPermissions.toTypedArray(),
-            requestCode
-        )
-    } else {
-        // Request permissions directly
-
-//            ActivityCompat.requestPermissions(activity, ungrantedPermissions.toTypedArray(), requestCode)
-        if (PermissionHandler.openSetting) {
-            openAppSettings()
+        // This code block will execute after waitPermissionRequest completes
+        if (result) {
+            // Permissions granted
+            onPermissionResult(true)
+        } else {
+            // Permissions not fully granted
+            if (PermissionHandler.openSetting) {
+                openAppSettings()
+            }
+            onPermissionResult(false)
         }
     }
+}
 
-    PermissionHandler.onPermissionResult = { _, grantResults ->
-        val allGranted =
-            grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-        onPermissionResult(allGranted)
+private suspend fun waitPermissionRequest(permissions: Array<String>, activity: Activity): Boolean {
+    return withContext(Dispatchers.IO) {
+        // Switch to IO dispatcher for permission checks
+        val ungrantedPermissions = permissions.filter {
+            ContextCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (ungrantedPermissions.isEmpty()) {
+            // All permissions are already granted
+            true
+        } else {
+            // Request permissions
+            val shouldShowRationale = ungrantedPermissions.any {
+                ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
+            }
+
+            val requestCode = Random.nextInt(1000, 9999)
+
+            // Request permissions on the main thread
+            ActivityCompat.requestPermissions(
+                activity,
+                ungrantedPermissions.toTypedArray(),
+                requestCode
+            )
+
+            false // Permissions are not fully granted yet
+        }
     }
 }

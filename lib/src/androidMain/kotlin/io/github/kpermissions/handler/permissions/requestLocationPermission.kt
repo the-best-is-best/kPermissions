@@ -5,7 +5,7 @@ import android.os.Build
 import io.github.kpermissions.handler.permissionRequest
 
 
-fun requestLocationPermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestLocationPermission(onPermissionResult: (Boolean) -> Unit) {
     val permission = Manifest.permission.ACCESS_FINE_LOCATION
 
     permissionRequest(arrayOf(permission), onPermissionResult)
@@ -13,7 +13,7 @@ fun requestLocationPermission(onPermissionResult: (Boolean) -> Unit) {
 }
 
 
-fun requestLocationAlwaysPermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestLocationAlwaysPermission(onPermissionResult: (Boolean) -> Unit) {
     val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Manifest.permission.ACCESS_BACKGROUND_LOCATION
     } else {
@@ -28,7 +28,7 @@ fun requestLocationAlwaysPermission(onPermissionResult: (Boolean) -> Unit) {
 }
 
 
-fun requestLocationWhenInUsePermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestLocationWhenInUsePermission(onPermissionResult: (Boolean) -> Unit) {
     val permission1 = Manifest.permission.ACCESS_FINE_LOCATION
     val permission2 = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Manifest.permission.ACCESS_BACKGROUND_LOCATION

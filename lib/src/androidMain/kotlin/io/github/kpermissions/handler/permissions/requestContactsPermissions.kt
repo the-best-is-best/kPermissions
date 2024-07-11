@@ -4,14 +4,14 @@ import android.Manifest
 import io.github.kpermissions.handler.permissionRequest
 
 
-fun requestReadContactsPermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestReadContactsPermission(onPermissionResult: (Boolean) -> Unit) {
     val permission = Manifest.permission.READ_CONTACTS
 
     permissionRequest(arrayOf(permission), onPermissionResult)
 
 }
 
-fun requestWriteContactsPermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestWriteContactsPermission(onPermissionResult: (Boolean) -> Unit) {
     val permission = Manifest.permission.WRITE_CONTACTS
 
     permissionRequest(arrayOf(permission), onPermissionResult)

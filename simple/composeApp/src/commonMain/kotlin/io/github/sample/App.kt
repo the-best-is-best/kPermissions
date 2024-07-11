@@ -30,7 +30,7 @@ internal fun App() = AppTheme {
             content = { Text("click test permissions") },
 
             onClick = {
-                permission.requestPermission(EnumAppPermission.BLUETOOTH) {
+                permission.requestPermission(EnumAppPermission.LOCATION) {
                     println("permission $it")
                 }
             }

@@ -1,9 +1,7 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
@@ -13,25 +11,56 @@ plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
-    alias(libs.plugins.dokka)
     alias(libs.plugins.kotlin.compatibility)
     alias(libs.plugins.android.library)
     id("maven-publish")
     id("signing")
+    id("com.vanniktech.maven.publish")
 }
+mavenPublishing {
+    coordinates("io.github.the-best-is-best", "KPermissions", "1.0.0-2-SNAPSHOT")
 
+    publishToMavenCentral(SonatypeHost.S01)
+    signAllPublications()
 
-
-buildscript {
-    dependencies {
-        val dokkaVersion = libs.versions.dokka.get()
-        classpath("org.jetbrains.dokka:dokka-base:$dokkaVersion")
+    pom {
+        name.set("KPermissions")
+        description.set("Plugin for request permissions android and ios KMM")
+        url.set("https://github.com/the-best-is-best/kPermissions")
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://opensource.org/licenses/Apache-2.0")
+            }
+        }
+        issueManagement {
+            system.set("Github")
+            url.set("https://github.com/the-best-is-best/kPermissions/issues")
+        }
+        scm {
+            connection.set("https://github.com/the-best-is-best/kPermissions.git")
+            url.set("https://github.com/the-best-is-best/kPermissions")
+        }
+        developers {
+            developer {
+                id.set("MichelleRaouf")
+                name.set("Michelle Raouf")
+                email.set("eng.michelle.raouf@gmail.com")
+            }
+        }
     }
+
 }
+
 
 apply(plugin = "maven-publish")
 apply(plugin = "signing")
 
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications)
+}
 
 tasks.withType<PublishToMavenRepository> {
     val isMac = getCurrentOperatingSystem().isMacOsX
@@ -47,46 +76,8 @@ tasks.withType<PublishToMavenRepository> {
     }
 }
 
-val javadocJar by tasks.registering(Jar::class) {
-    dependsOn(tasks.dokkaHtml)
-    from(tasks.dokkaHtml.flatMap(DokkaTask::outputDirectory))
-    archiveClassifier = "javadoc"
-}
-
-tasks.dokkaHtml {
-    // outputDirectory = layout.buildDirectory.get().resolve("dokka")
-    offlineMode = false
-    moduleName = "composeMultiplatformSearchDropDown.html"
-
-    // See the buildscript block above and also
-    // https://github.com/Kotlin/dokka/issues/2406
-    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-
-        separateInheritedMembers = true
-
-
-
-        dokkaSourceSets {
-
-            configureEach {
-                reportUndocumented = true
-                noAndroidSdkLink = false
-                noStdlibLink = false
-                noJdkLink = false
-                jdkVersion = libs.versions.java.get().toInt()
-
-                // sourceLink {
-                //     // Unix based directory relative path to the root of the project (where you execute gradle respectively).
-                //     // localDirectory.set(file("src/main/kotlin"))
-                //     // URL showing where the source code can be accessed through the web browser
-                //     // remoteUrl = uri("https://github.com/mahozad/${project.name}/blob/main/${project.name}/src/main/kotlin").toURL()
-                //     // Suffix which is used to append the line number to the URL. Use #L for GitHub
-                //     remoteLineSuffix = "#L"
-                // }
-            }
-
-        }
-    }
+tasks.withType(AbstractPublishToMaven::class).configureEach {
+    dependsOn(tasks.withType(Sign::class))
 }
 
 kotlin {
@@ -173,7 +164,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 26
+        minSdk = 21
 
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_1_8

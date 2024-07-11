@@ -4,7 +4,7 @@ import android.Manifest
 import android.os.Build
 import io.github.kpermissions.handler.permissionRequest
 
-fun requestPhotoPermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestPhotoPermission(onPermissionResult: (Boolean) -> Unit) {
     val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.READ_MEDIA_IMAGES
     } else {
@@ -18,7 +18,7 @@ fun requestPhotoPermission(onPermissionResult: (Boolean) -> Unit) {
     }
 }
 
-fun requestVideoPermission(onPermissionResult: (Boolean) -> Unit) {
+suspend fun requestVideoPermission(onPermissionResult: (Boolean) -> Unit) {
     val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.READ_MEDIA_VIDEO
     } else {

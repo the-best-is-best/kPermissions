@@ -20,8 +20,11 @@ import io.github.kpermissions.handler.permissions.requestVideoPermission
 import io.github.kpermissions.handler.permissions.requestWriteCalendarPermission
 import io.github.kpermissions.handler.permissions.requestWriteContactsPermission
 import io.github.kpermissions.handler.permissions.requestWriteStoragePermission
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-actual class PermissionHandler actual constructor() : PermissionCallback {
+actual class PermissionHandler actual constructor() {
 
     actual companion object {
 
@@ -42,46 +45,97 @@ actual class PermissionHandler actual constructor() : PermissionCallback {
         }
 
         internal actual var openSetting: Boolean = false
-        internal var onPermissionResult: ((Int, IntArray) -> Unit)? = null
 
     }
 
-    override fun requestPermission(
+    actual fun requestPermission(
         permission: EnumAppPermission,
         onPermissionResult: (Boolean) -> Unit
     ) {
         when (permission) {
-            EnumAppPermission.CALENDAR_READ -> requestReadCalendarPermission(onPermissionResult)
-            EnumAppPermission.CALENDAR_WRITE -> requestWriteCalendarPermission(onPermissionResult)
 
-            EnumAppPermission.CONTACTS_WRITE -> requestWriteContactsPermission(onPermissionResult)
-            EnumAppPermission.CONTACTS_READ -> requestReadContactsPermission(onPermissionResult)
+            EnumAppPermission.CALENDAR_READ ->
+                CoroutineScope(Dispatchers.Main).launch {
+                    requestReadCalendarPermission(onPermissionResult)
+                }
 
-            EnumAppPermission.LOCATION -> requestLocationPermission(onPermissionResult)
-            EnumAppPermission.LOCATION_ALWAYS -> requestLocationAlwaysPermission(onPermissionResult)
-            EnumAppPermission.LOCATION_WHEN_IN_USE -> requestLocationWhenInUsePermission(
-                onPermissionResult
-            )
+            EnumAppPermission.CALENDAR_WRITE ->
+                CoroutineScope(Dispatchers.Main).launch {
+                    requestWriteCalendarPermission(onPermissionResult)
+                }
 
-            EnumAppPermission.WRITE_STORAGE -> requestReadStoragePermission(onPermissionResult)
-            EnumAppPermission.READ_STORAGE -> requestWriteStoragePermission(onPermissionResult)
+            EnumAppPermission.CONTACTS_WRITE -> CoroutineScope(Dispatchers.Main).launch {
+                requestWriteContactsPermission(onPermissionResult)
+            }
 
-            EnumAppPermission.PHOTO -> requestPhotoPermission(onPermissionResult)
-            EnumAppPermission.VIDEO -> requestVideoPermission(onPermissionResult)
-            EnumAppPermission.GALLERY -> requestGalleryPermission(onPermissionResult)
+            EnumAppPermission.CONTACTS_READ -> CoroutineScope(Dispatchers.Main).launch {
+                requestReadContactsPermission(onPermissionResult)
+            }
 
-            EnumAppPermission.CAMERA -> requestCameraPermission(onPermissionResult)
-            EnumAppPermission.MICROPHONE -> requestMicrophonePermission(onPermissionResult)
-            EnumAppPermission.NOTIFICATION -> requestNotificationPermission(onPermissionResult)
-            EnumAppPermission.PHONE -> requestPhonePermission(onPermissionResult)
-            EnumAppPermission.APP_TRACKING_TRANSPARENCY -> requestAppTrackingPermission(
-                onPermissionResult
-            )
+            EnumAppPermission.LOCATION -> CoroutineScope(Dispatchers.Main).launch {
+                requestLocationPermission(onPermissionResult)
+            }
 
-            EnumAppPermission.BLUETOOTH -> requestBluetoothPermission(onPermissionResult)
+            EnumAppPermission.LOCATION_ALWAYS -> CoroutineScope(Dispatchers.Main).launch {
+                requestLocationAlwaysPermission(onPermissionResult)
+            }
 
+            EnumAppPermission.LOCATION_WHEN_IN_USE ->
+                CoroutineScope(Dispatchers.Main).launch {
+                    requestLocationWhenInUsePermission(
+                        onPermissionResult
+                    )
+                }
+
+            EnumAppPermission.WRITE_STORAGE -> CoroutineScope(Dispatchers.Main).launch {
+                requestReadStoragePermission(onPermissionResult)
+            }
+
+            EnumAppPermission.READ_STORAGE -> CoroutineScope(Dispatchers.Main).launch {
+
+                requestWriteStoragePermission(onPermissionResult)
+            }
+
+            EnumAppPermission.PHOTO -> CoroutineScope(Dispatchers.Main).launch {
+                requestPhotoPermission(onPermissionResult)
+            }
+
+            EnumAppPermission.VIDEO -> CoroutineScope(Dispatchers.Main).launch {
+                requestVideoPermission(onPermissionResult)
+            }
+
+            EnumAppPermission.GALLERY -> CoroutineScope(Dispatchers.Main).launch {
+                requestGalleryPermission(onPermissionResult)
+            }
+
+            EnumAppPermission.CAMERA -> CoroutineScope(Dispatchers.Main).launch {
+                requestCameraPermission(onPermissionResult)
+            }
+
+            EnumAppPermission.MICROPHONE -> CoroutineScope(Dispatchers.Main).launch {
+                requestMicrophonePermission(onPermissionResult)
+            }
+
+            EnumAppPermission.NOTIFICATION -> CoroutineScope(Dispatchers.Main).launch {
+                requestNotificationPermission(onPermissionResult)
+            }
+
+            EnumAppPermission.PHONE -> CoroutineScope(Dispatchers.Main).launch {
+                requestPhonePermission(onPermissionResult)
+            }
+
+            EnumAppPermission.APP_TRACKING_TRANSPARENCY -> CoroutineScope(Dispatchers.Main).launch {
+                requestAppTrackingPermission(
+                    onPermissionResult
+                )
+            }
+
+            EnumAppPermission.BLUETOOTH -> CoroutineScope(Dispatchers.Main).launch {
+                requestBluetoothPermission(onPermissionResult)
+            }
         }
     }
+
 
 
 }

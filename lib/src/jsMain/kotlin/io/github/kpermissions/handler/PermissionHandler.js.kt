@@ -2,8 +2,8 @@ package io.github.kpermissions.handler
 
 import io.github.kpermissions.enum.EnumAppPermission
 
-actual class PermissionHandler actual constructor() : PermissionCallback {
-    override fun requestPermission(
+actual class PermissionHandler actual constructor() {
+    actual fun requestPermission(
         permission: EnumAppPermission,
         onPermissionResult: (Boolean) -> Unit
     ) {
@@ -11,8 +11,6 @@ actual class PermissionHandler actual constructor() : PermissionCallback {
     }
 
     actual companion object {
-        internal actual var openSetting: Boolean
-            get() = true
-            set(value) {}
+        internal actual var openSetting: Boolean = false
     }
 }

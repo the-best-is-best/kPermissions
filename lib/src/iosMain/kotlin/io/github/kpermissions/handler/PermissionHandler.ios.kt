@@ -17,10 +17,10 @@ import io.github.kpermissions.handler.permissions.requestPhotoPermission
 import io.github.kpermissions.handler.permissions.requestStoragePermission
 import io.github.kpermissions.handler.permissions.requestVideoPermission
 
-actual class PermissionHandler actual constructor() : PermissionCallback {
+actual class PermissionHandler actual constructor() {
 
 
-    override fun requestPermission(
+    actual fun requestPermission(
         permission: EnumAppPermission,
         onPermissionResult: (Boolean) -> Unit
     ) {
