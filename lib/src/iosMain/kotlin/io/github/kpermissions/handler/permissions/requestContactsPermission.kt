@@ -1,6 +1,5 @@
 package io.github.kpermissions.handler.permissions
 
-import io.github.kpermissions.handler.openAppSettings
 import platform.Contacts.CNAuthorizationStatusAuthorized
 import platform.Contacts.CNAuthorizationStatusNotDetermined
 import platform.Contacts.CNContactStore
@@ -16,10 +15,8 @@ fun requestContactsPermission(onPermissionResult: (Boolean) -> Unit) {
 
         CNAuthorizationStatusNotDetermined -> {
             CNContactStore().requestAccessForEntityType(CNEntityType.CNEntityTypeContacts) { granted, _ ->
-                if (!granted) {
-                    openAppSettings()
-                }
-                onPermissionResult(granted)
+
+            onPermissionResult(granted)
             }
         }
 

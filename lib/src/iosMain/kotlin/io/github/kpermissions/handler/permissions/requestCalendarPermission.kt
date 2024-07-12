@@ -1,6 +1,5 @@
 package io.github.kpermissions.handler.permissions
 
-import io.github.kpermissions.handler.openAppSettings
 import platform.EventKit.EKAuthorizationStatusAuthorized
 import platform.EventKit.EKAuthorizationStatusDenied
 import platform.EventKit.EKAuthorizationStatusNotDetermined
@@ -30,9 +29,7 @@ fun requestCalendarPermission(onPermissionResult: (Boolean) -> Unit) {
                     print("error is $e ")
 
                 }
-                if (!granted) {
-                    openAppSettings()
-                }
+
                 onPermissionResult(granted)
             }
         }

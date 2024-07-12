@@ -57,11 +57,12 @@ actual class PermissionHandler actual constructor() {
         }
     }
 
-
-    actual companion object {
-        //        fun init (openSetting:Boolean){
-//            this.openSetting = openSetting
-//        }
-        internal actual var openSetting: Boolean = false
+    actual fun openAppSettings() {
+//       val settingsUrl = NSURL.URLWithString("App-Prefs:root=${NSBundle.mainBundle.bundleIdentifier!!}")!!
+//
+//       // Open the settings URL
+//       if (UIApplication.sharedApplication.canOpenURL(settingsUrl)) {
+//           UIApplication.sharedApplication.openURL(settingsUrl, options = emptyMap<Any?, Any>(), completionHandler = null)
+//       }
     }
 }

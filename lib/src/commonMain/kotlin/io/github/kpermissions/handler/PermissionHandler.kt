@@ -5,9 +5,7 @@ import io.github.kpermissions.enum.EnumAppPermission
 
 expect class PermissionHandler() {
     fun requestPermission(permission: EnumAppPermission, onPermissionResult: (Boolean) -> Unit)
+    fun openAppSettings()
 
-    companion object {
-        internal var openSetting: Boolean
-    }
 }
 

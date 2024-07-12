@@ -32,6 +32,9 @@ internal fun App() = AppTheme {
             onClick = {
                 permission.requestPermission(EnumAppPermission.LOCATION) {
                     println("permission $it")
+                    if (!it) {
+                        permission.openAppSettings()
+                    }
                 }
             }
         )

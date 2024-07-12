@@ -1,6 +1,10 @@
 package io.github.kpermissions.handler
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import io.github.kpermissions.enum.EnumAppPermission
 import io.github.kpermissions.handler.permissions.requestAppTrackingPermission
 import io.github.kpermissions.handler.permissions.requestBluetoothPermission
@@ -26,13 +30,12 @@ import kotlinx.coroutines.launch
 
 actual class PermissionHandler actual constructor() {
 
-    actual companion object {
+    companion object {
 
         private lateinit var appContext: Context
 
-        fun init(context: Context, openSetting: Boolean = false) {
+        fun init(context: Context) {
             appContext = context
-            this.openSetting = openSetting
         }
 
 
@@ -44,8 +47,23 @@ actual class PermissionHandler actual constructor() {
             return appContext
         }
 
-        internal actual var openSetting: Boolean = false
 
+    }
+
+
+    actual fun openAppSettings() {
+        val context = getAppContext()
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.fromParts("package", context.packageName, null)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            // Handle case where the settings activity is not found
+            e.printStackTrace()
+            println("open setting error ${e.localizedMessage}")
+        }
     }
 
     actual fun requestPermission(
@@ -135,7 +153,4 @@ actual class PermissionHandler actual constructor() {
             }
         }
     }
-
-
-
 }

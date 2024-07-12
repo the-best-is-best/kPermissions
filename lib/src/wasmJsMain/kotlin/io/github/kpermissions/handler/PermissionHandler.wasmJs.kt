@@ -10,7 +10,7 @@ actual class PermissionHandler actual constructor() {
         onPermissionResult(true)
     }
 
-    actual companion object {
-        internal actual var openSetting: Boolean = false
+
+    actual fun openAppSettings() {
     }
 }

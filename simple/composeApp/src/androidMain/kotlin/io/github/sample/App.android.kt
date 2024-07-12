@@ -12,7 +12,7 @@ class AppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        PermissionHandler.init(this, openSetting = true)
+        PermissionHandler.init(this)
         setContent { App() }
     }
 }

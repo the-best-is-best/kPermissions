@@ -25,9 +25,7 @@ suspend fun permissionRequest(permissions: Array<String>, onPermissionResult: (B
             onPermissionResult(true)
         } else {
             // Permissions not fully granted
-            if (PermissionHandler.openSetting) {
-                openAppSettings()
-            }
+
             onPermissionResult(false)
         }
     }

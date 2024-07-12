@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import io.github.kpermissions.handler.PermissionHandler
-import io.github.kpermissions.handler.openAppSettings
 import io.github.kpermissions.handler.permissionRequest
 
 suspend fun requestNotificationPermission(onPermissionResult: (Boolean) -> Unit) {
@@ -20,12 +19,7 @@ suspend fun requestNotificationPermission(onPermissionResult: (Boolean) -> Unit)
         if (notificationManager.areNotificationsEnabled()) {
             onPermissionResult(true)
         } else {
-            // Open system settings to enable notifications
-            if (PermissionHandler.openSetting) {
-                onPermissionResult(false)
-                openAppSettings()
-
-            }
+            onPermissionResult(false)
         }
     }
 
