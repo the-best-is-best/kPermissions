@@ -26,6 +26,43 @@ KPermissions is available on `mavenCentral()`.
 implementation("io.github.the-best-is-best:KPermissions:1.0.0")
 ```
 
+## Permissions support
+
+```kotlin
+
+enum class EnumAppPermission {
+    // Common for Android, iOS, JavaScript, and WebAssembly
+    CALENDAR_READ,
+    CALENDAR_WRITE,
+    CONTACTS_WRITE,
+    CONTACTS_READ,
+    LOCATION,
+    LOCATION_ALWAYS,
+    LOCATION_WHEN_IN_USE,
+    CAMERA,
+    MICROPHONE,
+    NOTIFICATION,
+    BLUETOOTH,
+
+    /**
+     * Android only
+     */
+    PHONE,
+    WRITE_STORAGE,
+    READ_STORAGE,
+    PHOTO,
+    VIDEO,
+
+
+    // iOS specific
+    /**
+     * iOS only: manage app tracking transparency
+     */
+    APP_TRACKING_TRANSPARENCY,
+    GALLERY,
+}
+```
+
 ## how to use
 
 ```kotlin
