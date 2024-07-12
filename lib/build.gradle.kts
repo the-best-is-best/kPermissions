@@ -18,7 +18,7 @@ plugins {
     id("com.vanniktech.maven.publish")
 }
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissions", "1.0.0-2-SNAPSHOT")
+    coordinates("io.github.the-best-is-best", "KPermissions", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01)
     signAllPublications()

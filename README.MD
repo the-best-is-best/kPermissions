@@ -1,45 +1,54 @@
-# Compose Multiplatform Application
+<h1 align="center">KPermissions</h1><br>
 
-## Before running!
+<div align="center">
+<a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
+<a href="https://android-arsenal.com/api?level=21" rel="nofollow"><img alt="API" src="https://camo.githubusercontent.com/0eda703da08220e08354f624a3fc0023f10416a302565c69c3759bf6e0800d40/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4150492d32312532422d627269676874677265656e2e7376673f7374796c653d666c6174" data-canonical-src="https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat" style="max-width: 100%;"></a>
+  <img src="https://img.shields.io/badge/Platform-Android-brightgreen.svg?logo=android" alt="Badge Android" />
+		<img src="https://img.shields.io/badge/Platform-iOS%20%2F%20macOS-lightgrey.svg?logo=apple" alt="Badge iOS" />
+		<!-- <img src="https://img.shields.io/badge/Platform-JVM-8A2BE2.svg?logo=openjdk" alt="Badge JVM" />
+    <img src="https://img.shields.io/badge/Platform-WASM%20%2F%20JS-yellow.svg?logo=javascript" alt="Badge JS" />
+<a href="https://github.com/the-best-is-best/"><img alt="Profile" src="https://img.shields.io/badge/github-%23181717.svg?&style=for-the-badge&logo=github&logoColor=white" height="20"/></a> -->
 
-- check your system with [KDoctor](https://github.com/Kotlin/kdoctor)
-- install JDK 17 or higher on your machine
-- add `local.properties` file to the project root and set a path to Android SDK there
 
-### Android
+</div>
+<br> 
+</br>
 
-To run the application on android device/emulator:
+- KPermissions for request permission android or ios in compose multiplatform or KMM.
 
-- open project in Android Studio and run imported android run configuration
+## Download
 
-To build the application bundle:
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.the-best-is-best/KPermissions)](https://central.sonatype.com/artifact/io.github.the-best-is-best/KPermissions)
+KPermissions is available on `mavenCentral()`.
 
-- run `./gradlew :composeApp:assembleDebug`
-- find `.apk` file in `composeApp/build/outputs/apk/debug/composeApp-debug.apk`
-  Run android simulator UI tests: `./gradlew :composeApp:pixel5Check`
 
-### Desktop
+```kotlin
+implementation("io.github.the-best-is-best:KPermissions:1.0.0")
+```
 
-Run the desktop application: `./gradlew :composeApp:run`
-Run desktop UI tests: `./gradlew :composeApp:jvmTest`
+## how to use
 
-### iOS
+```kotlin
+    val permission = PermissionHandler()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ElevatedButton(
+            content = { Text("click test permissions") },
 
-To run the application on iPhone device/simulator:
+            onClick = {
+                permission.requestPermission(EnumAppPermission.LOCATION) {
+                    println("permission $it")
+                    if (!it) {
+                        permission.openAppSettings() // not work in ios
+                    }
+                }
+            }
+        )
+    }
 
-- Open `iosApp/iosApp.xcproject` in Xcode and run standard configuration
-- Or
-  use [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile)
-  for Android Studio
-  Run iOS simulator UI tests: `./gradlew :composeApp:iosSimulatorArm64Test`
-
-### JS Browser (Experimental)
-
-Run the browser application: `./gradlew :composeApp:jsBrowserDevelopmentRun --continue`
-Run browser UI tests: `./gradlew :composeApp:jsBrowserTest`
-
-### Wasm Browser (Alpha)
-
-Run the browser application: `./gradlew :composeApp:wasmJsBrowserDevelopmentRun --continue`
-Run browser UI tests: `./gradlew :composeApp:wasmJsBrowserTest`
-
+```
