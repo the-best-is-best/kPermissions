@@ -30,6 +30,6 @@ dependencyResolutionManagement {
         maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
     }
 }
-include(":lib")
+include(":kPermission")
 include(":simple:composeApp")
 
