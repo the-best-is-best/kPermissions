@@ -16,6 +16,9 @@ import io.github.kpermissions.handler.permissions.requestPhonePermission
 import io.github.kpermissions.handler.permissions.requestPhotoPermission
 import io.github.kpermissions.handler.permissions.requestStoragePermission
 import io.github.kpermissions.handler.permissions.requestVideoPermission
+import platform.Foundation.NSURL
+import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationOpenSettingsURLString
 
 actual class PermissionHandler actual constructor() {
 
@@ -37,7 +40,7 @@ actual class PermissionHandler actual constructor() {
                 onPermissionResult
             )
 
-            EnumAppPermission.WRITE_STORAGE -> requestStoragePermission(onPermissionResult)
+            EnumAppPermission.WRITE_STORAGE,
             EnumAppPermission.READ_STORAGE -> requestStoragePermission(onPermissionResult)
 
             EnumAppPermission.PHOTO -> requestPhotoPermission(onPermissionResult)
@@ -58,11 +61,7 @@ actual class PermissionHandler actual constructor() {
     }
 
     actual fun openAppSettings() {
-//       val settingsUrl = NSURL.URLWithString("App-Prefs:root=${NSBundle.mainBundle.bundleIdentifier!!}")!!
-//
-//       // Open the settings URL
-//       if (UIApplication.sharedApplication.canOpenURL(settingsUrl)) {
-//           UIApplication.sharedApplication.openURL(settingsUrl, options = emptyMap<Any?, Any>(), completionHandler = null)
-//       }
+        val settingsUrl: NSURL = NSURL.URLWithString(UIApplicationOpenSettingsURLString)!!
+        UIApplication.sharedApplication.openURL(settingsUrl)
     }
 }

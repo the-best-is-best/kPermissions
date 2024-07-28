@@ -81,7 +81,7 @@ enum class EnumAppPermission {
                 permission.requestPermission(EnumAppPermission.LOCATION) {
                     println("permission $it")
                     if (!it) {
-                        permission.openAppSettings() // not work in ios
+                        permission.openAppSettings()
                     }
                 }
             }
