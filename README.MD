@@ -16,6 +16,8 @@
 
 - KPermissions for request permission android or ios in compose multiplatform or KMM.
 
+
+
 ## Download
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.the-best-is-best/KPermissions)](https://central.sonatype.com/artifact/io.github.the-best-is-best/KPermissions)
@@ -64,6 +66,14 @@ enum class EnumAppPermission {
 ```
 
 ## how to use
+
+- Need in android make init in android main
+
+```kotlin
+   PermissionHandler.init(this)
+```
+
+- Use in common in compose multiplatform or android main
 
 ```kotlin
     val permission = PermissionHandler()
