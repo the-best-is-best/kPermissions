@@ -25,7 +25,7 @@ KPermissions is available on `mavenCentral()`.
 
 
 ```kotlin
-implementation("io.github.the-best-is-best:KPermissions:1.0.0")
+implementation("io.github.the-best-is-best:KPermissions:1.0.3")
 ```
 
 ## Permissions support

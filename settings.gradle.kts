@@ -1,4 +1,4 @@
-rootProject.name = "lib"
+rootProject.name = "KPermissions"
 
 pluginManagement {
     repositories {

@@ -5,7 +5,6 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -17,7 +16,7 @@ plugins {
     id("com.vanniktech.maven.publish")
 }
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissions", "1.0.2")
+    coordinates("io.github.the-best-is-best", "KPermissions", "1.0.3")
 
     publishToMavenCentral(SonatypeHost.S01)
     signAllPublications()
@@ -107,7 +106,7 @@ kotlin {
         binaries.executable()
     }
 
-    @OptIn(ExperimentalWasmDsl::class)
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
         browser()
         binaries.executable()
