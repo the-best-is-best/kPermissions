@@ -1,5 +1,10 @@
 package io.github.kpermissionsCore
 
+import kotlin.experimental.ExperimentalObjCName
+import kotlin.native.ObjCName
+
+@OptIn(ExperimentalObjCName::class)
+@ObjCName("Permission", exact = true)
 interface Permission {
     val name: String
 }

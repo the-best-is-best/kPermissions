@@ -11,9 +11,10 @@ import androidx.compose.runtime.setValue
 fun IOSRememberPermissionStateCore(
     permission: Permission,
     permissionRequest: ((Boolean) -> Unit) -> Unit,
-    getStatus: () -> PermissionStatus = { PermissionStatusRegistry.getStatus(permission.name) },
     onResult: (Boolean) -> Unit,
 ): PermissionState {
+
+    fun getStatus() = PermissionStatusRegistry.getStatus(permission.name)
 
     var status by remember { mutableStateOf(getStatus()) }
 
