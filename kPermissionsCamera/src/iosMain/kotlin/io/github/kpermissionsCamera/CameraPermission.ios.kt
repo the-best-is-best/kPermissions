@@ -1,9 +1,12 @@
 package io.github.kpermissionsCamera
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionState
@@ -26,8 +29,27 @@ internal actual fun CameraPermissionState(
 ): PermissionState {
     var status by remember { mutableStateOf(getCameraPermissionStatus()) }
 
+    LaunchedEffect(Unit) {
+        onResult(getCameraPermissionStatus() == PermissionStatus.Granted)
+    }
+
+    LaunchedEffect(Unit) {
+        onResult(status == PermissionStatus.Granted)
+    }
+
+    OnAppResumed {
+        val newStatus = getCameraPermissionStatus()
+        if (newStatus != status) {
+            status = newStatus
+            onResult(status == PermissionStatus.Granted)
+        }
+    }
+
+
+
     return object : PermissionState {
         override val permission: Permission = permission
+
 
         override var status: PermissionStatus
             get() = status
@@ -53,5 +75,25 @@ private fun getCameraPermissionStatus(): PermissionStatus {
         AVAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
         AVAuthorizationStatusNotDetermined -> PermissionStatus.Denied
         else -> PermissionStatus.Denied
+    }
+}
+
+
+@Composable
+fun OnAppResumed(onResume: () -> Unit) {
+    val currentOnResume by rememberUpdatedState(onResume)
+
+    DisposableEffect(Unit) {
+        val observer = platform.Foundation.NSNotificationCenter.defaultCenter.addObserverForName(
+            name = platform.UIKit.UIApplicationDidBecomeActiveNotification,
+            `object` = null,
+            queue = null
+        ) { _ ->
+            currentOnResume()
+        }
+
+        onDispose {
+            platform.Foundation.NSNotificationCenter.defaultCenter.removeObserver(observer)
+        }
     }
 }
