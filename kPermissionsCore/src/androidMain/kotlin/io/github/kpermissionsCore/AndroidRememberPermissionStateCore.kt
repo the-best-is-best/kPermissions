@@ -15,19 +15,18 @@ import io.github.compose_utils_core.SharedPrefs
 fun AndroidRememberPermissionStateCore(
     androidPermission: String,
     permission: Permission,
-    prefsKey: String,
     onResult: (Boolean) -> Unit,
 ): PermissionState {
     val prefs = SharedPrefs()
     var requestedOnce by remember { mutableStateOf(false) }
-    var hasAskedBefore by remember { mutableStateOf(prefs.get(prefsKey) == "true") }
+    var hasAskedBefore by remember { mutableStateOf(prefs.get(permission.name) == "true") }
 
     val permissionState =
         com.google.accompanist.permissions.rememberPermissionState(androidPermission)
 
     LaunchedEffect(permissionState.status, requestedOnce) {
         if (requestedOnce && !hasAskedBefore) {
-            prefs.put(prefsKey, "true")
+            prefs.put(permission.name, "true")
             hasAskedBefore = true
         }
         onResult(permissionState.status.isGranted)

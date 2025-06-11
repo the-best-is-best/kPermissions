@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionState
 
-data object CameraPermission : Permission
+object CameraPermission : Permission {
+    override val name: String
+        get() = "camera"
+}
 
 @Composable
 internal expect fun CameraPermissionState(
@@ -12,15 +15,7 @@ internal expect fun CameraPermissionState(
     onResult: (Boolean) -> Unit,
 ): PermissionState
 
-private var isCameraPermissionRegistered = false
+internal var isCameraPermissionRegistered = false
 
-fun CameraPermission.register() {
-    if (isCameraPermissionRegistered) return
-    isCameraPermissionRegistered = true
+expect fun CameraPermission.register()
 
-    io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
-        CameraPermission::class
-    ) { permission, onResult ->
-        CameraPermissionState(permission as CameraPermission, onResult)
-    }
-}
