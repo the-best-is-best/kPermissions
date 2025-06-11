@@ -1,14 +1,16 @@
 package io.github.kpermissionsCore
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalInspectionMode
 
 
 @Composable
 fun rememberPermissionState(
     permission: Permission,
-    onPermissionResult: (Boolean) -> Unit = {},
+    onPermissionResult: (Boolean) -> Unit,
 ): PermissionState {
     val isInspection = LocalInspectionMode.current
 
@@ -17,6 +19,33 @@ fun rememberPermissionState(
     else
         permissionStateHolder(permission, onPermissionResult)
 }
+
+@Composable
+fun rememberMultiplePermissionsState(
+    permissions: List<Permission>,
+    onPermissionsResult: (Boolean) -> Unit,
+): List<PermissionState> {
+    val isInspection = LocalInspectionMode.current
+
+    val states = permissions.map { permission ->
+        if (isInspection) {
+            rememberPreviewPermissionState(permission)
+        } else {
+            permissionStateHolder(permission) {}
+        }
+    }
+
+    LaunchedEffect(states.map { it.status }) {
+        snapshotFlow {
+            states.all { it.status.isGranted }
+        }.collect { allGranted ->
+            onPermissionsResult(allGranted)
+        }
+    }
+
+    return states
+}
+
 
 @Composable
 private fun rememberPreviewPermissionState(

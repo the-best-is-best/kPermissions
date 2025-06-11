@@ -10,6 +10,17 @@ sealed interface PermissionStatus {
     data object Denied : PermissionStatus
     data object DeniedPermanently : PermissionStatus
 }
+
+val PermissionStatus.isGranted: Boolean
+    get() = this == PermissionStatus.Granted
+
+val PermissionStatus.isDenied: Boolean
+    get() = this == PermissionStatus.Denied
+
+val PermissionStatus.isDeniedPermanently: Boolean
+    get() = this == PermissionStatus.DeniedPermanently
+
+
 /**
  * A state object that can be hoisted to control and observe [permission] status changes.
  *
