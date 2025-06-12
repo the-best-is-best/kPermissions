@@ -1,4 +1,4 @@
-package io.github.kPermissionsGallery
+package io.github.kPermissionsReadAudio
 
 import android.Manifest
 import android.os.Build

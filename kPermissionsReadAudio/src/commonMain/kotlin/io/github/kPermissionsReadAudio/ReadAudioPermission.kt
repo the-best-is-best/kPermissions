@@ -1,13 +1,13 @@
-package io.github.kPermissionsGallery
+package io.github.kPermissionsReadAudio
 
 import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionState
 import io.github.kpermissionsCore.PlatformIgnore
 
-object GalleryPermission : Permission {
+object ReadAudioPermission : Permission {
     override val name: String
-        get() = "gallery"
+        get() = "audio"
 
     private var _ignore: PlatformIgnore = PlatformIgnore.None
 
@@ -21,13 +21,13 @@ object GalleryPermission : Permission {
 
 
 @Composable
-internal expect fun GalleryPermissionState(
-    permission: GalleryPermission,
+internal expect fun AudioPermissionState(
+    permission: ReadAudioPermission,
     onResult: (Boolean) -> Unit,
 ): PermissionState
 
-internal var isGalleryPermissionRegistered = false
+internal var isAudioPermissionRegistered = false
 
 
-expect fun GalleryPermission.register(ignore: PlatformIgnore = PlatformIgnore.None)
+expect fun ReadAudioPermission.register(ignore: PlatformIgnore = PlatformIgnore.None)
 

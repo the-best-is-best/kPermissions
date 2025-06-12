@@ -1,4 +1,4 @@
-package io.github.kPermissionsGallery
+package io.github.kPermissionsReadAudio
 
 import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.IOSRememberPermissionStateCore

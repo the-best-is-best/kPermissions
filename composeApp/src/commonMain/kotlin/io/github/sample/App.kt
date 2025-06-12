@@ -20,8 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.kPermissionsGallery.GalleryPermission
-import io.github.kPermissionsGallery.register
+import io.github.kPermissionsReadAudio.GalleryPermission
+import io.github.kPermissionsReadAudio.ReadAudioPermission
+import io.github.kPermissionsReadAudio.register
 import io.github.kPermissionsStorage.ReadStoragePermission
 import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsStorage.register
@@ -81,7 +82,8 @@ fun SinglePermissionsScreen() {
         CameraPermission,
         WriteStoragePermission,
         ReadStoragePermission,
-        GalleryPermission
+        GalleryPermission,
+        ReadAudioPermission
     )
 
     Column(
@@ -117,6 +119,8 @@ fun registerAllPermissions() {
         WriteStoragePermission.register()
         ReadStoragePermission.register()
         GalleryPermission.register()
+        ReadAudioPermission.register()
+
         true
     }
 }

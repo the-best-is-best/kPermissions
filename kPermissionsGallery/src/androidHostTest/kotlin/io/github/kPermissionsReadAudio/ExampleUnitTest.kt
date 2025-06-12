@@ -1,4 +1,4 @@
-package io.github.kPermissionsGallery
+package io.github.kPermissionsReadAudio
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
