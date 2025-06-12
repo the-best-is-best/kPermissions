@@ -30,18 +30,19 @@ fun AndroidRememberPermissionStateCore(
     var requestedOnce by remember { mutableStateOf(false) }
     var hasAskedBefore by remember { mutableStateOf(prefs.get(permission.name) == "true") }
 
-    val permissionState =
+    val androidPermissionState =
         com.google.accompanist.permissions.rememberPermissionState(androidPermission)
 
-    LaunchedEffect(permissionState.status, requestedOnce) {
+
+    LaunchedEffect(androidPermissionState.status, requestedOnce) {
         if (requestedOnce && !hasAskedBefore) {
             prefs.put(permission.name, "true")
             hasAskedBefore = true
         }
-        onResult(permissionState.status.isGranted)
+        onResult(androidPermissionState.status.isGranted)
     }
 
-    val permissionStatus = when (val status = permissionState.status) {
+    val permissionStatus = when (val status = androidPermissionState.status) {
         is com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
         is com.google.accompanist.permissions.PermissionStatus.Denied -> {
             if (!status.shouldShowRationale && hasAskedBefore) {
@@ -58,7 +59,7 @@ fun AndroidRememberPermissionStateCore(
 
         override fun launchPermissionRequest() {
             requestedOnce = true
-            permissionState.launchPermissionRequest()
+            androidPermissionState.launchPermissionRequest()
         }
 
         override fun openAppSettings() {
