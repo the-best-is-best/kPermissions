@@ -1,33 +1,18 @@
 package io.github.kPermissionsVideo
 
-import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.Permission
-import io.github.kpermissionsCore.PermissionState
 import io.github.kpermissionsCore.PlatformIgnore
 
 object ReadVideoPermission : Permission {
     override val name: String
-        get() = "audio"
+        get() = "read_video"
+    override val permissionRequest: ((Boolean) -> Unit) -> Unit
+        get() = {}
 
-    private var _ignore: PlatformIgnore = PlatformIgnore.None
+    override val type: io.github.kpermissionsCore.PermissionType
+        get() = io.github.kpermissionsCore.PermissionType.ReadVideo
 
-    override val ignore: PlatformIgnore
-        get() = _ignore
 
-    internal fun setIgnore(value: PlatformIgnore) {
-        _ignore = value
-    }
+    override var ignore: PlatformIgnore = PlatformIgnore.IOS
 }
-
-
-@Composable
-internal expect fun ReadVideoPermissionState(
-    permission: ReadVideoPermission,
-    onResult: (Boolean) -> Unit,
-): PermissionState
-
-internal var isAReadVideoPermissionRegistered = false
-
-
-expect fun ReadVideoPermission.register(ignore: PlatformIgnore = PlatformIgnore.None)
 

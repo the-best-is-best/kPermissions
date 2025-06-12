@@ -1,33 +1,19 @@
 package io.github.kpermissionsCamera
 
-import android.Manifest
-import androidx.compose.runtime.Composable
-import io.github.kpermissionsCore.AndroidRememberPermissionStateCore
-import io.github.kpermissionsCore.PermissionState
+import io.github.kpermissionsCore.Permission
+import io.github.kpermissionsCore.PermissionType
 import io.github.kpermissionsCore.PlatformIgnore
 
-@Composable
-internal actual fun CameraPermissionState(
-    permission: CameraPermission,
-    onResult: (Boolean) -> Unit,
-): PermissionState {
-    return AndroidRememberPermissionStateCore(
-        permission = permission,
-        androidPermission = Manifest.permission.CAMERA,
-        onResult = onResult,
 
-    )
-}
+actual object CameraPermission : Permission {
+    override val name: String
+        get() = "camera"
 
-actual fun CameraPermission.register(ignore: PlatformIgnore) {
-    if (isCameraPermissionRegistered) return
-    isCameraPermissionRegistered = true
+    override val type: PermissionType
+        get() = PermissionType.Camera
 
-    setIgnore(ignore)
+    override val permissionRequest: ((Boolean) -> Unit) -> Unit
+        get() = {}
+    override var ignore: PlatformIgnore = PlatformIgnore.None
 
-    io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
-        CameraPermission::class
-    ) { permission, onResult ->
-        CameraPermissionState(permission as CameraPermission, onResult)
-    }
 }

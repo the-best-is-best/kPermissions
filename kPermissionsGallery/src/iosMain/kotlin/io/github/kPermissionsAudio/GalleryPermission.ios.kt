@@ -1,8 +1,6 @@
 package io.github.kPermissionsAudio
 
-import androidx.compose.runtime.Composable
-import io.github.kpermissionsCore.IOSRememberPermissionStateCore
-import io.github.kpermissionsCore.PermissionState
+import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionStatus
 import io.github.kpermissionsCore.PermissionStatusRegistry
 import io.github.kpermissionsCore.PlatformIgnore
@@ -12,30 +10,6 @@ import platform.Photos.PHAuthorizationStatusLimited
 import platform.Photos.PHAuthorizationStatusNotDetermined
 import platform.Photos.PHAuthorizationStatusRestricted
 import platform.Photos.PHPhotoLibrary
-import kotlin.experimental.ExperimentalObjCName
-
-
-@Composable
-internal actual fun GalleryPermissionState(
-    permission: GalleryPermission,
-    onResult: (Boolean) -> Unit,
-): PermissionState {
-    return IOSRememberPermissionStateCore(
-        permission,
-        permissionRequest = { callback ->
-            PHPhotoLibrary.requestAuthorization { status ->
-                when (status) {
-                    PHAuthorizationStatusAuthorized,
-                    PHAuthorizationStatusLimited -> callback(true)
-
-                    else -> callback(false)
-                }
-            }
-        },
-        onResult = onResult,
-    )
-
-}
 
 private fun getGalleryPermissionStatus(): PermissionStatus {
     return when (PHPhotoLibrary.authorizationStatus()) {
@@ -48,22 +22,32 @@ private fun getGalleryPermissionStatus(): PermissionStatus {
     }
 }
 
-@OptIn(ExperimentalObjCName::class)
-@ObjCName("registerGalleryPermission")
-actual fun GalleryPermission.register(ignore: PlatformIgnore) {
-    if (isGalleryPermissionRegistered) return
-    isGalleryPermissionRegistered = true
 
-    setIgnore(ignore)
-
-    io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
-        GalleryPermission::class
-    ) { permission, onResult ->
-        PermissionStatusRegistry.register(permission.name) {
+actual object GalleryPermission : Permission {
+    init {
+        PermissionStatusRegistry.register("gallery") {
             getGalleryPermissionStatus()
         }
-        GalleryPermissionState(permission as GalleryPermission, onResult)
-
     }
+
+    actual override val name: String
+        get() = "gallery"
+
+    actual override val permissionRequest: ((Boolean) -> Unit) -> Unit
+        get() = { callback ->
+            PHPhotoLibrary.requestAuthorization { status ->
+                when (status) {
+                    PHAuthorizationStatusAuthorized,
+                    PHAuthorizationStatusLimited -> callback(true)
+
+                    else -> callback(false)
+                }
+            }
+        }
+
+    override val type: io.github.kpermissionsCore.PermissionType
+        get() = io.github.kpermissionsCore.PermissionType.Gallery
+
+    actual override var ignore: PlatformIgnore = PlatformIgnore.None
 
 }

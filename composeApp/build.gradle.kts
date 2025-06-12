@@ -47,6 +47,7 @@ kotlin {
             implementation(projects.kPermissionsStorage)
             implementation(projects.kPermissionsGallery)
             implementation(projects.kPermissionsAudio)
+            implementation(projects.kPermissionsVideo)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

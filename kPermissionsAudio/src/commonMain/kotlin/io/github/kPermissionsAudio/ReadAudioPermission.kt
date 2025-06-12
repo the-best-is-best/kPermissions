@@ -1,33 +1,18 @@
 package io.github.kPermissionsAudio
 
-import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.Permission
-import io.github.kpermissionsCore.PermissionState
+import io.github.kpermissionsCore.PermissionType
 import io.github.kpermissionsCore.PlatformIgnore
 
 object ReadAudioPermission : Permission {
     override val name: String
-        get() = "audio"
+        get() = "read_audio"
+    override val permissionRequest: ((Boolean) -> Unit) -> Unit
+        get() = {}
 
-    private var _ignore: PlatformIgnore = PlatformIgnore.None
+    override val type: PermissionType
+        get() = PermissionType.ReadAudio
 
-    override val ignore: PlatformIgnore
-        get() = _ignore
+    override var ignore: PlatformIgnore = PlatformIgnore.None
 
-    internal fun setIgnore(value: PlatformIgnore) {
-        _ignore = value
-    }
 }
-
-
-@Composable
-internal expect fun ReadAudioPermissionState(
-    permission: ReadAudioPermission,
-    onResult: (Boolean) -> Unit,
-): PermissionState
-
-internal var isReadAudioPermissionRegistered = false
-
-
-expect fun ReadAudioPermission.register(ignore: PlatformIgnore = PlatformIgnore.None)
-

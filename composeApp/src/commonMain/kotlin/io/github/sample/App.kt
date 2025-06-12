@@ -22,12 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.kPermissionsAudio.GalleryPermission
 import io.github.kPermissionsAudio.ReadAudioPermission
-import io.github.kPermissionsAudio.register
 import io.github.kPermissionsStorage.ReadStoragePermission
 import io.github.kPermissionsStorage.WriteStoragePermission
-import io.github.kPermissionsStorage.register
+import io.github.kPermissionsVideo.ReadVideoPermission
 import io.github.kpermissionsCamera.CameraPermission
-import io.github.kpermissionsCamera.register
 import io.github.kpermissionsCore.PermissionStatus
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
@@ -76,14 +74,14 @@ fun App() {
 
 @Composable
 fun SinglePermissionsScreen() {
-    registerAllPermissions()
 
     val permissions = listOf(
         CameraPermission,
         WriteStoragePermission,
         ReadStoragePermission,
         GalleryPermission,
-        ReadAudioPermission
+        ReadAudioPermission,
+        ReadVideoPermission
     )
 
     Column(
@@ -112,33 +110,10 @@ fun SinglePermissionsScreen() {
     }
 }
 
-@Composable
-fun registerAllPermissions() {
-    remember {
-        CameraPermission.register()
-        WriteStoragePermission.register()
-        ReadStoragePermission.register()
-        GalleryPermission.register()
-        ReadAudioPermission.register()
 
-        true
-    }
-}
-
-@Composable
-fun registerMultiPermissions() {
-    remember {
-        CameraPermission.register()
-        WriteStoragePermission.register()
-        ReadStoragePermission.register()
-        GalleryPermission.register()
-        true
-    }
-}
 
 @Composable
 fun MultiPermissionTestScreen() {
-    registerMultiPermissions()
 
     val requiredPermissions = listOf(
         CameraPermission,

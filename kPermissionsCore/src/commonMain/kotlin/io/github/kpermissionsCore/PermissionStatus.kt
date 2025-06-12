@@ -3,6 +3,7 @@ package io.github.kpermissionsCore
 import kotlin.experimental.ExperimentalObjCName
 import kotlin.native.ObjCName
 
+
 @OptIn(ExperimentalObjCName::class)
 @ObjCName(name = "PlatformIgnore", exact = true)
 enum class PlatformIgnore {
@@ -12,11 +13,27 @@ enum class PlatformIgnore {
 
 }
 
+enum class PermissionType {
+    Gallery,
+    Camera,
+    WriteStorage,
+    ReadStorage,
+    ReadAudio,
+    ReadVideo
+
+}
+
 @OptIn(ExperimentalObjCName::class)
 @ObjCName("Permission", exact = true)
 interface Permission {
     val name: String
-    val ignore: PlatformIgnore
+
+    /**
+     *  Used in ios in android in {}
+     */
+    val type: PermissionType
+    val permissionRequest: ((Boolean) -> Unit) -> Unit
+    var ignore: PlatformIgnore
 }
 
 

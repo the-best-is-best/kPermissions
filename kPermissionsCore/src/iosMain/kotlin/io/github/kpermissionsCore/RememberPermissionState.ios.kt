@@ -8,13 +8,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 @Composable
-fun IOSRememberPermissionStateCore(
+actual fun RequestPermission(
     permission: Permission,
-    permissionRequest: ((Boolean) -> Unit) -> Unit,
-    onResult: (Boolean) -> Unit,
+    onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
     if (permission.ignore == PlatformIgnore.IOS) {
-        onResult(true)
+        onPermissionResult(true)
         return object : PermissionState {
             override val permission: Permission = permission
             override var status: PermissionStatus = PermissionStatus.Granted
@@ -28,13 +27,13 @@ fun IOSRememberPermissionStateCore(
     var status by remember { mutableStateOf(getStatus()) }
 
     LaunchedEffect(Unit) {
-        onResult(getStatus() == PermissionStatus.Granted)
+        onPermissionResult(getStatus() == PermissionStatus.Granted)
     }
     OnAppResumed {
         val newStatus = getStatus()
         if (newStatus != status) {
             status = newStatus
-            onResult(getStatus() == PermissionStatus.Granted)
+            onPermissionResult(getStatus() == PermissionStatus.Granted)
         }
     }
 
@@ -44,14 +43,12 @@ fun IOSRememberPermissionStateCore(
         override val permission: Permission = permission
 
 
-        override var status: PermissionStatus
-            get() = status
-            set(_) {}
+        override var status: PermissionStatus = getStatus()
 
         override fun launchPermissionRequest() {
-            permissionRequest { granted ->
+            permission.permissionRequest { granted ->
                 status = if (granted) PermissionStatus.Granted else PermissionStatus.Denied
-                onResult(granted)
+                onPermissionResult(granted)
             }
         }
 

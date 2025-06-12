@@ -6,6 +6,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalInspectionMode
 
+@Composable
+expect fun RequestPermission(
+    permission: Permission,
+    onPermissionResult: (Boolean) -> Unit,
+): PermissionState
 
 @Composable
 fun rememberPermissionState(
@@ -17,7 +22,7 @@ fun rememberPermissionState(
     return if (isInspection)
         rememberPreviewPermissionState(permission)
     else
-        permissionStateHolder(permission, onPermissionResult)
+        RequestPermission(permission, onPermissionResult)
 }
 
 /**

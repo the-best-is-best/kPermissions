@@ -1,8 +1,6 @@
 package io.github.kpermissionsCamera
 
-import androidx.compose.runtime.Composable
-import io.github.kpermissionsCore.IOSRememberPermissionStateCore
-import io.github.kpermissionsCore.PermissionState
+import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionStatus
 import io.github.kpermissionsCore.PermissionStatusRegistry
 import io.github.kpermissionsCore.PlatformIgnore
@@ -14,25 +12,7 @@ import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVMediaTypeVideo
 import platform.AVFoundation.authorizationStatusForMediaType
 import platform.AVFoundation.requestAccessForMediaType
-import kotlin.experimental.ExperimentalObjCName
 
-
-@Composable
-internal actual fun CameraPermissionState(
-    permission: CameraPermission,
-    onResult: (Boolean) -> Unit,
-): PermissionState {
-    return IOSRememberPermissionStateCore(
-        permission,
-        permissionRequest = { callback ->
-            AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { granted ->
-                callback(granted)
-            }
-        },
-        onResult = onResult,
-    )
-
-}
 
 private fun getCameraPermissionStatus(): PermissionStatus {
     return when (AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)) {
@@ -44,22 +24,22 @@ private fun getCameraPermissionStatus(): PermissionStatus {
     }
 }
 
-@OptIn(ExperimentalObjCName::class)
-@ObjCName("registerCameraPermission")
-actual fun CameraPermission.register(ignore: PlatformIgnore) {
-    if (isCameraPermissionRegistered) return
-    isCameraPermissionRegistered = true
-
-    setIgnore(ignore)
-
-    io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
-        CameraPermission::class
-    ) { permission, onResult ->
-        PermissionStatusRegistry.register(permission.name) {
-            getCameraPermissionStatus()
-        }
-        CameraPermissionState(permission as CameraPermission, onResult)
-
+actual object CameraPermission : Permission {
+    init {
+        PermissionStatusRegistry.register("camera", ::getCameraPermissionStatus)
     }
 
+    override val name: String
+        get() = "camera"
+    override val permissionRequest: ((Boolean) -> Unit) -> Unit
+        get() = { callback ->
+            AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { granted ->
+                callback(granted)
+            }
+        }
+
+    override val type: io.github.kpermissionsCore.PermissionType
+        get() = io.github.kpermissionsCore.PermissionType.Camera
+
+    override var ignore: PlatformIgnore = PlatformIgnore.None
 }
