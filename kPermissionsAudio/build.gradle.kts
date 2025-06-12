@@ -14,14 +14,14 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissionsGallery", "1.0.0")
+    coordinates("io.github.the-best-is-best", "KPermissionsAudio", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
-        name.set("KPermissionsGallery")
-        description.set("Plugin for request gallery permission android and ios KMM")
+        name.set("KPermissionsAudio")
+        description.set("Plugin for request audio permission android and ios KMM")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {
@@ -95,7 +95,7 @@ kotlin {
     // A step-by-step guide on how to include this library in an XCode
     // project can be found here:
     // https://developer.android.com/kotlin/multiplatform/migrate
-    val xcfName = "kPermissionsGalleryKit"
+    val xcfName = "kPermissionsAudioKit"
 
     listOf(
         iosX64(),

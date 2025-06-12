@@ -20,9 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.kPermissionsReadAudio.GalleryPermission
-import io.github.kPermissionsReadAudio.ReadAudioPermission
-import io.github.kPermissionsReadAudio.register
+import io.github.kPermissionsAudio.GalleryPermission
+import io.github.kPermissionsAudio.ReadAudioPermission
+import io.github.kPermissionsAudio.register
 import io.github.kPermissionsStorage.ReadStoragePermission
 import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsStorage.register
