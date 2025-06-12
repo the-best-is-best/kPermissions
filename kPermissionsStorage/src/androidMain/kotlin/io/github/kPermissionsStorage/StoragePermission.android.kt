@@ -5,11 +5,13 @@ import android.os.Build
 import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.AndroidRememberPermissionStateCore
 import io.github.kpermissionsCore.PermissionState
+import io.github.kpermissionsCore.PlatformIgnore
 
-actual fun WriteStoragePermission.register() {
+actual fun WriteStoragePermission.register(ignore: PlatformIgnore) {
     if (isWriteStoragePermissionRegistered) return
     isWriteStoragePermissionRegistered = true
 
+    setIgnore(ignore)
     io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
         WriteStoragePermission::class
     ) { permission, onResult ->
@@ -57,9 +59,11 @@ internal actual fun ReadStoragePermissionState(
         )
 }
 
-actual fun ReadStoragePermission.register() {
+actual fun ReadStoragePermission.register(ignore: PlatformIgnore) {
     if (isReadStoragePermissionRegistered) return
     isReadStoragePermissionRegistered = true
+
+    setIgnore(ignore)
 
     io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
         ReadStoragePermission::class

@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.AndroidRememberPermissionStateCore
 import io.github.kpermissionsCore.PermissionState
+import io.github.kpermissionsCore.PlatformIgnore
 
 @Composable
 internal actual fun CameraPermissionState(
@@ -18,9 +19,11 @@ internal actual fun CameraPermissionState(
     )
 }
 
-actual fun CameraPermission.register() {
+actual fun CameraPermission.register(ignore: PlatformIgnore) {
     if (isCameraPermissionRegistered) return
     isCameraPermissionRegistered = true
+
+    setIgnore(ignore)
 
     io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
         CameraPermission::class

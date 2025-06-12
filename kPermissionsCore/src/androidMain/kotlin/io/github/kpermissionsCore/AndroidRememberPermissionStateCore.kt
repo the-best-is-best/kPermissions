@@ -17,7 +17,7 @@ fun AndroidRememberPermissionStateCore(
     permission: Permission,
     onResult: (Boolean) -> Unit,
 ): PermissionState {
-    if (androidPermission == null) {
+    if (androidPermission == null || permission.ignore == PlatformIgnore.Android) {
         onResult(true)
         return object : PermissionState {
             override val permission: Permission = permission

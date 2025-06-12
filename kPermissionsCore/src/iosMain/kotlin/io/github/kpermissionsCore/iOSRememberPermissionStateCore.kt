@@ -13,6 +13,15 @@ fun IOSRememberPermissionStateCore(
     permissionRequest: ((Boolean) -> Unit) -> Unit,
     onResult: (Boolean) -> Unit,
 ): PermissionState {
+    if (permission.ignore == PlatformIgnore.IOS) {
+        onResult(true)
+        return object : PermissionState {
+            override val permission: Permission = permission
+            override var status: PermissionStatus = PermissionStatus.Granted
+            override fun launchPermissionRequest() {}
+            override fun openAppSettings() {}
+        }
+    }
 
     fun getStatus() = PermissionStatusRegistry.getStatus(permission.name)
 

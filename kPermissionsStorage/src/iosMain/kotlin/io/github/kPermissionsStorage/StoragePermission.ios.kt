@@ -4,13 +4,16 @@ import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionState
 import io.github.kpermissionsCore.PermissionStatus
+import io.github.kpermissionsCore.PlatformIgnore
 import kotlin.experimental.ExperimentalObjCName
 
 @OptIn(ExperimentalObjCName::class)
-@ObjCName("registerStoragePermission")
-actual fun WriteStoragePermission.register() {
+@ObjCName("registerWriteStoragePermission")
+actual fun WriteStoragePermission.register(ignore: PlatformIgnore) {
     if (isWriteStoragePermissionRegistered) return
     isWriteStoragePermissionRegistered = true
+
+    setIgnore(ignore)
 
     io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
         WriteStoragePermission::class
@@ -52,9 +55,11 @@ internal actual fun ReadStoragePermissionState(
 
 @OptIn(ExperimentalObjCName::class)
 @ObjCName("registerReadStoragePermission")
-actual fun ReadStoragePermission.register() {
+actual fun ReadStoragePermission.register(ignore: PlatformIgnore) {
     if (isReadStoragePermissionRegistered) return
     isReadStoragePermissionRegistered = true
+
+    setIgnore(ignore)
 
     io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
         ReadStoragePermission::class

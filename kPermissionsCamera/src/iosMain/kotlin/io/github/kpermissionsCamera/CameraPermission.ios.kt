@@ -5,6 +5,7 @@ import io.github.kpermissionsCore.IOSRememberPermissionStateCore
 import io.github.kpermissionsCore.PermissionState
 import io.github.kpermissionsCore.PermissionStatus
 import io.github.kpermissionsCore.PermissionStatusRegistry
+import io.github.kpermissionsCore.PlatformIgnore
 import platform.AVFoundation.AVAuthorizationStatusAuthorized
 import platform.AVFoundation.AVAuthorizationStatusDenied
 import platform.AVFoundation.AVAuthorizationStatusNotDetermined
@@ -45,9 +46,11 @@ private fun getCameraPermissionStatus(): PermissionStatus {
 
 @OptIn(ExperimentalObjCName::class)
 @ObjCName("registerCameraPermission")
-actual fun CameraPermission.register() {
+actual fun CameraPermission.register(ignore: PlatformIgnore) {
     if (isCameraPermissionRegistered) return
     isCameraPermissionRegistered = true
+
+    setIgnore(ignore)
 
     io.github.kpermissionsCore.PermissionRegistryInternal.registerPermissionProvider(
         CameraPermission::class
