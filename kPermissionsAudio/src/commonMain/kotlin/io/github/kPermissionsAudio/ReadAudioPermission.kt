@@ -13,6 +13,6 @@ object ReadAudioPermission : Permission {
     override val type: PermissionType
         get() = PermissionType.ReadAudio
 
-    override var ignore: PlatformIgnore = PlatformIgnore.None
+    override var ignore: PlatformIgnore = PlatformIgnore.IOS
 
 }

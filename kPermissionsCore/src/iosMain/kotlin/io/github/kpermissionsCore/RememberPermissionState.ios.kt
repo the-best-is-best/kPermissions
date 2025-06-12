@@ -24,26 +24,28 @@ actual fun RequestPermission(
 
     fun getStatus() = PermissionStatusRegistry.getStatus(permission.name)
 
-    var status by remember { mutableStateOf(getStatus()) }
+    var stateValue by remember { mutableStateOf(getStatus()) }
 
     LaunchedEffect(Unit) {
         onPermissionResult(getStatus() == PermissionStatus.Granted)
     }
     OnAppResumed {
         val newStatus = getStatus()
-        if (newStatus != status) {
-            status = newStatus
+        if (newStatus != stateValue) {
+            stateValue = newStatus
             onPermissionResult(getStatus() == PermissionStatus.Granted)
         }
     }
 
 
-
     return object : PermissionState {
         override val permission: Permission = permission
 
-
-        override var status: PermissionStatus = getStatus()
+        override var status: PermissionStatus
+            get() = stateValue
+            set(value) {
+                stateValue = value
+            }
 
         override fun launchPermissionRequest() {
             permission.permissionRequest { granted ->
@@ -56,4 +58,5 @@ actual fun RequestPermission(
             openAppSettingsPlatform()
         }
     }
+
 }
