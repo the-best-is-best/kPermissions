@@ -2,27 +2,75 @@ package io.github.kpermissionsCore
 
 import kotlin.experimental.ExperimentalObjCName
 
-@OptIn(ExperimentalObjCName::class)
-@ObjCName(name = "IOSPermissionManager", exact = true)
-class IOSPermissionManager(
-    private val permission: Permission,
-    private val permissionRequest: ((Boolean) -> Unit) -> Unit,
-) {
-    private val getStatus: () -> PermissionStatus =
-        { PermissionStatusRegistry.getStatus(permission.name) }
+private fun getStatus(permission: Permission): PermissionStatus =
+    PermissionStatusRegistry.getStatus(permission.name)
 
-    @ObjCName("requestPermission")
-    fun requestPermission(onResult: (Boolean) -> Unit) {
-        val currentStatus = getStatus()
+@OptIn(ExperimentalObjCName::class)
+@ObjCName("requestPermission")
+fun requestPermission(
+    permission: Permission,
+    permissionRequest: ((Boolean) -> Unit) -> Unit,
+    onResult: (Boolean) -> Unit
+) {
+    val currentStatus = getStatus(permission)
+    if (currentStatus == PermissionStatus.Granted) {
+        onResult(true)
+    } else {
+        permissionRequest { granted ->
+            onResult(granted)
+        }
+    }
+}
+
+@OptIn(ExperimentalObjCName::class)
+@ObjCName("currentStatus")
+fun currentStatus(permission: Permission): PermissionStatus =
+    getStatus(permission)
+
+@OptIn(ExperimentalObjCName::class)
+@ObjCName("requestPermissionWithStatus")
+fun requestPermissionWithStatus(
+    permission: Permission,
+    permissionRequest: ((Boolean) -> Unit) -> Unit,
+    onResult: (PermissionStatus) -> Unit
+) {
+    val currentStatus = getStatus(permission)
+    if (currentStatus == PermissionStatus.Granted) {
+        onResult(PermissionStatus.Granted)
+    } else {
+        permissionRequest { granted ->
+            onResult(if (granted) PermissionStatus.Granted else getStatus(permission))
+        }
+    }
+}
+
+@OptIn(ExperimentalObjCName::class)
+@ObjCName("requestMultiplePermissionsWithStatus")
+fun requestMultiplePermissionsWithStatus(
+    permissions: List<Permission>,
+    onRequest: (Permission, (Boolean) -> Unit) -> Unit,
+    onResult: (Boolean) -> Unit
+) {
+    var allGranted = true
+    var remaining = permissions.size
+
+    if (remaining == 0) {
+        onResult(true)
+        return
+    }
+
+    permissions.forEach { permission ->
+        val currentStatus = getStatus(permission)
+
         if (currentStatus == PermissionStatus.Granted) {
-            onResult(true)
+            remaining--
+            if (remaining == 0) onResult(allGranted)
         } else {
-            permissionRequest { granted ->
-                onResult(granted)
+            onRequest(permission) { granted ->
+                if (!granted) allGranted = false
+                remaining--
+                if (remaining == 0) onResult(allGranted)
             }
         }
     }
-
-    @ObjCName("currentStatus")
-    fun currentStatus(): PermissionStatus = getStatus()
 }
