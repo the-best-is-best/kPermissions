@@ -5,6 +5,7 @@ import io.github.kpermissionsCore.PermissionType
 import io.github.kpermissionsCore.PlatformIgnore
 
 object WriteStoragePermission : Permission {
+
     override val name: String
         get() = "write_storage"
 
@@ -13,12 +14,18 @@ object WriteStoragePermission : Permission {
 
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
+    override val ignore: PlatformIgnore
+        get() = PlatformIgnore.IOS
+
+    override fun changeIgnore(value: PlatformIgnore) {
+        throw Exception("WriteStoragePermission does not support changing ignore state")
+    }
 
 
-    override var ignore: PlatformIgnore = PlatformIgnore.IOS
 }
 
 object ReadStoragePermission : Permission {
+
     override val name: String
         get() = "read_storage"
 
@@ -28,8 +35,13 @@ object ReadStoragePermission : Permission {
 
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
+    override val ignore: PlatformIgnore
+        get() = PlatformIgnore.IOS
 
-    override var ignore: PlatformIgnore = PlatformIgnore.IOS
+    override fun changeIgnore(value: PlatformIgnore) {
+        throw Exception("ReadStoragePermission does not support changing ignore state")
+    }
+
 
 }
 

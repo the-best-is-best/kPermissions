@@ -1,9 +1,6 @@
-package io.github.kPermissionsAudio
+package io.github.kPermissionsGallery
 
-import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionStatus
-import io.github.kpermissionsCore.PermissionStatusRegistry
-import io.github.kpermissionsCore.PlatformIgnore
 import platform.Photos.PHAuthorizationStatusAuthorized
 import platform.Photos.PHAuthorizationStatusDenied
 import platform.Photos.PHAuthorizationStatusLimited
@@ -22,32 +19,27 @@ private fun getGalleryPermissionStatus(): PermissionStatus {
     }
 }
 
+internal actual fun permissionRequest(): ((Boolean) -> Unit) -> Unit {
+    return { callback ->
+        val status = PHPhotoLibrary.authorizationStatus()
 
-actual object GalleryPermission : Permission {
-    init {
-        PermissionStatusRegistry.register("gallery") {
-            getGalleryPermissionStatus()
-        }
-    }
-
-    actual override val name: String
-        get() = "gallery"
-
-    actual override val permissionRequest: ((Boolean) -> Unit) -> Unit
-        get() = { callback ->
-            PHPhotoLibrary.requestAuthorization { status ->
-                when (status) {
-                    PHAuthorizationStatusAuthorized,
-                    PHAuthorizationStatusLimited -> callback(true)
-
+        if (status == PHAuthorizationStatusAuthorized || status == PHAuthorizationStatusLimited) {
+            callback(true)
+        } else {
+            PHPhotoLibrary.requestAuthorization { newStatus ->
+                when (newStatus) {
+                    PHAuthorizationStatusAuthorized, PHAuthorizationStatusLimited -> callback(true)
                     else -> callback(false)
                 }
             }
         }
+    }
+}
 
-    override val type: io.github.kpermissionsCore.PermissionType
-        get() = io.github.kpermissionsCore.PermissionType.Gallery
-
-    actual override var ignore: PlatformIgnore = PlatformIgnore.None
-
+internal actual fun registerIosProvider() {
+    // Register the gallery permission provider
+    io.github.kpermissionsCore.PermissionStatusRegistry.register(
+        "gallery",
+        ::getGalleryPermissionStatus
+    )
 }

@@ -20,13 +20,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.kPermissionsAudio.GalleryPermission
 import io.github.kPermissionsAudio.ReadAudioPermission
+import io.github.kPermissionsGallery.GalleryPermission
 import io.github.kPermissionsStorage.ReadStoragePermission
 import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsVideo.ReadVideoPermission
 import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.PermissionStatus
+import io.github.kpermissionsCore.PlatformIgnore
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -36,6 +37,7 @@ enum class PermissionScreen { Single, Multi }
 @Composable
 @Preview
 fun App() {
+    CameraPermission.changeIgnore(PlatformIgnore.Android)
 
     var selectedScreen by remember { mutableStateOf<PermissionScreen?>(null) }
 
@@ -74,7 +76,6 @@ fun App() {
 
 @Composable
 fun SinglePermissionsScreen() {
-
     val permissions = listOf(
         CameraPermission,
         WriteStoragePermission,

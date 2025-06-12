@@ -29,3 +29,5 @@ actual fun openAppSettingsPlatform() {
     }
     AppContextProvider.appContext.startActivity(intent)
 }
+
+

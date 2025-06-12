@@ -27,13 +27,10 @@ enum class PermissionType {
 @ObjCName("Permission", exact = true)
 interface Permission {
     val name: String
-
-    /**
-     *  Used in ios in android in {}
-     */
     val type: PermissionType
     val permissionRequest: ((Boolean) -> Unit) -> Unit
-    var ignore: PlatformIgnore
+    val ignore: PlatformIgnore
+    fun changeIgnore(value: PlatformIgnore)
 }
 
 

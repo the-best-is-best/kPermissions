@@ -1,9 +1,7 @@
 package io.github.kpermissionsCamera
 
-import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionStatus
 import io.github.kpermissionsCore.PermissionStatusRegistry
-import io.github.kpermissionsCore.PlatformIgnore
 import platform.AVFoundation.AVAuthorizationStatusAuthorized
 import platform.AVFoundation.AVAuthorizationStatusDenied
 import platform.AVFoundation.AVAuthorizationStatusNotDetermined
@@ -24,22 +22,21 @@ private fun getCameraPermissionStatus(): PermissionStatus {
     }
 }
 
-actual object CameraPermission : Permission {
-    init {
-        PermissionStatusRegistry.register("camera", ::getCameraPermissionStatus)
-    }
+actual fun cameraPermissionRequest(): ((Boolean) -> Unit) -> Unit = { callback ->
+    val status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
 
-    override val name: String
-        get() = "camera"
-    override val permissionRequest: ((Boolean) -> Unit) -> Unit
-        get() = { callback ->
-            AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { granted ->
-                callback(granted)
-            }
+    if (status == AVAuthorizationStatusAuthorized) {
+        callback(true)
+    } else {
+        AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { granted ->
+            callback(granted)
         }
+    }
+}
 
-    override val type: io.github.kpermissionsCore.PermissionType
-        get() = io.github.kpermissionsCore.PermissionType.Camera
-
-    override var ignore: PlatformIgnore = PlatformIgnore.None
+actual fun registerIosProvider() {
+    PermissionStatusRegistry.register(
+        "camera",
+        ::getCameraPermissionStatus
+    )
 }
