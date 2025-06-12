@@ -27,7 +27,6 @@ import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsVideo.ReadVideoPermission
 import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.PermissionStatus
-import io.github.kpermissionsCore.PlatformIgnore
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -37,7 +36,6 @@ enum class PermissionScreen { Single, Multi }
 @Composable
 @Preview
 fun App() {
-    CameraPermission.changeIgnore(PlatformIgnore.Android)
 
     var selectedScreen by remember { mutableStateOf<PermissionScreen?>(null) }
 
@@ -140,6 +138,7 @@ fun MultiPermissionTestScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
+
             states.forEach { state ->
                 when (state.status) {
                     PermissionStatus.Denied -> state.launchPermissionRequest()
@@ -147,10 +146,12 @@ fun MultiPermissionTestScreen() {
                     else -> Unit
                 }
             }
+
+            allGranted = states.all { it.status == PermissionStatus.Granted }
+
         }) {
             Text("Request All Permissions")
         }
-
         Text("All Permissions Granted: $allGranted")
 
         Spacer(modifier = Modifier.height(16.dp))
