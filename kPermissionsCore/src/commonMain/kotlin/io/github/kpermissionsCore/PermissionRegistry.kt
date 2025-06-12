@@ -28,3 +28,17 @@ internal fun permissionStateHolder(
     return provider(permission, onPermissionResult)
 }
 
+@Composable
+internal fun multiPermissionStateHolder(
+    permissions: List<Permission>,
+    onPermissionResult: (Boolean) -> Unit,
+): List<PermissionState> {
+    return permissions.map { permission ->
+        val provider = PermissionRegistryInternal.permissionProviders[permission::class]
+            ?: error("No PermissionProvider registered for ${permission::class.simpleName}")
+        provider(permission, onPermissionResult)
+    }
+}
+
+
+

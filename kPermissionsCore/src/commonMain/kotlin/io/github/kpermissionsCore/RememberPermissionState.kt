@@ -20,32 +20,36 @@ fun rememberPermissionState(
         permissionStateHolder(permission, onPermissionResult)
 }
 
+/**
+ * ⚠️ Use with caution: Requesting multiple permissions (like CAMERA and STORAGE) at once
+ * may silently fail on Android 9 and below.
+ *
+ * 👉 To avoid this, register such permissions with `ignore = PlatformIgnore.Android` in register
+ * or request them separately.
+ *
+ * This function does NOT filter platform-specific limitations — the developer is responsible.
+ */
 @Composable
 fun rememberMultiplePermissionsState(
     permissions: List<Permission>,
     onPermissionsResult: (Boolean) -> Unit,
 ): List<PermissionState> {
-    val isInspection = LocalInspectionMode.current
 
     val states = permissions.map { permission ->
-        if (isInspection) {
-            rememberPreviewPermissionState(permission)
-        } else {
-            permissionStateHolder(permission) {}
-        }
+        rememberPermissionState(permission) {}
     }
 
-    LaunchedEffect(states.map { it.status }) {
+    LaunchedEffect(states) {
         snapshotFlow {
-            states.all { it.status.isGranted }
-        }.collect { allGranted ->
+            states.map { it.status }
+        }.collect { currentStatuses ->
+            val allGranted = currentStatuses.all { it.isGranted }
             onPermissionsResult(allGranted)
         }
     }
 
     return states
 }
-
 
 @Composable
 private fun rememberPreviewPermissionState(

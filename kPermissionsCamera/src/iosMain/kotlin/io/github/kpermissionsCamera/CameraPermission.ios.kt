@@ -6,12 +6,14 @@ import io.github.kpermissionsCore.PermissionState
 import io.github.kpermissionsCore.PermissionStatus
 import io.github.kpermissionsCore.PermissionStatusRegistry
 import io.github.kpermissionsCore.PlatformIgnore
-import platform.Photos.PHAuthorizationStatusAuthorized
-import platform.Photos.PHAuthorizationStatusDenied
-import platform.Photos.PHAuthorizationStatusLimited
-import platform.Photos.PHAuthorizationStatusNotDetermined
-import platform.Photos.PHAuthorizationStatusRestricted
-import platform.Photos.PHPhotoLibrary
+import platform.AVFoundation.AVAuthorizationStatusAuthorized
+import platform.AVFoundation.AVAuthorizationStatusDenied
+import platform.AVFoundation.AVAuthorizationStatusNotDetermined
+import platform.AVFoundation.AVAuthorizationStatusRestricted
+import platform.AVFoundation.AVCaptureDevice
+import platform.AVFoundation.AVMediaTypeVideo
+import platform.AVFoundation.authorizationStatusForMediaType
+import platform.AVFoundation.requestAccessForMediaType
 import kotlin.experimental.ExperimentalObjCName
 
 
@@ -23,13 +25,8 @@ internal actual fun CameraPermissionState(
     return IOSRememberPermissionStateCore(
         permission,
         permissionRequest = { callback ->
-            PHPhotoLibrary.requestAuthorization { status ->
-                when (status) {
-                    PHAuthorizationStatusAuthorized,
-                    PHAuthorizationStatusLimited -> callback(true)
-
-                    else -> callback(false)
-                }
+            AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { granted ->
+                callback(granted)
             }
         },
         onResult = onResult,
@@ -37,13 +34,12 @@ internal actual fun CameraPermissionState(
 
 }
 
-private fun getGalleryPermissionStatus(): PermissionStatus {
-    return when (PHPhotoLibrary.authorizationStatus()) {
-        PHAuthorizationStatusAuthorized -> PermissionStatus.Granted
-        PHAuthorizationStatusDenied -> PermissionStatus.DeniedPermanently
-        PHAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
-        PHAuthorizationStatusNotDetermined -> PermissionStatus.Denied
-        PHAuthorizationStatusLimited -> PermissionStatus.Granted // iOS 14+
+private fun getCameraPermissionStatus(): PermissionStatus {
+    return when (AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)) {
+        AVAuthorizationStatusAuthorized -> PermissionStatus.Granted
+        AVAuthorizationStatusDenied -> PermissionStatus.DeniedPermanently
+        AVAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
+        AVAuthorizationStatusNotDetermined -> PermissionStatus.Denied
         else -> PermissionStatus.Denied
     }
 }
@@ -60,7 +56,7 @@ actual fun CameraPermission.register(ignore: PlatformIgnore) {
         CameraPermission::class
     ) { permission, onResult ->
         PermissionStatusRegistry.register(permission.name) {
-            getGalleryPermissionStatus()
+            getCameraPermissionStatus()
         }
         CameraPermissionState(permission as CameraPermission, onResult)
 
