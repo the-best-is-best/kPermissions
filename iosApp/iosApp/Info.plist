@@ -6,5 +6,7 @@
 	<true/>
     <key>NSCameraUsageDescription</key>
     <string>Test</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Test</string>
 </dict>
 </plist>
