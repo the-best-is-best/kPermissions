@@ -3,8 +3,6 @@ package io.github.kpermissionsCamera
 import androidx.compose.runtime.Composable
 import io.github.kpermissionsCore.Permission
 import io.github.kpermissionsCore.PermissionState
-import kotlin.experimental.ExperimentalObjCName
-import kotlin.native.ObjCName
 
 object CameraPermission : Permission {
     override val name: String
@@ -19,7 +17,6 @@ internal expect fun CameraPermissionState(
 
 internal var isCameraPermissionRegistered = false
 
-@OptIn(ExperimentalObjCName::class)
-@ObjCName("registerCameraPermission")
+
 expect fun CameraPermission.register()
 

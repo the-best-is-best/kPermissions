@@ -13,6 +13,7 @@ import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVMediaTypeVideo
 import platform.AVFoundation.authorizationStatusForMediaType
 import platform.AVFoundation.requestAccessForMediaType
+import kotlin.experimental.ExperimentalObjCName
 
 
 @Composable
@@ -42,7 +43,8 @@ private fun getCameraPermissionStatus(): PermissionStatus {
     }
 }
 
-
+@OptIn(ExperimentalObjCName::class)
+@ObjCName("registerCameraPermission")
 actual fun CameraPermission.register() {
     if (isCameraPermissionRegistered) return
     isCameraPermissionRegistered = true

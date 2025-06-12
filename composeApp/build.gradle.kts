@@ -44,6 +44,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
             implementation(projects.kPermissionsCamera)
+            implementation(projects.kPermissionsStorage)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

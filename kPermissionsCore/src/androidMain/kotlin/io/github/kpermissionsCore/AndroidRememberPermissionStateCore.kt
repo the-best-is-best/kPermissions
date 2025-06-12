@@ -13,10 +13,19 @@ import io.github.compose_utils_core.SharedPrefs
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AndroidRememberPermissionStateCore(
-    androidPermission: String,
+    androidPermission: String?,
     permission: Permission,
     onResult: (Boolean) -> Unit,
 ): PermissionState {
+    if (androidPermission == null) {
+        onResult(true)
+        return object : PermissionState {
+            override val permission: Permission = permission
+            override var status: PermissionStatus = PermissionStatus.Granted
+            override fun launchPermissionRequest() {}
+            override fun openAppSettings() {}
+        }
+    }
     val prefs = SharedPrefs()
     var requestedOnce by remember { mutableStateOf(false) }
     var hasAskedBefore by remember { mutableStateOf(prefs.get(permission.name) == "true") }

@@ -31,3 +31,4 @@ dependencyResolutionManagement {
 include(":composeApp")
 include(":kPermissionsCore")
 include(":kPermissionsCamera")
+include(":kPermissionsStorage")
