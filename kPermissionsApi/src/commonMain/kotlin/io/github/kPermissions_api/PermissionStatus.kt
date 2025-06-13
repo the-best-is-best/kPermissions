@@ -34,7 +34,7 @@ interface PermissionState {
     /**
      * [permission]'s status
      */
-    var status: PermissionStatus
+    val status: PermissionStatus
 
     /**
      * Request the [permission] to the user.

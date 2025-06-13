@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,9 +38,7 @@ enum class PermissionScreen { Single, Multi }
 @Composable
 @Preview
 fun App() {
-    remember {
-        true
-    }
+
     var selectedScreen by remember { mutableStateOf<PermissionScreen?>(null) }
 
     MaterialTheme {
@@ -112,7 +112,6 @@ fun SinglePermissionsScreen() {
 }
 
 
-
 @Composable
 fun MultiPermissionTestScreen() {
 
@@ -123,15 +122,18 @@ fun MultiPermissionTestScreen() {
         GalleryPermission
     )
 
-    var allGranted by remember { mutableStateOf(false) }
-
     val states = rememberMultiplePermissionsState(
         permissions = requiredPermissions,
         onPermissionsResult = { granted ->
-            allGranted = granted
             println("All permissions granted? $granted")
         }
     )
+
+    val allGranted by remember {
+        derivedStateOf {
+            states.all { it.status == PermissionStatus.Granted }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -147,20 +149,17 @@ fun MultiPermissionTestScreen() {
                     else -> Unit
                 }
             }
-
-            allGranted = states.all { it.status == PermissionStatus.Granted }
-
         }) {
             Text("Request All Permissions")
         }
+
         Text("All Permissions Granted: $allGranted")
 
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
-            items(states.size) { index ->
-                val state = states[index]
-                Text("${requiredPermissions[index].name}: ${state.status}")
+            items(states) { state ->
+                Text("${state.permission.name}: ${state.status}")
             }
         }
     }

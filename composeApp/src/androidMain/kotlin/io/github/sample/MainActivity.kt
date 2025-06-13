@@ -11,6 +11,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+//        CameraPermission.setMainAndMaxSdk(
+//            minSdk = Build.VERSION_CODES.Q,
+//            maxSdk = Build.VERSION_CODES.TIRAMISU
+//        )
 
         setContent {
             App()
