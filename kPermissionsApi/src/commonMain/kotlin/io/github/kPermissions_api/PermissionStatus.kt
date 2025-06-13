@@ -24,6 +24,7 @@ val PermissionStatus.isDeniedPermanently: Boolean
  * It's recommended that apps exercise the permissions workflow as described in the
  * [documentation](https://developer.android.com/training/permissions/requesting#workflow_for_requesting_permissions).
  */
+
 interface PermissionState {
     /**
      * The permission to control and observe.

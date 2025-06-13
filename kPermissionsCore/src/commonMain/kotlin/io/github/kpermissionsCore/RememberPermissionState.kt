@@ -33,15 +33,6 @@ fun rememberPermissionState(
         RequestPermission(permission, onPermissionResult)
 }
 
-/**
- * ⚠️ Use with caution: Requesting multiple permissions (like CAMERA and STORAGE) at once
- * may silently fail on Android 9 and below.
- *
- * 👉 To avoid this, register such permissions with `ignore = PlatformIgnore.Android` in register
- * or request them separately.
- *
- * This function does NOT filter platform-specific limitations — the developer is responsible.
- */
 @Composable
 fun rememberMultiplePermissionsState(
     permissions: List<Permission>,
