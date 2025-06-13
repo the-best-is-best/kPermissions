@@ -29,6 +29,8 @@ import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.PermissionStatus
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
+import io.github.kpermissions_cmp.PlatformIgnore
+import io.github.kpermissions_cmp.setIgnore
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 enum class PermissionScreen { Single, Multi }
@@ -36,7 +38,10 @@ enum class PermissionScreen { Single, Multi }
 @Composable
 @Preview
 fun App() {
-
+    remember {
+        CameraPermission.setIgnore(PlatformIgnore.Android)
+        true
+    }
     var selectedScreen by remember { mutableStateOf<PermissionScreen?>(null) }
 
     MaterialTheme {
@@ -138,7 +143,6 @@ fun MultiPermissionTestScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
-
             states.forEach { state ->
                 when (state.status) {
                     PermissionStatus.Denied -> state.launchPermissionRequest()

@@ -118,6 +118,8 @@ kotlin {
                 implementation(libs.kotlin.stdlib)
                 // Add KMP dependencies here
                 implementation(compose.runtime)
+
+                api(projects.kPermissionsApi)
                 api(projects.kPermissionsCore)
 
             }

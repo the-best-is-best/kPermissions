@@ -2,6 +2,8 @@ package io.github.kpermissionsCore
 
 import android.Manifest
 import android.os.Build
+import io.github.kPermissions_api.Permission
+import io.github.kPermissions_api.PermissionType
 
 fun Permission.getAndroidName(): String? {
     return when (this.type) {

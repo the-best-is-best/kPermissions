@@ -1,5 +1,6 @@
 package io.github.kPermissionsGallery
 
+import io.github.kPermissions_api.Permission
 import io.github.kpermissionsCore.PermissionStatus
 import platform.Photos.PHAuthorizationStatusAuthorized
 import platform.Photos.PHAuthorizationStatusDenied
@@ -19,7 +20,7 @@ private fun getGalleryPermissionStatus(): PermissionStatus {
     }
 }
 
-internal actual fun permissionRequest(): ((Boolean) -> Unit) -> Unit {
+internal fun permissionRequest(): ((Boolean) -> Unit) -> Unit {
     return { callback ->
         val status = PHPhotoLibrary.authorizationStatus()
 
@@ -36,10 +37,22 @@ internal actual fun permissionRequest(): ((Boolean) -> Unit) -> Unit {
     }
 }
 
-internal actual fun registerIosProvider() {
+internal fun registerIosProvider() {
     // Register the gallery permission provider
     io.github.kpermissionsCore.PermissionStatusRegistry.register(
         "gallery",
         ::getGalleryPermissionStatus
     )
+}
+
+actual object GalleryPermission : Permission {
+    init {
+        registerIosProvider()
+    }
+
+    override val name: String
+        get() = "gallery"
+    override val permissionRequest: ((Boolean) -> Unit) -> Unit
+        get() = permissionRequest()
+
 }

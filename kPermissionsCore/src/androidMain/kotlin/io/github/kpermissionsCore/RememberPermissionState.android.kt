@@ -9,6 +9,9 @@ import androidx.compose.runtime.setValue
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import io.github.compose_utils_core.SharedPrefs
+import io.github.kPermissions_api.Permission
+import io.github.kpermissions_cmp.PlatformIgnore
+import io.github.kpermissions_cmp.getIgnore
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -17,7 +20,7 @@ actual fun RequestPermission(
     onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
     val androidPermission = permission.getAndroidName()
-    if (androidPermission == null || permission.ignore == PlatformIgnore.Android) {
+    if (androidPermission == null || permission.getIgnore() == PlatformIgnore.Android) {
         onPermissionResult(true)
         return object : PermissionState {
             override val permission: Permission = permission
@@ -79,7 +82,7 @@ internal actual fun RequestMultiPermissions(
     onPermissionsResult: (Boolean) -> Unit
 ): List<PermissionState> {
     val androidPermissions = permissions
-        .filter { it.ignore != PlatformIgnore.Android }
+        .filter { it.getIgnore() != PlatformIgnore.Android }
         .mapNotNull { it.getAndroidName() }
 
     if (androidPermissions.isEmpty()) {
@@ -101,7 +104,7 @@ internal actual fun RequestMultiPermissions(
 
     val statuses = permissions.map { perm ->
         val androidName = perm.getAndroidName()
-        val permStatus = if (androidName == null || perm.ignore == PlatformIgnore.Android) {
+        val permStatus = if (androidName == null || perm.getIgnore() == PlatformIgnore.Android) {
             PermissionStatus.Granted
         } else {
             val result = multiplePermissionState.permissions.find { it.permission == androidName }

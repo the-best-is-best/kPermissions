@@ -1,34 +1,6 @@
 package io.github.kpermissionsCamera
 
-import io.github.kpermissionsCore.Permission
-import io.github.kpermissionsCore.PermissionType
-import io.github.kpermissionsCore.PlatformIgnore
-
-internal expect fun cameraPermissionRequest(): ((Boolean) -> Unit) -> Unit
-
-internal expect fun registerIosProvider()
-
-object CameraPermission : Permission {
-    init {
-        registerIosProvider()
-    }
-
-    override val name: String
-        get() = "camera"
-
-    override val type: PermissionType
-        get() = PermissionType.Camera
-
-    override val permissionRequest: ((Boolean) -> Unit) -> Unit
-        get() = cameraPermissionRequest()
-
-    private var _ignore: PlatformIgnore = PlatformIgnore.None
-    override val ignore: PlatformIgnore
-        get() = _ignore
-
-    override fun changeIgnore(value: PlatformIgnore) {
-        _ignore = value
-    }
+import io.github.kPermissions_api.Permission
 
 
-}
+expect object CameraPermission : Permission

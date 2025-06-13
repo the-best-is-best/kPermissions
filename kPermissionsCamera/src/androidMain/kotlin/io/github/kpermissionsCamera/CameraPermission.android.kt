@@ -1,9 +1,14 @@
 package io.github.kpermissionsCamera
 
+import io.github.kPermissions_api.Permission
+import io.github.kPermissions_api.PermissionType
 
-actual fun cameraPermissionRequest(): ((Boolean) -> Unit) -> Unit {
-    return {}
-}
 
-actual fun registerIosProvider() {
+actual object CameraPermission : Permission {
+    override val name: String
+        get() = "camera"
+    override val type: PermissionType
+        get() = PermissionType.Camera
+
+
 }

@@ -6,13 +6,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import io.github.kpermissions_cmp.PlatformIgnore
+import io.github.kpermissions_cmp.getIgnore
 
 @Composable
 actual fun RequestPermission(
     permission: Permission,
     onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
-    if (permission.ignore == PlatformIgnore.IOS) {
+    if (permission.getIgnore() == PlatformIgnore.IOS) {
         onPermissionResult(true)
         return object : PermissionState {
             override val permission: Permission = permission
@@ -66,7 +68,7 @@ internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
     onPermissionsResult: (Boolean) -> Unit
 ): List<PermissionState> {
-    val filtered = permissions.filter { it.ignore != PlatformIgnore.IOS }
+    val filtered = permissions.filter { it.getIgnore() != PlatformIgnore.IOS }
 
     fun getStatuses(): Map<String, PermissionStatus> =
         filtered.associate { it.name to PermissionStatusRegistry.getStatus(it.name) }

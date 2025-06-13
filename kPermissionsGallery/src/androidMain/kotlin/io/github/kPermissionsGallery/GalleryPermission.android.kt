@@ -1,8 +1,13 @@
 package io.github.kPermissionsGallery
 
-internal actual fun permissionRequest(): ((Boolean) -> Unit) -> Unit {
-   return {}
-}
+import io.github.kPermissions_api.Permission
+import io.github.kPermissions_api.PermissionType
 
-internal actual fun registerIosProvider() {
+
+actual object GalleryPermission : Permission {
+   override val name: String
+      get() = "gallery"
+   override val type: PermissionType
+      get() = PermissionType.Gallery
+
 }

@@ -48,6 +48,8 @@ kotlin {
             implementation(projects.kPermissionsGallery)
             implementation(projects.kPermissionsAudio)
             implementation(projects.kPermissionsVideo)
+
+            implementation(projects.kPermissionsCMP)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -1,38 +1,6 @@
 package io.github.kpermissionsCore
 
-import kotlin.experimental.ExperimentalObjCName
-import kotlin.native.ObjCName
-
-
-@OptIn(ExperimentalObjCName::class)
-@ObjCName(name = "PlatformIgnore", exact = true)
-enum class PlatformIgnore {
-    None,
-    IOS,
-    Android,
-
-}
-
-enum class PermissionType {
-    Gallery,
-    Camera,
-    WriteStorage,
-    ReadStorage,
-    ReadAudio,
-    ReadVideo
-
-}
-
-@OptIn(ExperimentalObjCName::class)
-@ObjCName("Permission", exact = true)
-interface Permission {
-    val name: String
-    val type: PermissionType
-    val permissionRequest: ((Boolean) -> Unit) -> Unit
-    val ignore: PlatformIgnore
-    fun changeIgnore(value: PlatformIgnore)
-}
-
+import io.github.kPermissions_api.Permission
 
 sealed interface PermissionStatus {
     data object Granted : PermissionStatus

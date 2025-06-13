@@ -1,7 +1,8 @@
 package io.github.sample
 
-import io.github.kpermissionsCore.Permission
+import io.github.kPermissions_api.Permission
 import io.github.kpermissionsCore.PermissionState
+
 
 data class PermissionItem(
     val name: String,
