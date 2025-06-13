@@ -3,7 +3,15 @@ package io.github.kpermissionsCore
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
+import platform.UIKit.UIDevice
 import kotlin.experimental.ExperimentalObjCName
+
+val currentIosVersion: Int
+    get() = UIDevice.currentDevice.systemVersion
+        .split(".")
+        .firstOrNull()
+        ?.toIntOrNull() ?: 0
+
 
 @OptIn(ExperimentalObjCName::class)
 @ObjCName("openAppSettingsPlatform")
