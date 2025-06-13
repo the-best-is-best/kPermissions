@@ -6,6 +6,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import io.github.kPermissions_api.Permission
+import io.github.kPermissions_api.PermissionState
+import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
 
@@ -24,7 +27,7 @@ actual fun RequestPermission(
         }
     }
 
-    fun getStatus() = PermissionStatusRegistry.getStatus(permission.name)
+    fun getStatus() = permission.getPermissionStatus()
 
     var stateValue by remember { mutableStateOf(getStatus()) }
 
@@ -71,7 +74,7 @@ internal actual fun RequestMultiPermissions(
     val filtered = permissions.filter { it.getIgnore() != PlatformIgnore.IOS }
 
     fun getStatuses(): Map<String, PermissionStatus> =
-        filtered.associate { it.name to PermissionStatusRegistry.getStatus(it.name) }
+        filtered.associate { it.name to it.getPermissionStatus() }
 
     var stateMap by remember { mutableStateOf(getStatuses()) }
 

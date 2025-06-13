@@ -1,11 +1,12 @@
 package io.github.kpermissionsCore
 
 import io.github.kPermissions_api.Permission
+import io.github.kPermissions_api.PermissionStatus
 import kotlin.experimental.ExperimentalObjCName
 
 
 private fun getStatus(permission: Permission): PermissionStatus =
-    PermissionStatusRegistry.getStatus(permission.name)
+    permission.getPermissionStatus()
 
 @OptIn(ExperimentalObjCName::class)
 @ObjCName("requestPermission")

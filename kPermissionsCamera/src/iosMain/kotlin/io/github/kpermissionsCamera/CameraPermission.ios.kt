@@ -1,8 +1,7 @@
 package io.github.kpermissionsCamera
 
 import io.github.kPermissions_api.Permission
-import io.github.kpermissionsCore.PermissionStatus
-import io.github.kpermissionsCore.PermissionStatusRegistry
+import io.github.kPermissions_api.PermissionStatus
 import platform.AVFoundation.AVAuthorizationStatusAuthorized
 import platform.AVFoundation.AVAuthorizationStatusDenied
 import platform.AVFoundation.AVAuthorizationStatusNotDetermined
@@ -35,21 +34,15 @@ internal fun cameraPermissionRequest(): ((Boolean) -> Unit) -> Unit = { callback
     }
 }
 
-internal fun registerIosProvider() {
-    PermissionStatusRegistry.register(
-        "camera",
-        ::getCameraPermissionStatus
-    )
-}
-
 actual object CameraPermission : Permission {
-    init {
-        registerIosProvider()
-    }
-
     override val name: String
         get() = "camera"
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = cameraPermissionRequest()
+
+    override fun getPermissionStatus(): PermissionStatus {
+        return getCameraPermissionStatus()
+    }
+
 
 }

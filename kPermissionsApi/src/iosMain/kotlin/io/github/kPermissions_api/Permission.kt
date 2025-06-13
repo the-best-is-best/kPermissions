@@ -7,4 +7,5 @@ import kotlin.experimental.ExperimentalObjCName
 actual interface Permission {
     actual val name: String
     val permissionRequest: ((Boolean) -> Unit) -> Unit
+    fun getPermissionStatus(): PermissionStatus
 }

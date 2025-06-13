@@ -1,6 +1,4 @@
-package io.github.kpermissionsCore
-
-import io.github.kPermissions_api.Permission
+package io.github.kPermissions_api
 
 sealed interface PermissionStatus {
     data object Granted : PermissionStatus

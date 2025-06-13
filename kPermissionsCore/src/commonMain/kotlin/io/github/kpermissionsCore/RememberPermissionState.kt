@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalInspectionMode
 import io.github.kPermissions_api.Permission
+import io.github.kPermissions_api.PermissionState
+import io.github.kPermissions_api.PermissionStatus
 
 @Composable
 internal expect fun RequestPermission(

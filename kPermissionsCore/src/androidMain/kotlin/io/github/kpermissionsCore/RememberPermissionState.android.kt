@@ -10,6 +10,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import io.github.compose_utils_core.SharedPrefs
 import io.github.kPermissions_api.Permission
+import io.github.kPermissions_api.PermissionState
+import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
 

@@ -1,7 +1,7 @@
 package io.github.sample
 
 import io.github.kPermissions_api.Permission
-import io.github.kpermissionsCore.PermissionState
+import io.github.kPermissions_api.PermissionState
 
 
 data class PermissionItem(

@@ -25,8 +25,8 @@ import io.github.kPermissionsGallery.GalleryPermission
 import io.github.kPermissionsStorage.ReadStoragePermission
 import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsVideo.ReadVideoPermission
+import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissionsCamera.CameraPermission
-import io.github.kpermissionsCore.PermissionStatus
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
 import io.github.kpermissions_cmp.PlatformIgnore
