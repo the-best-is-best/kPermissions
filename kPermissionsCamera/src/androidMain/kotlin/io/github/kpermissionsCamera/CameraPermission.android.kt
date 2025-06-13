@@ -9,7 +9,8 @@ actual object CameraPermission : Permission {
         get() = "camera"
     override val androidPermissionName: String
         get() = Manifest.permission.CAMERA
-
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
 
 
 }

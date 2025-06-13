@@ -50,4 +50,7 @@ actual object GalleryPermission : Permission {
         return getGalleryPermissionStatus()
     }
 
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
+
 }

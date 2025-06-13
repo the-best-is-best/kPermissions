@@ -18,6 +18,9 @@ actual object WriteStoragePermission : Permission {
     override fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
+
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
 }
 
 actual object ReadStoragePermission : Permission {
@@ -29,4 +32,7 @@ actual object ReadStoragePermission : Permission {
     override fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
+
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
 }

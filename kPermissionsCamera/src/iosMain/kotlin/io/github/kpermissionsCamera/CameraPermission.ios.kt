@@ -44,5 +44,8 @@ actual object CameraPermission : Permission {
         return getCameraPermissionStatus()
     }
 
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
+
 
 }

@@ -15,6 +15,8 @@ actual object WriteStoragePermission : Permission {
         get() = "write_storage"
     override val androidPermissionName: String?
         get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) Manifest.permission.WRITE_EXTERNAL_STORAGE else null
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
 
 
 }
@@ -24,6 +26,8 @@ actual object ReadStoragePermission : Permission {
         get() = "read_storage"
     override val androidPermissionName: String?
         get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_EXTERNAL_STORAGE else null
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
 
 
 }

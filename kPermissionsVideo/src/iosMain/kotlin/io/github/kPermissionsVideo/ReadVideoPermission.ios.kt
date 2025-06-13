@@ -18,4 +18,7 @@ actual object ReadVideoPermission : Permission {
     override fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
+
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
 }

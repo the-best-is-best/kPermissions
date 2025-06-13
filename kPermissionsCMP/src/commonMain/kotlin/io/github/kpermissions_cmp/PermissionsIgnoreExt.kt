@@ -2,6 +2,7 @@ package io.github.kpermissions_cmp
 
 import io.github.kPermissions_api.Permission
 
+
 enum class PlatformIgnore {
     None,
     IOS,
@@ -18,6 +19,3 @@ fun Permission.setIgnore(value: PlatformIgnore) {
 fun Permission.getIgnore(): PlatformIgnore {
     return ignoreMap[this] ?: PlatformIgnore.None
 }
-
-
-

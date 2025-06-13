@@ -15,6 +15,8 @@ actual object ReadVideoPermission : Permission {
         get() = "read_video"
     override val androidPermissionName: String?
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_MEDIA_VIDEO else null
+    override var minSdk: Int? = null
+    override var maxSdk: Int? = null
 
 
 }
