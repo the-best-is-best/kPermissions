@@ -18,8 +18,16 @@ actual object ReadAudioPermission : Permission {
             Manifest.permission.READ_MEDIA_AUDIO else null
 
 
-    override var minSdk: Int? = null
-    override var maxSdk: Int? = null
+    private var _minSdk: Int? = null
+    private var _maxSdk: Int? = null
+
+    override val minSdk: Int? = _minSdk
+    override val maxSdk: Int? = _maxSdk
+
+    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+        _minSdk = minSdk
+        _maxSdk = maxSdk
+    }
 
 
 }

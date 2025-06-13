@@ -8,7 +8,8 @@ actual interface Permission {
     actual val name: String
     val permissionRequest: ((Boolean) -> Unit) -> Unit
     fun getPermissionStatus(): PermissionStatus
-    actual var minSdk: Int?
-    actual var maxSdk: Int?
+    actual val minSdk: Int?
+    actual val maxSdk: Int?
+    actual fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?)
 
 }
