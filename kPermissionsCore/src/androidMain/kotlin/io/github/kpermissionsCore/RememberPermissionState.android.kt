@@ -21,7 +21,7 @@ actual fun RequestPermission(
     permission: Permission,
     onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
-    val androidPermission = permission.getAndroidName()
+    val androidPermission = permission.androidPermissionName
     if (androidPermission == null || permission.getIgnore() == PlatformIgnore.Android) {
         onPermissionResult(true)
         return object : PermissionState {
@@ -85,7 +85,7 @@ internal actual fun RequestMultiPermissions(
 ): List<PermissionState> {
     val androidPermissions = permissions
         .filter { it.getIgnore() != PlatformIgnore.Android }
-        .mapNotNull { it.getAndroidName() }
+        .mapNotNull { it.androidPermissionName }
 
     if (androidPermissions.isEmpty()) {
         onPermissionsResult(true)
@@ -105,7 +105,7 @@ internal actual fun RequestMultiPermissions(
         com.google.accompanist.permissions.rememberMultiplePermissionsState(androidPermissions)
 
     val statuses = permissions.map { perm ->
-        val androidName = perm.getAndroidName()
+        val androidName = perm.androidPermissionName
         val permStatus = if (androidName == null || perm.getIgnore() == PlatformIgnore.Android) {
             PermissionStatus.Granted
         } else {

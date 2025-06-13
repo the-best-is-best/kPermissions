@@ -12,9 +12,6 @@ enum class PlatformIgnore {
 private val ignoreMap = mutableMapOf<Permission, PlatformIgnore>()
 
 fun Permission.setIgnore(value: PlatformIgnore) {
-    if (this.getIgnore() != PlatformIgnore.None) {
-        throw IllegalStateException("Permission ${this.name}  not allowed to set ignore value")
-    }
     ignoreMap[this] = value
 }
 

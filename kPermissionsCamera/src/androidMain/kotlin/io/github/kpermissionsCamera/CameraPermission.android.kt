@@ -1,14 +1,15 @@
 package io.github.kpermissionsCamera
 
+import android.Manifest
 import io.github.kPermissions_api.Permission
-import io.github.kPermissions_api.PermissionType
 
 
 actual object CameraPermission : Permission {
     override val name: String
         get() = "camera"
-    override val type: PermissionType
-        get() = PermissionType.Camera
+    override val androidPermissionName: String
+        get() = Manifest.permission.CAMERA
+
 
 
 }
