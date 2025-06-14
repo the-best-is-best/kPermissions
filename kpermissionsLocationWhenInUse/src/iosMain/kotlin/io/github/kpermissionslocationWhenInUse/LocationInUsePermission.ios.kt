@@ -2,9 +2,6 @@ package io.github.kpermissionslocationWhenInUse
 
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
-import kotlinx.cinterop.BetaInteropApi
-import kotlinx.cinterop.ObjCAction
-import platform.CoreLocation.CLAuthorizationStatus
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.CLLocationManagerDelegateProtocol
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
@@ -32,18 +29,21 @@ actual object LocationInUsePermission : Permission {
         _maxSdk = maxSdk
     }
 
+
     override fun isServiceAvailable(): Boolean {
         return CLLocationManager.locationServicesEnabled()
     }
 
+
     override fun getPermissionStatus(): PermissionStatus {
         return when (CLLocationManager.authorizationStatus()) {
             kCLAuthorizationStatusAuthorizedWhenInUse,
-            kCLAuthorizationStatusAuthorizedAlways -> PermissionStatus.Granted
+            kCLAuthorizationStatusAuthorizedAlways
+                -> PermissionStatus.Granted
 
             kCLAuthorizationStatusDenied -> PermissionStatus.DeniedPermanently
             kCLAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
-            kCLAuthorizationStatusNotDetermined -> PermissionStatus.Unavailable
+            kCLAuthorizationStatusNotDetermined -> PermissionStatus.Denied
             else -> PermissionStatus.Denied
         }
     }
@@ -64,16 +64,11 @@ actual object LocationInUsePermission : Permission {
 private class LocationPermissionDelegate(
     val callback: (Boolean) -> Unit
 ) : NSObject(), CLLocationManagerDelegateProtocol {
-
-    @OptIn(BetaInteropApi::class)
-    @ObjCAction
-    override fun locationManager(
-        manager: CLLocationManager,
-        didChangeAuthorizationStatus: CLAuthorizationStatus
-    ) {
+    override fun locationManagerDidChangeAuthorization(manager: CLLocationManager) {
+        val status = CLLocationManager.authorizationStatus()
         callback(
-            didChangeAuthorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse ||
-                    didChangeAuthorizationStatus == kCLAuthorizationStatusAuthorizedAlways
+            status == kCLAuthorizationStatusAuthorizedWhenInUse ||
+                    status == kCLAuthorizationStatusAuthorizedAlways
         )
     }
 }

@@ -2,11 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
+    <key>CADisableMinimumFrameDurationOnPhone</key>
+    <true/>
+
     <key>NSCameraUsageDescription</key>
     <string>Test</string>
+
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Test</string>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Test</string>
+
+    
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Test</string>
+    
 </dict>
 </plist>

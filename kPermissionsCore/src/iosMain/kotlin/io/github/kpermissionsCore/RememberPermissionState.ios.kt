@@ -18,27 +18,32 @@ actual fun RequestPermission(
     onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
     val isIgnored = permission.getIgnore() == PlatformIgnore.IOS
-    val isOutOfSdk =
-        (permission.minSdk?.let { currentIosVersion < it } ?: false) ||
-                (permission.maxSdk?.let { currentIosVersion > it } ?: false)
+    val isOutOfSdk = (permission.minSdk?.let { currentIosVersion < it } ?: false) ||
+            (permission.maxSdk?.let { currentIosVersion > it } ?: false)
     val unavailable = !permission.isServiceAvailable()
 
-    val skip = isIgnored || isOutOfSdk || unavailable
+    val fixedStatus = when {
+        isIgnored || isOutOfSdk -> PermissionStatus.Granted
+        unavailable -> PermissionStatus.Unavailable
+        else -> null // ستُحتسب لاحقًا
+    }
 
-    if (skip) {
-        onPermissionResult(false)
+    // إن كان هناك حالة محددة مسبقًا، أعد حالة ثابتة ولا تكمل
+    if (fixedStatus != null) {
+        onPermissionResult(fixedStatus == PermissionStatus.Granted)
         return object : PermissionState {
             override val permission: Permission = permission
             override var status: PermissionStatus
-                get() = PermissionStatus.Unavailable
+                get() = fixedStatus
                 set(_) {}
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
+            override suspend fun refreshStatus(): PermissionStatus = fixedStatus
         }
     }
 
+    // الحالة الفعلية المتغيرة
     fun getStatus() = permission.getPermissionStatus()
-
     var stateValue by remember { mutableStateOf(getStatus()) }
 
     LaunchedEffect(Unit) {
@@ -69,7 +74,11 @@ actual fun RequestPermission(
         }
 
         override fun openAppSettings() = openAppSettingsPlatform()
-
+        override suspend fun refreshStatus(): PermissionStatus {
+            val refreshed = permission.refreshStatus()
+            status = refreshed
+            return refreshed
+        }
     }
 }
 @Composable
@@ -77,34 +86,60 @@ internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
     onPermissionsResult: (Boolean) -> Unit
 ): List<PermissionState> {
+    // التقسيم إلى: صالحة - غير صالحة (Ignor/OutOfSdk/Unavailable)
     val filtered = permissions.filter {
         it.getIgnore() != PlatformIgnore.IOS &&
                 (it.minSdk?.let { min -> currentIosVersion >= min } ?: true) &&
                 (it.maxSdk?.let { max -> currentIosVersion <= max } ?: true) &&
                 it.isServiceAvailable()
     }
-
     val ignoredPermissions = permissions - filtered.toSet()
 
-    val ignoredStates = ignoredPermissions.map {
+    // الحالات الثابتة: Granted أو Unavailable
+    val ignoredStates = ignoredPermissions.map { perm ->
+        val isIgnored = perm.getIgnore() == PlatformIgnore.IOS
+        val isOutOfSdk = (perm.minSdk?.let { currentIosVersion < it } ?: false) ||
+                (perm.maxSdk?.let { currentIosVersion > it } ?: false)
+        val unavailable = !perm.isServiceAvailable()
+
+        val fixedStatus = when {
+            isIgnored || isOutOfSdk -> PermissionStatus.Granted
+            unavailable -> PermissionStatus.Unavailable
+            else -> PermissionStatus.Unavailable // fallback
+        }
+
         object : PermissionState {
-            override val permission: Permission = it
+            override val permission: Permission = perm
             override var status: PermissionStatus
-                get() = PermissionStatus.Unavailable
+                get() = fixedStatus
                 set(_) {}
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
+            override suspend fun refreshStatus(): PermissionStatus = fixedStatus
         }
     }
 
+    // الحالات المتغيرة
     fun getStatuses(): Map<String, PermissionStatus> =
         filtered.associate { it.name to it.getPermissionStatus() }
 
     var stateMap by remember { mutableStateOf(getStatuses()) }
 
-    fun checkAllGranted(): Boolean = permissions.all {
-        val status = stateMap[it.name] ?: PermissionStatus.Unavailable
-        status == PermissionStatus.Granted || status == PermissionStatus.Unavailable
+    fun checkAllGranted(): Boolean {
+        // يجب أن يكون Granted فقط، وليس Unavailable
+        val allGranted = permissions.all { perm ->
+            val isIgnored = perm.getIgnore() == PlatformIgnore.IOS
+            val isOutOfSdk = (perm.minSdk?.let { currentIosVersion < it } ?: false) ||
+                    (perm.maxSdk?.let { currentIosVersion > it } ?: false)
+            val unavailable = !perm.isServiceAvailable()
+
+            when {
+                isIgnored || isOutOfSdk -> true
+                unavailable -> false
+                else -> (stateMap[perm.name] == PermissionStatus.Granted)
+            }
+        }
+        return allGranted
     }
 
     LaunchedEffect(Unit) {
@@ -138,6 +173,11 @@ internal actual fun RequestMultiPermissions(
             }
 
             override fun openAppSettings() = openAppSettingsPlatform()
+            override suspend fun refreshStatus(): PermissionStatus {
+                val refreshed = permission.refreshStatus()
+                status = refreshed
+                return refreshed
+            }
         }
     }
 
