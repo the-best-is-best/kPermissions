@@ -5,8 +5,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
 
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+//    alias(libs.plugins.composeMultiplatform)
+//    alias(libs.plugins.composeCompiler)
 
     id("maven-publish")
     id("signing")
@@ -117,7 +117,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.stdlib)
                 // Add KMP dependencies here
-                implementation(compose.runtime)
+                //implementation(compose.runtime)
 
                 api(projects.kPermissionsApi)
                 api(projects.kPermissionsCore)
@@ -136,6 +136,7 @@ kotlin {
                 // Add Android-specific dependencies here. Note that this source set depends on
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
+                implementation(libs.androidx.startup.runtime)
 
             }
         }

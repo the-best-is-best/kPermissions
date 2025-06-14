@@ -15,6 +15,10 @@ actual object ReadVideoPermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
 
+    override fun isServiceAvailable(): Boolean {
+        return true
+    }
+
     override fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }

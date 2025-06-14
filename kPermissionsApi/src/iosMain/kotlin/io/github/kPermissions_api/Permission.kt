@@ -7,6 +7,7 @@ import kotlin.experimental.ExperimentalObjCName
 actual interface Permission {
     actual val name: String
     val permissionRequest: ((Boolean) -> Unit) -> Unit
+    actual fun isServiceAvailable(): Boolean
     fun getPermissionStatus(): PermissionStatus
     actual val minSdk: Int?
     actual val maxSdk: Int?

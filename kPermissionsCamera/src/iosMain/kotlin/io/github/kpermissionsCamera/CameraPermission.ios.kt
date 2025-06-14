@@ -40,6 +40,10 @@ actual object CameraPermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = cameraPermissionRequest()
 
+    override fun isServiceAvailable(): Boolean {
+        return AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo) != null
+    }
+
     override fun getPermissionStatus(): PermissionStatus {
         return getCameraPermissionStatus()
     }

@@ -26,5 +26,9 @@ actual object GalleryPermission : Permission {
       _maxSdk = maxSdk
    }
 
+   override fun isServiceAvailable(): Boolean {
+      return true
+   }
+
 
 }

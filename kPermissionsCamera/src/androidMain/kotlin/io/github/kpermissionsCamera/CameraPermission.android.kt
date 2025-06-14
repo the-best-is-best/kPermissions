@@ -1,6 +1,7 @@
 package io.github.kpermissionsCamera
 
 import android.Manifest
+import android.content.pm.PackageManager
 import io.github.kPermissions_api.Permission
 
 
@@ -22,6 +23,10 @@ actual object CameraPermission : Permission {
     override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
+    }
+
+    override fun isServiceAvailable(): Boolean {
+        return AppContextProvider.appContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
     }
 
 }

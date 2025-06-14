@@ -4,9 +4,9 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurr
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
-
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+//
+//    alias(libs.plugins.composeMultiplatform)
+//    alias(libs.plugins.composeCompiler)
 
     id("maven-publish")
     id("signing")
@@ -117,7 +117,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.stdlib)
                 // Add KMP dependencies here
-                implementation(compose.runtime)
+                //        implementation(compose.runtime)
                 api(projects.kPermissionsApi)
                 api(projects.kPermissionsCore)
                 implementation(projects.kPermissionsCMP)

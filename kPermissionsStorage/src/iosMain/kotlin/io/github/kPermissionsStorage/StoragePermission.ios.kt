@@ -15,6 +15,10 @@ actual object WriteStoragePermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
 
+    override fun isServiceAvailable(): Boolean {
+        return true
+    }
+
     override fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
@@ -40,6 +44,10 @@ actual object ReadStoragePermission : Permission {
         get() = "read_storage"
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
+
+    override fun isServiceAvailable(): Boolean {
+        return true
+    }
 
     override fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted

@@ -6,4 +6,5 @@ actual interface Permission {
     actual val minSdk: Int?
     actual val maxSdk: Int?
     actual fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?)
+    actual fun isServiceAvailable(): Boolean
 }

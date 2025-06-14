@@ -30,5 +30,9 @@ actual object ReadVideoPermission : Permission {
         _maxSdk = maxSdk
     }
 
+    override fun isServiceAvailable(): Boolean {
+        return true
+    }
+
 
 }
