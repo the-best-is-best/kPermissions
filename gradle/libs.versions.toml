@@ -16,6 +16,7 @@ composeUtilsCore = "3.0.1"
 junit = "4.13.2"
 kotlin = "2.1.21"
 kotlinStdlib = "2.1.21"
+kotlinxCoroutinesCore = "1.10.2"
 runner = "1.6.2"
 core = "1.6.1"
 startupRuntime = "1.2.0"
@@ -38,6 +39,7 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

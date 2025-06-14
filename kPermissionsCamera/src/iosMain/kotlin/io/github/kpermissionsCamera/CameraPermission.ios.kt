@@ -63,4 +63,10 @@ actual object CameraPermission : Permission {
         _maxSdk = maxSdk
     }
 
+
+    override suspend fun refreshStatus(): PermissionStatus {
+        return getCameraPermissionStatus()
+    }
+
+
 }

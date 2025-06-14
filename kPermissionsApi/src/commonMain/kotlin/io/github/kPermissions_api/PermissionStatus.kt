@@ -60,4 +60,7 @@ interface PermissionState {
      * or a non-composable callback. Otherwise, this will result in an IllegalStateException.
      */
     fun openAppSettings()
+
+    suspend fun refreshStatus(): PermissionStatus
+
 }

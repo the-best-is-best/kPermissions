@@ -10,10 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +31,14 @@ import io.github.kPermissionsGallery.GalleryPermission
 import io.github.kPermissionsStorage.ReadStoragePermission
 import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsVideo.ReadVideoPermission
+import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
+import io.github.kpermissionslocationAlways.LocationAlwaysPermission
+import io.github.kpermissionslocationChecker.locationServiceEnabledFlow
+import io.github.kpermissionslocationWhenInUse.LocationInUsePermission
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 enum class PermissionScreen { Single, Multi }
@@ -38,8 +46,8 @@ enum class PermissionScreen { Single, Multi }
 @Composable
 @Preview
 fun App() {
-
     var selectedScreen by remember { mutableStateOf<PermissionScreen?>(null) }
+
 
     MaterialTheme {
         Column(
@@ -82,7 +90,9 @@ fun SinglePermissionsScreen() {
         ReadStoragePermission,
         GalleryPermission,
         ReadAudioPermission,
-        ReadVideoPermission
+        ReadVideoPermission,
+        LocationInUsePermission,
+        LocationAlwaysPermission
     )
 
     val unavailablePermissions = permissions.filterNot { it.isServiceAvailable() }.map { it.name }
@@ -91,12 +101,22 @@ fun SinglePermissionsScreen() {
     var clickedUnavailablePermission by remember { mutableStateOf<String?>(null) }
 
     Column(
+
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(top = 16.dp)
+            .verticalScroll(rememberScrollState())
+
     ) {
         permissions.forEach { permission ->
             val state = rememberPermissionState(permission) { granted ->
                 println("${permission.name} granted = $granted")
+            }
+
+            val isLocationEnabled by locationServiceEnabledFlow.collectAsState(initial = false)
+            LaunchedEffect(isLocationEnabled) {
+                LocationAlwaysPermission.isServiceAvailable()
+                LocationInUsePermission.isServiceAvailable()
+                state.refreshStatus()
             }
 
             val onRequest: () -> Unit = {
@@ -140,10 +160,9 @@ fun SinglePermissionsScreen() {
 
 @Composable
 fun MultiPermissionTestScreen() {
-    val requiredPermissions = listOf(
-        CameraPermission,
-        ReadStoragePermission,
-        WriteStoragePermission,
+    val requiredPermissions = listOf<Permission>(
+        LocationInUsePermission,
+        LocationAlwaysPermission,
         GalleryPermission
     )
 
@@ -173,7 +192,8 @@ fun MultiPermissionTestScreen() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp),
+            .padding(top = 16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {

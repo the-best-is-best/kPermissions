@@ -69,6 +69,7 @@ actual fun RequestPermission(
         }
 
         override fun openAppSettings() = openAppSettingsPlatform()
+
     }
 }
 @Composable

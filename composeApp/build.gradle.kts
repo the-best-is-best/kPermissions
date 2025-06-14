@@ -48,7 +48,11 @@ kotlin {
             implementation(projects.kPermissionsGallery)
             implementation(projects.kPermissionsAudio)
             implementation(projects.kPermissionsVideo)
+            implementation(projects.kpermissionsLocationAlways)
+            implementation(projects.kpermissionsLocationWhenInUse)
+            implementation(projects.kpermissionsLocationChecker)
 
+            implementation(projects.kPermissiosLo)
             implementation(projects.kPermissionsCMP)
         }
         commonTest.dependencies {

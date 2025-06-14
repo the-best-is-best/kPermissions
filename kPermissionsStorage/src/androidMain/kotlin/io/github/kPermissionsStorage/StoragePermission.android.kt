@@ -3,6 +3,7 @@ package io.github.kPermissionsStorage
 import android.Manifest
 import android.os.Build
 import io.github.kPermissions_api.Permission
+import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.setIgnore
 
@@ -34,6 +35,10 @@ actual object WriteStoragePermission : Permission {
         return true
     }
 
+    override suspend fun refreshStatus(): PermissionStatus {
+        return PermissionStatus.Granted
+    }
+
 
 }
 
@@ -59,6 +64,11 @@ actual object ReadStoragePermission : Permission {
 
     override fun isServiceAvailable(): Boolean {
         return true
+    }
+
+
+    override suspend fun refreshStatus(): PermissionStatus {
+        return PermissionStatus.Granted
     }
 
 

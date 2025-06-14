@@ -67,4 +67,9 @@ actual object GalleryPermission : Permission {
         _maxSdk = maxSdk
     }
 
+
+    override suspend fun refreshStatus(): PermissionStatus {
+        return getGalleryPermissionStatus()
+    }
+
 }
