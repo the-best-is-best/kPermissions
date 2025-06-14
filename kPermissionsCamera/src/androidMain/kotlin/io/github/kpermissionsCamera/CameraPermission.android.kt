@@ -12,7 +12,9 @@ import io.github.kPermissions_api.PermissionStatus
 actual object CameraPermission : Permission {
     override val name: String
         get() = "camera"
-    override val androidPermissionName: String
+
+    @Suppress("RedundantNullableReturnType")
+    override val androidPermissionName: String?
         get() = Manifest.permission.CAMERA
 
     private var _minSdk: Int? = null

@@ -11,7 +11,9 @@ import io.github.kPermissions_api.PermissionStatus
 actual object LocationInUsePermission : Permission {
     override val name: String
         get() = "location_in_use"
-    override val androidPermissionName: String
+
+    @Suppress("RedundantNullableReturnType")
+    override val androidPermissionName: String?
         get() = android.Manifest.permission.ACCESS_FINE_LOCATION
 
 

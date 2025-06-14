@@ -32,6 +32,7 @@ import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsVideo.ReadVideoPermission
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
+import io.github.kpermissionlocationwheninuseext.openPrivacySettings
 import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
@@ -123,8 +124,17 @@ fun SinglePermissionsScreen() {
                     PermissionStatus.Denied -> state.launchPermissionRequest()
                     PermissionStatus.DeniedPermanently -> state.openAppSettings()
                     PermissionStatus.Unavailable -> {
-                        clickedUnavailablePermission = permission.name
-                        showUnavailableDialog = true
+                        try {
+                            if (permission is LocationInUsePermission || permission is LocationAlwaysPermission) {
+                                LocationInUsePermission.openPrivacySettings()
+                            } else {
+                                println("Service settings cannot be opened for ${permission.name} on this platform.")
+                            }
+                        } catch (e: Exception) {
+                            clickedUnavailablePermission = permission.name
+                            showUnavailableDialog = true
+                        }
+
                     }
                     else -> println("${permission.name} already: ${state.status}")
                 }
