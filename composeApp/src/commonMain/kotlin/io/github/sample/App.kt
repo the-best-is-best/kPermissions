@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -161,8 +160,7 @@ fun SinglePermissionsScreen() {
 @Composable
 fun MultiPermissionTestScreen() {
     val requiredPermissions = listOf<Permission>(
-        LocationInUsePermission,
-        LocationAlwaysPermission,
+        CameraPermission,
         GalleryPermission
     )
 
@@ -183,17 +181,18 @@ fun MultiPermissionTestScreen() {
         }
     )
 
-    val allGranted by remember {
-        derivedStateOf {
-            states.all { it.status == PermissionStatus.Granted }
-        }
+    var allGranted by remember { mutableStateOf(false) }
+
+    LaunchedEffect(states.map { it.status }) {
+        allGranted = states.all { it.status == PermissionStatus.Granted }
     }
+
+
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
@@ -203,15 +202,18 @@ fun MultiPermissionTestScreen() {
             }
 
             states.forEach { state ->
-                when (state.status) {
+
+            when (state.status) {
                     PermissionStatus.Denied -> state.launchPermissionRequest()
                     PermissionStatus.DeniedPermanently -> state.openAppSettings()
                     else -> Unit
                 }
             }
+
         }) {
             Text("Request All Permissions")
         }
+
 
         Text("All Permissions Granted: $allGranted")
 
