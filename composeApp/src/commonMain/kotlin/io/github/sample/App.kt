@@ -85,6 +85,11 @@ fun SinglePermissionsScreen() {
         ReadVideoPermission
     )
 
+    val unavailablePermissions = permissions.filterNot { it.isServiceAvailable() }.map { it.name }
+
+    var showUnavailableDialog by remember { mutableStateOf(false) }
+    var clickedUnavailablePermission by remember { mutableStateOf<String?>(null) }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(top = 16.dp)
@@ -98,6 +103,10 @@ fun SinglePermissionsScreen() {
                 when (state.status) {
                     PermissionStatus.Denied -> state.launchPermissionRequest()
                     PermissionStatus.DeniedPermanently -> state.openAppSettings()
+                    PermissionStatus.Unavailable -> {
+                        clickedUnavailablePermission = permission.name
+                        showUnavailableDialog = true
+                    }
                     else -> println("${permission.name} already: ${state.status}")
                 }
             }
@@ -107,14 +116,30 @@ fun SinglePermissionsScreen() {
             }
 
             Text("${permission.name} Permission Status: ${state.status}")
+
         }
+
+        if (unavailablePermissions.isNotEmpty()) {
+            Button(onClick = { showUnavailableDialog = true }) {
+                Text("Show All Unavailable Permissions")
+            }
+        }
+    }
+
+    if (showUnavailableDialog) {
+        UnavailablePermissionsDialog(
+            unavailable = listOfNotNull(clickedUnavailablePermission).ifEmpty { unavailablePermissions },
+            onDismiss = {
+                showUnavailableDialog = false
+                clickedUnavailablePermission = null
+            }
+        )
     }
 }
 
 
 @Composable
 fun MultiPermissionTestScreen() {
-
     val requiredPermissions = listOf(
         CameraPermission,
         ReadStoragePermission,
@@ -122,8 +147,18 @@ fun MultiPermissionTestScreen() {
         GalleryPermission
     )
 
+    val availablePermissions = remember {
+        requiredPermissions.filter { it.isServiceAvailable() }
+    }
+
+    val unavailablePermissions = remember {
+        requiredPermissions.filterNot { it.isServiceAvailable() }.map { it.name }
+    }
+
+    var showUnavailableDialog by remember { mutableStateOf(false) }
+
     val states = rememberMultiplePermissionsState(
-        permissions = requiredPermissions,
+        permissions = availablePermissions,
         onPermissionsResult = { granted ->
             println("All permissions granted? $granted")
         }
@@ -142,6 +177,11 @@ fun MultiPermissionTestScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
+            if (unavailablePermissions.isNotEmpty()) {
+                showUnavailableDialog = true
+                return@Button
+            }
+
             states.forEach { state ->
                 when (state.status) {
                     PermissionStatus.Denied -> state.launchPermissionRequest()
@@ -162,5 +202,12 @@ fun MultiPermissionTestScreen() {
                 Text("${state.permission.name}: ${state.status}")
             }
         }
+    }
+
+    if (showUnavailableDialog) {
+        UnavailablePermissionsDialog(
+            unavailable = unavailablePermissions,
+            onDismiss = { showUnavailableDialog = false }
+        )
     }
 }

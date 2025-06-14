@@ -21,8 +21,16 @@ internal actual fun RequestPermission(
     permission: Permission,
     onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
+    if (!permission.isServiceAvailable()) {
+        onPermissionResult(false)
+        return object : PermissionState {
+            override val permission: Permission = permission
+            override val status: PermissionStatus = PermissionStatus.Unavailable
+            override fun launchPermissionRequest() {}
+            override fun openAppSettings() {}
+        }
+    }
     val androidPermission = permission.androidPermissionName
-
     val currentSdk = android.os.Build.VERSION.SDK_INT
     val minSdk = permission.minSdk
     val maxSdk = permission.maxSdk
@@ -86,7 +94,6 @@ internal actual fun RequestPermission(
 
 }
 
-
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 internal actual fun RequestMultiPermissions(
@@ -94,17 +101,18 @@ internal actual fun RequestMultiPermissions(
     onPermissionsResult: (Boolean) -> Unit
 ): List<PermissionState> {
     val currentSdk = android.os.Build.VERSION.SDK_INT
+    val prefs = remember { SharedPrefs() }
+    var requestedOnce by remember { mutableStateOf(false) }
 
     val filteredPermissions = remember(permissions) {
         permissions.filter {
             it.getIgnore() != PlatformIgnore.Android &&
                     it.androidPermissionName != null &&
                     (it.minSdk?.let { sdk -> currentSdk >= sdk } ?: true) &&
-                    (it.maxSdk?.let { sdk -> currentSdk <= sdk } ?: true)
+                    (it.maxSdk?.let { sdk -> currentSdk <= sdk } ?: true) &&
+                    it.isServiceAvailable() // 💡 الجديد
         }
     }
-
-    val androidPermissions = filteredPermissions.mapNotNull { it.androidPermissionName }
 
     if (filteredPermissions.isEmpty()) {
         LaunchedEffect(Unit) { onPermissionsResult(true) }
@@ -118,38 +126,35 @@ internal actual fun RequestMultiPermissions(
         }
     }
 
-    val prefs = remember { SharedPrefs() }
-    var requestedOnce by remember { mutableStateOf(false) }
+    val androidPermissions = filteredPermissions.mapNotNull { it.androidPermissionName }
+
     val multiplePermissionState =
         com.google.accompanist.permissions.rememberMultiplePermissionsState(androidPermissions)
 
     val states = filteredPermissions.map { perm ->
         val androidName = perm.androidPermissionName
-        var statusState by remember { mutableStateOf<PermissionStatus>(PermissionStatus.Denied) }
-
         val result = multiplePermissionState.permissions.find { it.permission == androidName }
-        println("Permission ${perm.name} raw result = ${result?.status}")
 
-        statusState = when {
+        val askedBefore = prefs.get(perm.name) == "true"
+        val permissionStatus = when {
             result?.status?.isGranted == true -> PermissionStatus.Granted
             result?.status is com.google.accompanist.permissions.PermissionStatus.Denied -> {
                 val denied =
                     result.status as com.google.accompanist.permissions.PermissionStatus.Denied
-                val asked = prefs.get(perm.name) == "true"
-                if (!denied.shouldShowRationale && asked) PermissionStatus.DeniedPermanently else PermissionStatus.Denied
+                if (!denied.shouldShowRationale && askedBefore) PermissionStatus.DeniedPermanently
+                else PermissionStatus.Denied
             }
-
             else -> PermissionStatus.Denied
         }
 
         object : PermissionState {
             override val permission = perm
-            override val status: PermissionStatus
-                get() = statusState
+            override val status: PermissionStatus = permissionStatus
             override fun launchPermissionRequest() {
                 requestedOnce = true
                 multiplePermissionState.launchMultiplePermissionRequest()
             }
+
             override fun openAppSettings() {
                 openAppSettingsPlatform()
             }

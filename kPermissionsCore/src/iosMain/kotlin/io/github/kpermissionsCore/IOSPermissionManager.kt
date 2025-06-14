@@ -15,6 +15,10 @@ fun requestPermission(
     permissionRequest: ((Boolean) -> Unit) -> Unit,
     onResult: (Boolean) -> Unit
 ) {
+    if (!permission.isServiceAvailable()) {
+        onResult(false)
+        return
+    }
     val currentStatus = getStatus(permission)
     if (currentStatus == PermissionStatus.Granted) {
         onResult(true)
@@ -37,6 +41,10 @@ fun requestPermissionWithStatus(
     permissionRequest: ((Boolean) -> Unit) -> Unit,
     onResult: (PermissionStatus) -> Unit
 ) {
+    if (!permission.isServiceAvailable()) {
+        onResult(PermissionStatus.Unavailable)
+        return
+    }
     val currentStatus = getStatus(permission)
     if (currentStatus == PermissionStatus.Granted) {
         onResult(PermissionStatus.Granted)
@@ -63,6 +71,12 @@ fun requestMultiplePermissionsWithStatus(
     }
 
     permissions.forEach { permission ->
+        if (!permission.isServiceAvailable()) {
+            allGranted = false
+            remaining--
+            if (remaining == 0) onResult(allGranted)
+            return@forEach
+        }
         val currentStatus = getStatus(permission)
 
         if (currentStatus == PermissionStatus.Granted) {

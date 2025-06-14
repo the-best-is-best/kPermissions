@@ -12,22 +12,26 @@ import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
 
-
 @Composable
 actual fun RequestPermission(
     permission: Permission,
     onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
-    val skip =
-        permission.getIgnore() == PlatformIgnore.IOS ||
-                (permission.minSdk?.let { currentIosVersion < it } ?: false) ||
+    val isIgnored = permission.getIgnore() == PlatformIgnore.IOS
+    val isOutOfSdk =
+        (permission.minSdk?.let { currentIosVersion < it } ?: false) ||
                 (permission.maxSdk?.let { currentIosVersion > it } ?: false)
+    val unavailable = !permission.isServiceAvailable()
+
+    val skip = isIgnored || isOutOfSdk || unavailable
 
     if (skip) {
-        onPermissionResult(true)
+        onPermissionResult(false)
         return object : PermissionState {
             override val permission: Permission = permission
-            override var status: PermissionStatus = PermissionStatus.Granted
+            override var status: PermissionStatus
+                get() = PermissionStatus.Unavailable
+                set(_) {}
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
         }
@@ -59,8 +63,7 @@ actual fun RequestPermission(
 
         override fun launchPermissionRequest() {
             permission.permissionRequest { granted ->
-                val result = if (granted) PermissionStatus.Granted else PermissionStatus.Denied
-                status = result
+                status = if (granted) PermissionStatus.Granted else PermissionStatus.Denied
                 onPermissionResult(granted)
             }
         }
@@ -68,7 +71,6 @@ actual fun RequestPermission(
         override fun openAppSettings() = openAppSettingsPlatform()
     }
 }
-
 @Composable
 internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
@@ -77,14 +79,18 @@ internal actual fun RequestMultiPermissions(
     val filtered = permissions.filter {
         it.getIgnore() != PlatformIgnore.IOS &&
                 (it.minSdk?.let { min -> currentIosVersion >= min } ?: true) &&
-                (it.maxSdk?.let { max -> currentIosVersion <= max } ?: true)
+                (it.maxSdk?.let { max -> currentIosVersion <= max } ?: true) &&
+                it.isServiceAvailable()
     }
 
     val ignoredPermissions = permissions - filtered.toSet()
+
     val ignoredStates = ignoredPermissions.map {
         object : PermissionState {
             override val permission: Permission = it
-            override var status: PermissionStatus = PermissionStatus.Granted
+            override var status: PermissionStatus
+                get() = PermissionStatus.Unavailable
+                set(_) {}
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
         }
@@ -95,30 +101,28 @@ internal actual fun RequestMultiPermissions(
 
     var stateMap by remember { mutableStateOf(getStatuses()) }
 
+    fun checkAllGranted(): Boolean = permissions.all {
+        val status = stateMap[it.name] ?: PermissionStatus.Unavailable
+        status == PermissionStatus.Granted || status == PermissionStatus.Unavailable
+    }
+
     LaunchedEffect(Unit) {
-        val allGranted = permissions.all {
-            stateMap[it.name] == PermissionStatus.Granted || it in ignoredPermissions
-        }
-        onPermissionsResult(allGranted)
+        onPermissionsResult(checkAllGranted())
     }
 
     OnAppResumed {
         val newStatuses = getStatuses()
         if (newStatuses != stateMap) {
             stateMap = newStatuses
-            val allGranted = permissions.all {
-                newStatuses[it.name] == PermissionStatus.Granted || it in ignoredPermissions
-            }
-            onPermissionsResult(allGranted)
+            onPermissionsResult(checkAllGranted())
         }
     }
 
     val actualStates = filtered.map { permission ->
         object : PermissionState {
             override val permission: Permission = permission
-
             override var status: PermissionStatus
-                get() = stateMap[permission.name] ?: PermissionStatus.Granted
+                get() = stateMap[permission.name] ?: PermissionStatus.Unavailable
                 set(value) {
                     stateMap = stateMap.toMutableMap().apply {
                         this[permission.name] = value
@@ -128,10 +132,7 @@ internal actual fun RequestMultiPermissions(
             override fun launchPermissionRequest() {
                 permission.permissionRequest { granted ->
                     status = if (granted) PermissionStatus.Granted else PermissionStatus.Denied
-                    val allGranted = permissions.all {
-                        (stateMap[it.name] == PermissionStatus.Granted) || it in ignoredPermissions
-                    }
-                    onPermissionsResult(allGranted)
+                    onPermissionsResult(checkAllGranted())
                 }
             }
 

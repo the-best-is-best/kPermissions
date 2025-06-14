@@ -26,6 +26,7 @@ actual object CameraPermission : Permission {
     }
 
     override fun isServiceAvailable(): Boolean {
+
         return AppContextProvider.appContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
     }
 
