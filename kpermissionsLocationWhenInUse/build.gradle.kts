@@ -75,7 +75,6 @@ kotlin {
                 // dependencies declared in commonMain.
                 implementation(libs.androidx.startup.runtime)
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.androidx.core.ktx)
             }
         }
 

@@ -68,7 +68,7 @@ actual object GalleryPermission : Permission {
     }
 
 
-    override suspend fun refreshStatus(): PermissionStatus {
+    override fun refreshStatus(): PermissionStatus {
         return getGalleryPermissionStatus()
     }
 

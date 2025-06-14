@@ -38,7 +38,7 @@ actual object ReadVideoPermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override suspend fun refreshStatus(): PermissionStatus {
+    override fun refreshStatus(): PermissionStatus {
         return getPermissionStatus()
     }
 

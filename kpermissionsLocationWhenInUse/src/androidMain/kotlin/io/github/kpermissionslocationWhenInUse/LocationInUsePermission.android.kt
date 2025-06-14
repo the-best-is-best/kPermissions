@@ -4,9 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
 import android.provider.Settings
-import io.github.kPermissions_api.AndroidPermission
 import io.github.kPermissions_api.Permission
-import io.github.kPermissions_api.PermissionStatus
 
 actual object LocationInUsePermission : Permission {
     override val name: String
@@ -46,28 +44,6 @@ actual object LocationInUsePermission : Permission {
         context.startActivity(intent)
     }
 
-    override suspend fun refreshStatus(): PermissionStatus {
-        val context = AppContextProvider.appContext
 
-        val granted = androidx.core.content.ContextCompat.checkSelfPermission(
-            context,
-            androidPermissionName!!
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-
-        if (granted) {
-            return PermissionStatus.Granted
-        }
-
-        val showRationale = androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
-            AndroidPermission.getActivity() ?: return PermissionStatus.Unavailable,
-            androidPermissionName!!
-        )
-
-        return if (showRationale) {
-            PermissionStatus.Denied
-        } else {
-            PermissionStatus.DeniedPermanently
-        }
-    }
 
 }

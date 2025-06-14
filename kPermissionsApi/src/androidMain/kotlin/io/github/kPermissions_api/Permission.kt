@@ -1,6 +1,10 @@
 package io.github.kPermissions_api
 
 import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import java.lang.ref.WeakReference
 
 actual interface Permission {
@@ -10,8 +14,39 @@ actual interface Permission {
     actual val maxSdk: Int?
     actual fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?)
     actual fun isServiceAvailable(): Boolean
-    actual suspend fun refreshStatus(): PermissionStatus
 }
+
+fun Permission.refreshStatus(): PermissionStatus {
+    val sdkInt = Build.VERSION.SDK_INT
+
+    if (androidPermissionName == null ||
+        (minSdk != null && sdkInt < minSdk!!) ||
+        (maxSdk != null && sdkInt > maxSdk!!)
+    ) {
+        return PermissionStatus.Granted
+    }
+
+    val activity = AndroidPermission.getActivity() ?: return PermissionStatus.Unavailable
+
+    val isGranted = ContextCompat.checkSelfPermission(
+        activity,
+        androidPermissionName!!
+    ) == PackageManager.PERMISSION_GRANTED
+
+    if (isGranted) return PermissionStatus.Granted
+
+    val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+        activity,
+        androidPermissionName!!
+    )
+
+    return if (shouldShowRationale) {
+        PermissionStatus.Denied
+    } else {
+        PermissionStatus.DeniedPermanently
+    }
+}
+
 
 
 object AndroidPermission {
@@ -20,8 +55,7 @@ object AndroidPermission {
     fun setActivity(activity: Activity) {
         this.activity = WeakReference(activity)
     }
-
-    fun getActivity(): Activity? {
+    internal fun getActivity(): Activity? {
         return activity?.get()
     }
 }
