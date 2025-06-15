@@ -56,7 +56,7 @@ actual object LocationInUsePermission : Permission {
             manager.requestWhenInUseAuthorization()
         }
 
-    override fun refreshStatus(): PermissionStatus {
+    override fun checkPermissionStatus(): PermissionStatus {
         return getPermissionStatus()
     }
 }

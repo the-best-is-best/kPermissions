@@ -16,7 +16,7 @@ actual interface Permission {
     actual fun isServiceAvailable(): Boolean
 }
 
-fun Permission.refreshStatus(): PermissionStatus {
+fun Permission.checkPermissionStatus(): PermissionStatus {
     val sdkInt = Build.VERSION.SDK_INT
 
     if (androidPermissionName == null ||

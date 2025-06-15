@@ -12,6 +12,6 @@ actual interface Permission {
     actual val minSdk: Int?
     actual val maxSdk: Int?
     actual fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?)
-    fun refreshStatus(): PermissionStatus
+    fun checkPermissionStatus(): PermissionStatus
 
 }

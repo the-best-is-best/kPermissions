@@ -125,13 +125,13 @@ fun SinglePermissionsScreen() {
                 LaunchedEffect(isLocationEnabled) {
                     LocationAlwaysPermission.isServiceAvailable()
                     LocationInUsePermission.isServiceAvailable()
-                    state.refreshStatus()
+                    state.checkPermissionStatus()
                 }
             }
             if (state.permission is BluetoothPermission) {
                 LaunchedEffect(isBluetoothOn) {
                     BluetoothPermission.isServiceAvailable()
-                    state.refreshStatus()
+                    state.checkPermissionStatus()
                 }
             }
 

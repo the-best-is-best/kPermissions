@@ -39,7 +39,7 @@ actual object BluetoothPermission : Permission {
         return getBluetoothStatus()
     }
 
-    override fun refreshStatus(): PermissionStatus {
+    override fun checkPermissionStatus(): PermissionStatus {
         return getBluetoothStatus()
     }
 

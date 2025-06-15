@@ -63,7 +63,7 @@ actual object NotificationPermission : Permission {
         return result
     }
 
-    override fun refreshStatus(): PermissionStatus {
+    override fun checkPermissionStatus(): PermissionStatus {
         return getPermissionStatus()
     }
 

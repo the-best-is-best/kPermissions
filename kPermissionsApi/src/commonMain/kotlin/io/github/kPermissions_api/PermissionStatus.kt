@@ -61,6 +61,6 @@ interface PermissionState {
      */
     fun openAppSettings()
 
-    fun refreshStatus(): PermissionStatus
+    fun checkPermissionStatus(): PermissionStatus
 
 }

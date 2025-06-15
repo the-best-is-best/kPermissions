@@ -37,7 +37,7 @@ actual fun RequestPermission(
                 set(_) {}
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
-            override fun refreshStatus(): PermissionStatus = fixedStatus
+            override fun checkPermissionStatus(): PermissionStatus = fixedStatus
         }
     }
 
@@ -72,8 +72,8 @@ actual fun RequestPermission(
         }
 
         override fun openAppSettings() = openAppSettingsPlatform()
-        override fun refreshStatus(): PermissionStatus {
-            val refreshed = permission.refreshStatus()
+        override fun checkPermissionStatus(): PermissionStatus {
+            val refreshed = permission.checkPermissionStatus()
             status = refreshed
             return refreshed
         }
@@ -112,7 +112,7 @@ internal actual fun RequestMultiPermissions(
                 set(_) {}
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
-            override fun refreshStatus(): PermissionStatus = fixedStatus
+            override fun checkPermissionStatus(): PermissionStatus = fixedStatus
         }
     }
 
@@ -169,8 +169,8 @@ internal actual fun RequestMultiPermissions(
             }
 
             override fun openAppSettings() = openAppSettingsPlatform()
-            override fun refreshStatus(): PermissionStatus {
-                val refreshed = permission.refreshStatus()
+            override fun checkPermissionStatus(): PermissionStatus {
+                val refreshed = permission.checkPermissionStatus()
                 status = refreshed
                 return refreshed
             }

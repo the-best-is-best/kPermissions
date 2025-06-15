@@ -68,7 +68,7 @@ actual object GalleryPermission : Permission {
     }
 
 
-    override fun refreshStatus(): PermissionStatus {
+    override fun checkPermissionStatus(): PermissionStatus {
         return getGalleryPermissionStatus()
     }
 

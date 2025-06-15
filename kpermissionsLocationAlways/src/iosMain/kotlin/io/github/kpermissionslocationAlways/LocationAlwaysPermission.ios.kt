@@ -55,7 +55,7 @@ actual object LocationAlwaysPermission : Permission {
             manager.requestAlwaysAuthorization()
         }
 
-    override fun refreshStatus(): PermissionStatus {
+    override fun checkPermissionStatus(): PermissionStatus {
         return getPermissionStatus()
     }
 }

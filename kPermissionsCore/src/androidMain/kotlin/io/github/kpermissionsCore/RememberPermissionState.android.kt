@@ -12,7 +12,7 @@ import io.github.compose_utils_core.SharedPrefs
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
-import io.github.kPermissions_api.refreshStatus
+import io.github.kPermissions_api.checkPermissionStatus
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
 
@@ -29,8 +29,8 @@ internal actual fun RequestPermission(
             override val status: PermissionStatus = PermissionStatus.Unavailable
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
-            override fun refreshStatus(): PermissionStatus {
-                return permission.refreshStatus()
+            override fun checkPermissionStatus(): PermissionStatus {
+                return permission.checkPermissionStatus()
             }
 
         }
@@ -51,8 +51,8 @@ internal actual fun RequestPermission(
             override val status: PermissionStatus = PermissionStatus.Granted
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
-            override fun refreshStatus(): PermissionStatus {
-                return permission.refreshStatus()
+            override fun checkPermissionStatus(): PermissionStatus {
+                return permission.checkPermissionStatus()
             }
         }
     }
@@ -99,8 +99,8 @@ internal actual fun RequestPermission(
             openAppSettingsPlatform()
         }
 
-        override fun refreshStatus(): PermissionStatus {
-            return permission.refreshStatus()
+        override fun checkPermissionStatus(): PermissionStatus {
+            return permission.checkPermissionStatus()
         }
     }
 
@@ -135,8 +135,8 @@ internal actual fun RequestMultiPermissions(
                 override fun launchPermissionRequest() {}
                 override fun openAppSettings() {}
 
-                override fun refreshStatus(): PermissionStatus {
-                    return permission.refreshStatus()
+                override fun checkPermissionStatus(): PermissionStatus {
+                    return permission.checkPermissionStatus()
                 }
             }
         }
@@ -175,8 +175,8 @@ internal actual fun RequestMultiPermissions(
                 openAppSettingsPlatform()
             }
 
-            override fun refreshStatus(): PermissionStatus {
-                return perm.refreshStatus()
+            override fun checkPermissionStatus(): PermissionStatus {
+                return perm.checkPermissionStatus()
             }
         }
     }
@@ -187,8 +187,8 @@ internal actual fun RequestMultiPermissions(
             override val status = PermissionStatus.Granted
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
-            override fun refreshStatus(): PermissionStatus {
-                return it.refreshStatus()
+            override fun checkPermissionStatus(): PermissionStatus {
+                return it.checkPermissionStatus()
             }
         }
     }

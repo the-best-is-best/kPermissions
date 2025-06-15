@@ -64,7 +64,7 @@ actual object CameraPermission : Permission {
     }
 
 
-    override fun refreshStatus(): PermissionStatus {
+    override fun checkPermissionStatus(): PermissionStatus {
         return getCameraPermissionStatus()
     }
 
