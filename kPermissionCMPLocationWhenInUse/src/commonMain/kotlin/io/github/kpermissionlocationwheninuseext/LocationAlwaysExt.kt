@@ -1,0 +1,5 @@
+package io.github.kpermissionlocationwheninuseext
+
+import io.github.kpermissionslocationWhenInUse.LocationInUsePermission
+
+expect fun LocationInUsePermission.openPrivacySettings()
