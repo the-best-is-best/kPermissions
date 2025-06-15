@@ -51,6 +51,7 @@ kotlin {
             implementation(projects.kPermissionCMPLocationWhenInUse)
             implementation(projects.kpermissionsCMPLocationAlways)
             implementation(projects.kpermissionsLocationChecker)
+            implementation(projects.kPermissionsNotification)
 
             implementation(projects.kPermissionsCMP)
         }

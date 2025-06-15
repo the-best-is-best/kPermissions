@@ -33,6 +33,7 @@ import io.github.kPermissionsVideo.ReadVideoPermission
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissionlocationwheninuseext.openPrivacySettings
+import io.github.kpermissionnotification.NotificationPermission
 import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
@@ -92,7 +93,8 @@ fun SinglePermissionsScreen() {
         ReadAudioPermission,
         ReadVideoPermission,
         LocationInUsePermission,
-        LocationAlwaysPermission
+        LocationAlwaysPermission,
+        NotificationPermission
     )
 
     val unavailablePermissions = permissions.filterNot { it.isServiceAvailable() }.map { it.name }
