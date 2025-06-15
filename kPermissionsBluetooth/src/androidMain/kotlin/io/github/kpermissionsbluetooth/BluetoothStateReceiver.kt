@@ -8,10 +8,10 @@ import android.content.IntentFilter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-object BluetoothStateReceiver {
+actual object BluetoothStateReceiver {
 
     private val _isBluetoothOn = MutableStateFlow(checkBluetoothState())
-    val isBluetoothOn: StateFlow<Boolean> get() = _isBluetoothOn
+    actual val isBluetoothOn: StateFlow<Boolean> get() = _isBluetoothOn
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -22,13 +22,13 @@ object BluetoothStateReceiver {
         }
     }
 
-    fun register() {
+    actual fun register() {
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
         context.registerReceiver(receiver, filter)
         _isBluetoothOn.value = checkBluetoothState()
     }
 
-    fun unregister() {
+    actual fun unregister() {
         context.unregisterReceiver(receiver)
     }
 
