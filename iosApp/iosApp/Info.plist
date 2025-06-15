@@ -20,6 +20,11 @@
     
     <key>NSUserNotificationUsageDescription</key>
     <string>Test</string>
+    
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Test</string>
+
+    
 
 </dict>
 </plist>
