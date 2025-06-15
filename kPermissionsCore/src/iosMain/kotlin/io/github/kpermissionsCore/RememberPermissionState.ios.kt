@@ -68,7 +68,7 @@ actual fun RequestPermission(
         override fun launchPermissionRequest() {
             permission.permissionRequest { granted ->
                 val newStatus =
-                    if (granted) PermissionStatus.Granted else permission.checkPermissionStatus()
+                    if (granted) PermissionStatus.Granted else permission.getPermissionStatus()
                 if (newStatus != stateValue) {
                     stateValue = newStatus
                 }
@@ -77,7 +77,7 @@ actual fun RequestPermission(
 
         override fun openAppSettings() = openAppSettingsPlatform()
         override fun checkPermissionStatus(): PermissionStatus {
-            val refreshed = permission.checkPermissionStatus()
+            val refreshed = permission.getPermissionStatus()
             if (refreshed != stateValue) {
                 stateValue = refreshed
             }
@@ -110,7 +110,7 @@ internal actual fun RequestMultiPermissions(
         val fixedStatus = when {
             isIgnored || isOutOfSdk -> PermissionStatus.Granted
             unavailable -> PermissionStatus.Unavailable
-            else -> perm.checkPermissionStatus()
+            else -> perm.getPermissionStatus()
         }
 
         object : PermissionState {
@@ -178,7 +178,7 @@ internal actual fun RequestMultiPermissions(
 
             override fun openAppSettings() = openAppSettingsPlatform()
             override fun checkPermissionStatus(): PermissionStatus {
-                val refreshed = permission.checkPermissionStatus()
+                val refreshed = permission.getPermissionStatus()
                 status = refreshed
                 return refreshed
             }

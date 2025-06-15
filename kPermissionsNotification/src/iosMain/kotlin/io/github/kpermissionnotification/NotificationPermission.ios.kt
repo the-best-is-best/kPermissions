@@ -63,9 +63,6 @@ actual object NotificationPermission : Permission {
         return result
     }
 
-    override fun checkPermissionStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = { callback ->

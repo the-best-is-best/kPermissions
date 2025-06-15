@@ -57,8 +57,9 @@ private fun rememberPreviewPermissionState(
         override fun launchPermissionRequest() {}
         override fun openAppSettings() {}
         override fun checkPermissionStatus(): PermissionStatus {
-            return PermissionStatus.Granted
+            return status
         }
+
     }
 }
 

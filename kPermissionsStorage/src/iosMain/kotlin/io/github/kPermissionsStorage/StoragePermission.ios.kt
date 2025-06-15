@@ -38,9 +38,6 @@ actual object WriteStoragePermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun checkPermissionStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 
 
 
@@ -75,9 +72,6 @@ actual object ReadStoragePermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun checkPermissionStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 
 
 }

@@ -68,8 +68,4 @@ actual object GalleryPermission : Permission {
     }
 
 
-    override fun checkPermissionStatus(): PermissionStatus {
-        return getGalleryPermissionStatus()
-    }
-
 }

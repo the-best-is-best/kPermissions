@@ -38,9 +38,5 @@ actual object ReadAudioPermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun checkPermissionStatus(): PermissionStatus {
-        return PermissionStatus.Granted
-    }
-
 
 }

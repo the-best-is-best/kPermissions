@@ -110,6 +110,8 @@ fun SinglePermissionsScreen() {
     val isLocationEnabled by locationServiceEnabledFlow.collectAsState(initial = false)
     val isBluetoothOn by bluetoothStateFlow().collectAsState(initial = false)
 
+    LaunchedEffect(isLocationEnabled) {}
+    LaunchedEffect(isBluetoothOn) {}
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
@@ -119,20 +121,6 @@ fun SinglePermissionsScreen() {
         permissions.forEach { permission ->
             val state = rememberPermissionState(permission) { granted ->
                 println("${permission.name} granted = $granted")
-            }
-
-            // Listen for changes in location or Bluetooth states
-            if (permission is LocationInUsePermission || permission is LocationAlwaysPermission) {
-                LaunchedEffect(isLocationEnabled) {
-                    // Refresh permission state when location status changes
-                    state.checkPermissionStatus()
-                }
-            }
-            if (permission is BluetoothPermission) {
-                LaunchedEffect(isBluetoothOn) {
-                    // Refresh permission state when Bluetooth status changes
-                    state.checkPermissionStatus()
-                }
             }
 
             val onRequest: () -> Unit = {

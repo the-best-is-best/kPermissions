@@ -39,9 +39,6 @@ actual object BluetoothPermission : Permission {
         return getBluetoothStatus()
     }
 
-    override fun checkPermissionStatus(): PermissionStatus {
-        return getBluetoothStatus()
-    }
 
     private fun getBluetoothStatus(): PermissionStatus {
         return if (CBManager.resolveClassMethod(NSSelectorFromString("authorization"))) {

@@ -55,6 +55,7 @@ internal actual fun RequestPermission(
             get() {
                 if (listenToStatus) {
                     if (!permission.isDeclaredInManifest()) return PermissionStatus.NotDeclared
+                    if (!permission.isServiceAvailable()) return PermissionStatus.Unavailable
                     val status = when (accStatus) {
                         com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
                         is com.google.accompanist.permissions.PermissionStatus.Denied -> {
@@ -78,6 +79,7 @@ internal actual fun RequestPermission(
 
         override fun openAppSettings() = openAppSettingsPlatform()
         override fun checkPermissionStatus() = status
+
     }
 }
 

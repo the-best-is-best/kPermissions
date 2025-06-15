@@ -55,10 +55,6 @@ actual object LocationInUsePermission : Permission {
             manager.delegate = delegate
             manager.requestWhenInUseAuthorization()
         }
-
-    override fun checkPermissionStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 }
 
 private class LocationPermissionDelegate(
