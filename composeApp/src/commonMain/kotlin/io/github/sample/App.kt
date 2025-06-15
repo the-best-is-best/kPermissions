@@ -37,6 +37,7 @@ import io.github.kpermissionnotification.NotificationPermission
 import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
+import io.github.kpermissionsbluetooth.BluetoothPermission
 import io.github.kpermissionslocationAlways.LocationAlwaysPermission
 import io.github.kpermissionslocationChecker.locationServiceEnabledFlow
 import io.github.kpermissionslocationWhenInUse.LocationInUsePermission
@@ -94,7 +95,8 @@ fun SinglePermissionsScreen() {
         ReadVideoPermission,
         LocationInUsePermission,
         LocationAlwaysPermission,
-        NotificationPermission
+        NotificationPermission,
+        BluetoothPermission
     )
 
     val unavailablePermissions = permissions.filterNot { it.isServiceAvailable() }.map { it.name }

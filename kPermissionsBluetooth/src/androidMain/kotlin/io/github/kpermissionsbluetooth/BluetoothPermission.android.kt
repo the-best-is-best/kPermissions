@@ -34,5 +34,14 @@ actual object BluetoothPermission : Permission {
         return adapter?.isEnabled == true
     }
 
+    fun openAppBluetoothSettings() {
+        val context = AppContextProvider.appContext
+        val intent =
+            android.content.Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS).apply {
+                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+        context.startActivity(intent)
+    }
+
 
 }

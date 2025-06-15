@@ -52,6 +52,7 @@ kotlin {
             implementation(projects.kpermissionsCMPLocationAlways)
             implementation(projects.kpermissionsLocationChecker)
             implementation(projects.kPermissionsNotification)
+            implementation(projects.kPermissionsBluetooth)
 
             implementation(projects.kPermissionsCMP)
         }
