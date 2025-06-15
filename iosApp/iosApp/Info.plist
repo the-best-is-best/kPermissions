@@ -18,5 +18,8 @@
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>Test</string>
     
+    <key>NSUserNotificationUsageDescription</key>
+    <string>Test</string>
+
 </dict>
 </plist>

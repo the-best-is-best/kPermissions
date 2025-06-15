@@ -45,11 +45,11 @@ actual object NotificationPermission : Permission {
                     }
 
                     UNAuthorizationStatusDenied -> {
-                        PermissionStatus.Denied
+                        PermissionStatus.DeniedPermanently
                     }
 
                     UNAuthorizationStatusNotDetermined -> {
-                        PermissionStatus.DeniedPermanently
+                        PermissionStatus.Denied
                     }
 
                     else -> {
