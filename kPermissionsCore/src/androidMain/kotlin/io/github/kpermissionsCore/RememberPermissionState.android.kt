@@ -29,7 +29,7 @@ internal actual fun RequestPermission(
             override val status: PermissionStatus = PermissionStatus.Unavailable
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
-            override suspend fun refreshStatus(): PermissionStatus {
+            override fun refreshStatus(): PermissionStatus {
                 return permission.refreshStatus()
             }
 
@@ -51,7 +51,7 @@ internal actual fun RequestPermission(
             override val status: PermissionStatus = PermissionStatus.Granted
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
-            override suspend fun refreshStatus(): PermissionStatus {
+            override fun refreshStatus(): PermissionStatus {
                 return permission.refreshStatus()
             }
         }
@@ -99,7 +99,7 @@ internal actual fun RequestPermission(
             openAppSettingsPlatform()
         }
 
-        override suspend fun refreshStatus(): PermissionStatus {
+        override fun refreshStatus(): PermissionStatus {
             return permission.refreshStatus()
         }
     }
@@ -135,7 +135,7 @@ internal actual fun RequestMultiPermissions(
                 override fun launchPermissionRequest() {}
                 override fun openAppSettings() {}
 
-                override suspend fun refreshStatus(): PermissionStatus {
+                override fun refreshStatus(): PermissionStatus {
                     return permission.refreshStatus()
                 }
             }
@@ -175,7 +175,7 @@ internal actual fun RequestMultiPermissions(
                 openAppSettingsPlatform()
             }
 
-            override suspend fun refreshStatus(): PermissionStatus {
+            override fun refreshStatus(): PermissionStatus {
                 return perm.refreshStatus()
             }
         }
@@ -187,7 +187,7 @@ internal actual fun RequestMultiPermissions(
             override val status = PermissionStatus.Granted
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
-            override suspend fun refreshStatus(): PermissionStatus {
+            override fun refreshStatus(): PermissionStatus {
                 return it.refreshStatus()
             }
         }

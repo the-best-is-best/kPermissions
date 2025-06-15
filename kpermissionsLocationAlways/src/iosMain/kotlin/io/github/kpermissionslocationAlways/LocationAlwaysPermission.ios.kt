@@ -44,8 +44,6 @@ actual object LocationAlwaysPermission : Permission {
             kCLAuthorizationStatusNotDetermined -> PermissionStatus.Denied
             else -> PermissionStatus.Denied
         }
-
-        println("🔍 iOS Location Permission Status: $status")
         return status
     }
 
