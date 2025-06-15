@@ -38,6 +38,8 @@ import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
 import io.github.kpermissionsbluetooth.BluetoothPermission
+import io.github.kpermissionsbluetooth.bluetoothStateFlow
+import io.github.kpermissionscmpbluetooth.openBluetoothSettingsCMP
 import io.github.kpermissionslocationAlways.LocationAlwaysPermission
 import io.github.kpermissionslocationChecker.locationServiceEnabledFlow
 import io.github.kpermissionslocationWhenInUse.LocationInUsePermission
@@ -104,6 +106,10 @@ fun SinglePermissionsScreen() {
     var showUnavailableDialog by remember { mutableStateOf(false) }
     var clickedUnavailablePermission by remember { mutableStateOf<String?>(null) }
 
+
+    val isLocationEnabled by locationServiceEnabledFlow.collectAsState(initial = false)
+    val isBluetoothOn by bluetoothStateFlow().collectAsState(initial = false)
+
     Column(
 
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -115,12 +121,18 @@ fun SinglePermissionsScreen() {
             val state = rememberPermissionState(permission) { granted ->
                 println("${permission.name} granted = $granted")
             }
-
-            val isLocationEnabled by locationServiceEnabledFlow.collectAsState(initial = false)
-            LaunchedEffect(isLocationEnabled) {
-                LocationAlwaysPermission.isServiceAvailable()
-                LocationInUsePermission.isServiceAvailable()
-                state.refreshStatus()
+            if (state.permission is LocationInUsePermission || state.permission is LocationAlwaysPermission) {
+                LaunchedEffect(isLocationEnabled) {
+                    LocationAlwaysPermission.isServiceAvailable()
+                    LocationInUsePermission.isServiceAvailable()
+                    state.refreshStatus()
+                }
+            }
+            if (state.permission is BluetoothPermission) {
+                LaunchedEffect(isBluetoothOn) {
+                    BluetoothPermission.isServiceAvailable()
+                    state.refreshStatus()
+                }
             }
 
             val onRequest: () -> Unit = {
@@ -131,8 +143,11 @@ fun SinglePermissionsScreen() {
                         try {
                             if (permission is LocationInUsePermission || permission is LocationAlwaysPermission) {
                                 LocationInUsePermission.openPrivacySettings()
+                            } else if (permission is BluetoothPermission) {
+                                BluetoothPermission.openBluetoothSettingsCMP()
                             } else {
-                                println("Service settings cannot be opened for ${permission.name} on this platform.")
+
+                                println("Service settings cannot be opened for ${permission.name} on any platform.")
                             }
                         } catch (e: Exception) {
                             clickedUnavailablePermission = permission.name

@@ -1,0 +1,5 @@
+package io.github.kpermissionscmpbluetooth
+
+import io.github.kpermissionsbluetooth.BluetoothPermission
+
+expect fun BluetoothPermission.openBluetoothSettingsCMP()
