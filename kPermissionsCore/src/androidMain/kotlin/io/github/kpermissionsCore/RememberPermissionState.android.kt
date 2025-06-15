@@ -1,24 +1,22 @@
 package io.github.kpermissionsCore
 
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.edit
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
-import io.github.kPermissions_api.AndroidPermission
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kPermissions_api.isDeclaredInManifest
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 internal actual fun RequestPermission(
@@ -27,9 +25,7 @@ internal actual fun RequestPermission(
 ): PermissionState {
     val androidPermission = permission.androidPermissionName
     val currentSdk = android.os.Build.VERSION.SDK_INT
-    val context = AndroidPermission.getActivity() ?: LocalContext.current
 
-    // تخطي إذا الإذن غير مطلوب أو خارجه من SDK range
     if (androidPermission == null ||
         permission.getIgnore() == PlatformIgnore.Android ||
         (permission.minSdk != null && currentSdk < permission.minSdk!!) ||
@@ -40,18 +36,12 @@ internal actual fun RequestPermission(
     }
 
     val launcher = rememberPermissionState(androidPermission)
-    val sharedPrefs = remember {
-        context.getSharedPreferences("kPermissions_cmp", Context.MODE_PRIVATE)
-    }
-    var shouldRequest by remember { mutableStateOf(false) }
 
-    LaunchedEffect(launcher.status, shouldRequest) {
-        if (shouldRequest) {
-            shouldRequest = false
-        }
-        val granted = launcher.status == com.google.accompanist.permissions.PermissionStatus.Granted
-        onPermissionResult(granted)
-    }
+    var shouldRequest by remember { mutableStateOf(true) }
+
+
+    val accStatus = launcher.status
+
 
     return object : PermissionState {
         override val permission = permission
@@ -59,13 +49,11 @@ internal actual fun RequestPermission(
             get() {
                 if (!permission.isDeclaredInManifest()) return PermissionStatus.NotDeclared
 
-                val accStatus = launcher.status
-                val alreadyRequested = sharedPrefs.getBoolean("requested_${permission.name}", false)
 
                 return when (accStatus) {
                     com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
                     is com.google.accompanist.permissions.PermissionStatus.Denied -> {
-                        if (accStatus.shouldShowRationale || !alreadyRequested) {
+                        if (shouldRequest || accStatus.shouldShowRationale) {
                             PermissionStatus.Denied
                         } else {
                             PermissionStatus.DeniedPermanently
@@ -75,11 +63,9 @@ internal actual fun RequestPermission(
             }
 
         override fun launchPermissionRequest() {
-            sharedPrefs.edit {
-                putBoolean("requested_${permission.name}", true)
-            }
+
             launcher.launchPermissionRequest()
-            shouldRequest = true
+            shouldRequest = false
         }
 
         override fun openAppSettings() = openAppSettingsPlatform()
@@ -94,7 +80,6 @@ internal actual fun RequestMultiPermissions(
     onPermissionsResult: (Boolean) -> Unit
 ): List<PermissionState> {
     val currentSdk = android.os.Build.VERSION.SDK_INT
-    val context = AndroidPermission.getActivity() ?: LocalContext.current
 
     val filteredPermissions = remember(permissions) {
         permissions.filter {
@@ -108,48 +93,54 @@ internal actual fun RequestMultiPermissions(
     val androidPermissions = filteredPermissions.mapNotNull { it.androidPermissionName }
     val multipleLauncher = rememberMultiplePermissionsState(androidPermissions)
 
-    val sharedPrefs = remember {
-        context.getSharedPreferences("kPermissions_cmp", Context.MODE_PRIVATE)
+    val shouldRequestList = remember { mutableStateListOf<Boolean>() }
+
+    LaunchedEffect(filteredPermissions) {
+        if (shouldRequestList.size != filteredPermissions.size) {
+            shouldRequestList.clear()
+            shouldRequestList.addAll(List(filteredPermissions.size) { true })
+        }
     }
 
     LaunchedEffect(multipleLauncher.permissions) {
-        val allGranted =
-            multipleLauncher.permissions.all { it.status == com.google.accompanist.permissions.PermissionStatus.Granted }
+        val allGranted = multipleLauncher.permissions.all {
+            it.status == com.google.accompanist.permissions.PermissionStatus.Granted
+        }
         onPermissionsResult(allGranted)
     }
 
     return filteredPermissions.mapIndexed { index, perm ->
         object : PermissionState {
             override val permission = perm
+
             override val status: PermissionStatus
                 get() {
                     if (!perm.isDeclaredInManifest()) return PermissionStatus.NotDeclared
 
                     val accStatus = multipleLauncher.permissions.getOrNull(index)?.status
-                    val alreadyRequested = sharedPrefs.getBoolean("requested_${perm.name}", false)
+                        ?: return PermissionStatus.Denied
 
                     return when (accStatus) {
-                        com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
+                        is com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
                         is com.google.accompanist.permissions.PermissionStatus.Denied -> {
-                            if (accStatus.shouldShowRationale || !alreadyRequested) {
+                            if (shouldRequestList.getOrNull(index) == true || accStatus.shouldShowRationale) {
                                 PermissionStatus.Denied
                             } else {
                                 PermissionStatus.DeniedPermanently
                             }
                         }
-
-                        else -> PermissionStatus.Denied
                     }
                 }
 
             override fun launchPermissionRequest() {
-                sharedPrefs.edit {
-                    putBoolean("requested_${perm.name}", true)
-                }
                 multipleLauncher.launchMultiplePermissionRequest()
+                if (index in shouldRequestList.indices) {
+                    shouldRequestList[index] = false
+                }
             }
 
             override fun openAppSettings() = openAppSettingsPlatform()
+
             override fun checkPermissionStatus() = status
         }
     } + (permissions - filteredPermissions.toSet()).map {
@@ -162,6 +153,7 @@ internal actual fun RequestMultiPermissions(
         }
     }
 }
+
 
 @Composable
 private fun grantedState(permission: Permission) = object : PermissionState {

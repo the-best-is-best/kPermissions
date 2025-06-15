@@ -1,7 +1,6 @@
 package io.github.kpermissions_cmp
 
 import io.github.kPermissions_api.Permission
-import io.github.kPermissions_api.PermissionStatus
 
 
 enum class PlatformIgnore {
@@ -22,4 +21,3 @@ fun Permission.getIgnore(): PlatformIgnore {
 }
 
 
-expect fun Permission.checkPermissionStatusCMP(): PermissionStatus

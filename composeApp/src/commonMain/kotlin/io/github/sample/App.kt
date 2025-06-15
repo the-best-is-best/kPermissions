@@ -37,7 +37,6 @@ import io.github.kpermissionnotification.NotificationPermission
 import io.github.kpermissionsCamera.CameraPermission
 import io.github.kpermissionsCore.rememberMultiplePermissionsState
 import io.github.kpermissionsCore.rememberPermissionState
-import io.github.kpermissions_cmp.checkPermissionStatusCMP
 import io.github.kpermissionsbluetooth.BluetoothPermission
 import io.github.kpermissionsbluetooth.bluetoothStateFlow
 import io.github.kpermissionscmpbluetooth.openBluetoothSettingsCMP
@@ -102,9 +101,6 @@ fun SinglePermissionsScreen() {
         BluetoothPermission
     )
 
-    LaunchedEffect(Unit) {
-        println("camera permission status: ${CameraPermission.checkPermissionStatusCMP()}")
-    }
 
     val unavailablePermissions = permissions.filterNot { it.isServiceAvailable() }.map { it.name }
 
