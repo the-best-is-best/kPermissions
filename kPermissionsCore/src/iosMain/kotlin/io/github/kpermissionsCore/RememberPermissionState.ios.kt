@@ -11,6 +11,10 @@ import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
+
+internal val PermissionStatus.canRequest: Boolean
+    get() = this == PermissionStatus.Denied || this == PermissionStatus.NotDeclared
+
 @Composable
 actual fun RequestPermission(
     permission: Permission,
@@ -45,7 +49,6 @@ actual fun RequestPermission(
     fun getStatus() = permission.getPermissionStatus()
     var stateValue by remember { mutableStateOf(getStatus()) }
 
-    // فقط نطلق onPermissionResult عندما تتغير الحالة
     LaunchedEffect(stateValue) {
         onPermissionResult(stateValue == PermissionStatus.Granted)
     }
@@ -66,6 +69,8 @@ actual fun RequestPermission(
             }
 
         override fun launchPermissionRequest() {
+            if (!stateValue.canRequest) return
+
             permission.permissionRequest { granted ->
                 val newStatus =
                     if (granted) PermissionStatus.Granted else permission.getPermissionStatus()

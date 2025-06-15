@@ -42,5 +42,5 @@ fun requestMultiplePermissionsWithStatus(
     onRequest: (Permission, (Boolean) -> Unit) -> Unit,
     onResult: (Boolean) -> Unit
 ) {
-    requestPermissionsSequentially(permissions, 0, onRequest, onResult)
+    requestPermissionsSequentially(permissions, 0, true, onRequest, onResult)
 }

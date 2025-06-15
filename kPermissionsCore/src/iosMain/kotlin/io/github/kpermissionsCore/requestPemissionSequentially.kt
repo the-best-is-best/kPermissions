@@ -6,70 +6,97 @@ import io.github.kPermissions_api.PermissionStatus
 internal fun requestPermissionsSequentially(
     permissions: List<Permission>,
     index: Int = 0,
+    grantedSoFar: Boolean = true,
     onComplete: (Boolean) -> Unit
 ) {
     if (index >= permissions.size) {
-        onComplete(true)
+        onComplete(grantedSoFar)
         return
     }
 
     val permission = permissions[index]
-    val status = getStatus(permission)
-
-    when (status) {
-        is PermissionStatus.Granted -> {
-            requestPermissionsSequentially(permissions, index + 1, onComplete)
+    when (val status = getStatus(permission)) {
+        is PermissionStatus.Granted,
+        is PermissionStatus.DeniedPermanently -> {
+            requestPermissionsSequentially(
+                permissions,
+                index + 1,
+                grantedSoFar && status is PermissionStatus.Granted,
+                onComplete
+            )
         }
 
         is PermissionStatus.Unavailable,
         is PermissionStatus.NotDeclared -> {
-            onComplete(false)
+            requestPermissionsSequentially(
+                permissions,
+                index + 1,
+                false,
+                onComplete
+            )
         }
 
         else -> {
             permission.permissionRequest { granted ->
-                if (!granted) {
-                    onComplete(false)
-                } else {
-                    requestPermissionsSequentially(permissions, index + 1, onComplete)
-                }
+                val updatedGranted = grantedSoFar && granted
+                requestPermissionsSequentially(
+                    permissions,
+                    index + 1,
+                    updatedGranted,
+                    onComplete
+                )
             }
         }
     }
 }
+
 
 internal fun requestPermissionsSequentially(
     permissions: List<Permission>,
     index: Int = 0,
+    grantedSoFar: Boolean = true,
     onRequest: (Permission, (Boolean) -> Unit) -> Unit,
     onComplete: (Boolean) -> Unit
 ) {
     if (index >= permissions.size) {
-        onComplete(true)
+        onComplete(grantedSoFar)
         return
     }
 
     val permission = permissions[index]
-    val status = getStatus(permission)
+    when (val status = getStatus(permission)) {
+        is PermissionStatus.Granted,
+        is PermissionStatus.DeniedPermanently -> {
+            requestPermissionsSequentially(
+                permissions,
+                index + 1,
+                grantedSoFar && status is PermissionStatus.Granted,
+                onRequest,
+                onComplete
+            )
+        }
 
-    when (status) {
-        is PermissionStatus.Granted -> requestPermissionsSequentially(
-            permissions,
-            index + 1,
-            onRequest,
-            onComplete
-        )
+        is PermissionStatus.Unavailable,
+        is PermissionStatus.NotDeclared -> {
+            requestPermissionsSequentially(
+                permissions,
+                index + 1,
+                false,
+                onRequest,
+                onComplete
+            )
+        }
 
-        is PermissionStatus.Unavailable, is PermissionStatus.NotDeclared -> onComplete(false)
         else -> {
             onRequest(permission) { granted ->
-                if (!granted) {
-                    onComplete(false)
-                } else {
-                    requestPermissionsSequentially(permissions, index + 1, onRequest, onComplete)
-                }
+                requestPermissionsSequentially(
+                    permissions,
+                    index + 1,
+                    grantedSoFar && granted,
+                    onRequest,
+                    onComplete
+                )
             }
         }
     }
 }
-
