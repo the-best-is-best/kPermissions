@@ -101,56 +101,66 @@ fun SinglePermissionsScreen() {
         BluetoothPermission
     )
 
-
+    // List of permissions that are not service-available on the current device
     val unavailablePermissions = permissions.filterNot { it.isServiceAvailable() }.map { it.name }
 
     var showUnavailableDialog by remember { mutableStateOf(false) }
     var clickedUnavailablePermission by remember { mutableStateOf<String?>(null) }
 
-
     val isLocationEnabled by locationServiceEnabledFlow.collectAsState(initial = false)
     val isBluetoothOn by bluetoothStateFlow().collectAsState(initial = false)
 
     Column(
-
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(top = 16.dp)
+        modifier = Modifier
+            .padding(top = 16.dp)
             .verticalScroll(rememberScrollState())
-
     ) {
         permissions.forEach { permission ->
             val state = rememberPermissionState(permission) { granted ->
                 println("${permission.name} granted = $granted")
             }
-            if (state.permission is LocationInUsePermission || state.permission is LocationAlwaysPermission) {
+
+            // Listen for changes in location or Bluetooth states
+            if (permission is LocationInUsePermission || permission is LocationAlwaysPermission) {
                 LaunchedEffect(isLocationEnabled) {
-                    LocationAlwaysPermission.isServiceAvailable()
-                    LocationInUsePermission.isServiceAvailable()
+                    // Refresh permission state when location status changes
                     state.checkPermissionStatus()
                 }
             }
-            if (state.permission is BluetoothPermission) {
+            if (permission is BluetoothPermission) {
                 LaunchedEffect(isBluetoothOn) {
-                    BluetoothPermission.isServiceAvailable()
+                    // Refresh permission state when Bluetooth status changes
                     state.checkPermissionStatus()
                 }
             }
 
             val onRequest: () -> Unit = {
                 when (state.status) {
-                    PermissionStatus.Denied -> state.launchPermissionRequest()
-                    PermissionStatus.DeniedPermanently -> state.openAppSettings()
+                    PermissionStatus.Granted -> {
+                        // Permission already granted
+                        println("${permission.name} is already granted.")
+                    }
+
+                    PermissionStatus.Denied -> {
+                        // Request permission again
+                        state.launchPermissionRequest()
+                    }
+
+                    PermissionStatus.DeniedPermanently -> {
+                        // Open app settings to manually grant permission
+                        state.openAppSettings()
+                    }
                     PermissionStatus.Unavailable -> {
+                        // Handle permissions that are not available on device or SDK version
                         try {
                             when (permission) {
                                 is LocationInUsePermission, is LocationAlwaysPermission -> {
                                     LocationInUsePermission.openPrivacySettings()
                                 }
-
                                 is BluetoothPermission -> {
                                     BluetoothPermission.openBluetoothSettingsCMP()
                                 }
-
                                 else -> {
                                     clickedUnavailablePermission = permission.name
                                     showUnavailableDialog = true
@@ -160,9 +170,9 @@ fun SinglePermissionsScreen() {
                             clickedUnavailablePermission = permission.name
                             showUnavailableDialog = true
                         }
-
                     }
-                    else -> println("${permission.name} already: ${state.status}")
+
+                    PermissionStatus.NotDeclared -> {}
                 }
             }
 
@@ -170,8 +180,7 @@ fun SinglePermissionsScreen() {
                 Text("Request ${permission.name} Permission")
             }
 
-            Text("${permission.name} Permission Status: ${state.status}")
-
+            Text(text = "${permission.name} Permission Status: ${state.status}")
         }
 
         if (unavailablePermissions.isNotEmpty()) {
@@ -192,10 +201,11 @@ fun SinglePermissionsScreen() {
     }
 }
 
+
 @Composable
 fun MultiPermissionTestScreen() {
     val requiredPermissions = listOf<Permission>(
-        CameraPermission,
+        NotificationPermission,
         GalleryPermission
     )
 
@@ -228,6 +238,9 @@ fun MultiPermissionTestScreen() {
         if (shouldTriggerLauncher) {
             states.firstOrNull()?.launchPermissionRequest()
             shouldTriggerLauncher = false
+            if (states.any { it.status == PermissionStatus.DeniedPermanently }) {
+                states.first().openAppSettings()
+            }
         }
     }
 

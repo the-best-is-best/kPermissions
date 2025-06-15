@@ -11,7 +11,6 @@ import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
-
 @Composable
 actual fun RequestPermission(
     permission: Permission,
@@ -46,7 +45,8 @@ actual fun RequestPermission(
     fun getStatus() = permission.getPermissionStatus()
     var stateValue by remember { mutableStateOf(getStatus()) }
 
-    LaunchedEffect(permission) {
+    // فقط نطلق onPermissionResult عندما تتغير الحالة
+    LaunchedEffect(stateValue) {
         onPermissionResult(stateValue == PermissionStatus.Granted)
     }
 
@@ -54,7 +54,6 @@ actual fun RequestPermission(
         val newStatus = getStatus()
         if (newStatus != stateValue) {
             stateValue = newStatus
-            onPermissionResult(newStatus == PermissionStatus.Granted)
         }
     }
 
@@ -68,20 +67,25 @@ actual fun RequestPermission(
 
         override fun launchPermissionRequest() {
             permission.permissionRequest { granted ->
-                status =
+                val newStatus =
                     if (granted) PermissionStatus.Granted else permission.checkPermissionStatus()
-                onPermissionResult(granted)
+                if (newStatus != stateValue) {
+                    stateValue = newStatus
+                }
             }
         }
 
         override fun openAppSettings() = openAppSettingsPlatform()
         override fun checkPermissionStatus(): PermissionStatus {
             val refreshed = permission.checkPermissionStatus()
-            status = refreshed
+            if (refreshed != stateValue) {
+                stateValue = refreshed
+            }
             return refreshed
         }
     }
 }
+
 
 @Composable
 internal actual fun RequestMultiPermissions(
@@ -162,12 +166,15 @@ internal actual fun RequestMultiPermissions(
                 }
 
             override fun launchPermissionRequest() {
-                permission.permissionRequest { granted ->
-                    status =
-                        if (granted) PermissionStatus.Granted else permission.checkPermissionStatus()
-                    onPermissionsResult(checkAllGranted())
+                if (permissions.isEmpty()) {
+                    onPermissionsResult(true)
+                    return
+                }
+                requestPermissionsSequentially(filtered) { allGranted ->
+                    onPermissionsResult(allGranted)
                 }
             }
+
 
             override fun openAppSettings() = openAppSettingsPlatform()
             override fun checkPermissionStatus(): PermissionStatus {
@@ -180,3 +187,4 @@ internal actual fun RequestMultiPermissions(
 
     return actualStates + ignoredStates
 }
+
