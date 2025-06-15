@@ -26,7 +26,7 @@
 
 ---
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.the-best-is-best/kpermissionsapi)](https://central.sonatype.com/artifact/io.github.the-best-is-best/kpermissionsapi)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.the-best-is-best/KPermissionsApi)](https://central.sonatype.com/artifact/io.github.the-best-is-best/KPermissionsApi)
 
 KPermissionsApi is available on `mavenCentral()`.
 
@@ -37,7 +37,6 @@ KPermissionsApi is available on `mavenCentral()`.
 
 - **Note:** Make sure to add the necessary permissions declarations in both Android
   `AndroidManifest.xml` and iOS `Info.plist`.
-
 
 - **Important for Android users:**  
   To enable proper permission handling on Android, you **must** call:
