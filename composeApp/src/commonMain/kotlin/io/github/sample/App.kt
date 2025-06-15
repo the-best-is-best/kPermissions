@@ -192,7 +192,6 @@ fun SinglePermissionsScreen() {
     }
 }
 
-
 @Composable
 fun MultiPermissionTestScreen() {
     val requiredPermissions = listOf<Permission>(
@@ -210,11 +209,13 @@ fun MultiPermissionTestScreen() {
 
     var showUnavailableDialog by remember { mutableStateOf(false) }
 
+    var shouldTriggerLauncher by remember { mutableStateOf(false) }
+
     val states = rememberMultiplePermissionsState(
         permissions = availablePermissions,
         onPermissionsResult = { granted ->
             println("All permissions granted? $granted")
-        }
+        },
     )
 
     var allGranted by remember { mutableStateOf(false) }
@@ -223,7 +224,12 @@ fun MultiPermissionTestScreen() {
         allGranted = states.all { it.status == PermissionStatus.Granted }
     }
 
-
+    LaunchedEffect(shouldTriggerLauncher) {
+        if (shouldTriggerLauncher) {
+            states.firstOrNull()?.launchPermissionRequest()
+            shouldTriggerLauncher = false
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -237,19 +243,11 @@ fun MultiPermissionTestScreen() {
                 return@Button
             }
 
-            states.forEach { state ->
-
-            when (state.status) {
-                    PermissionStatus.Denied -> state.launchPermissionRequest()
-                    PermissionStatus.DeniedPermanently -> state.openAppSettings()
-                    else -> Unit
-                }
-            }
+            shouldTriggerLauncher = true
 
         }) {
             Text("Request All Permissions")
         }
-
 
         Text("All Permissions Granted: $allGranted")
 

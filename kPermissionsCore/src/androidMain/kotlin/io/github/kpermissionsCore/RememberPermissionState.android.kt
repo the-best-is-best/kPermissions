@@ -3,10 +3,10 @@ package io.github.kpermissionsCore
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
@@ -38,32 +38,40 @@ internal actual fun RequestPermission(
     val launcher = rememberPermissionState(androidPermission)
 
     var shouldRequest by remember { mutableStateOf(true) }
+    var listenToStatus by remember { mutableStateOf(true) }
 
 
     val accStatus = launcher.status
+    LaunchedEffect(accStatus) {
+        listenToStatus = true
 
+        onPermissionResult(accStatus is com.google.accompanist.permissions.PermissionStatus.Granted)
+    }
+    var currentStatus by remember { mutableStateOf<PermissionStatus?>(null) }
 
     return object : PermissionState {
         override val permission = permission
         override val status: PermissionStatus
             get() {
-                if (!permission.isDeclaredInManifest()) return PermissionStatus.NotDeclared
-
-
-                return when (accStatus) {
-                    com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
-                    is com.google.accompanist.permissions.PermissionStatus.Denied -> {
-                        if (shouldRequest || accStatus.shouldShowRationale) {
-                            PermissionStatus.Denied
-                        } else {
-                            PermissionStatus.DeniedPermanently
+                if (listenToStatus) {
+                    if (!permission.isDeclaredInManifest()) return PermissionStatus.NotDeclared
+                    val status = when (accStatus) {
+                        com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
+                        is com.google.accompanist.permissions.PermissionStatus.Denied -> {
+                            if (shouldRequest || accStatus.shouldShowRationale) {
+                                PermissionStatus.Denied
+                            } else {
+                                PermissionStatus.DeniedPermanently
+                            }
                         }
                     }
+                    currentStatus = status
                 }
+                return currentStatus ?: PermissionStatus.Denied
             }
 
         override fun launchPermissionRequest() {
-
+            listenToStatus = false
             launcher.launchPermissionRequest()
             shouldRequest = false
         }
@@ -93,23 +101,31 @@ internal actual fun RequestMultiPermissions(
     val androidPermissions = filteredPermissions.mapNotNull { it.androidPermissionName }
     val multipleLauncher = rememberMultiplePermissionsState(androidPermissions)
 
-    val shouldRequestList = remember { mutableStateListOf<Boolean>() }
-
-    LaunchedEffect(filteredPermissions) {
-        if (shouldRequestList.size != filteredPermissions.size) {
-            shouldRequestList.clear()
-            shouldRequestList.addAll(List(filteredPermissions.size) { true })
-        }
-    }
-
-    LaunchedEffect(multipleLauncher.permissions) {
-        val allGranted = multipleLauncher.permissions.all {
-            it.status == com.google.accompanist.permissions.PermissionStatus.Granted
-        }
-        onPermissionsResult(allGranted)
+    LaunchedEffect(multipleLauncher.permissions.map { it.status }) {
+        snapshotFlow { multipleLauncher.permissions.map { it.status } }
+            .collect { statusList ->
+                val mappedStatuses = statusList.map {
+                    when (it) {
+                        is com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
+                        is com.google.accompanist.permissions.PermissionStatus.Denied -> {
+                            if (it.shouldShowRationale) PermissionStatus.Denied else PermissionStatus.DeniedPermanently
+                        }
+                    }
+                }
+                onPermissionsResult(mappedStatuses.all { it == PermissionStatus.Granted })
+            }
     }
 
     return filteredPermissions.mapIndexed { index, perm ->
+
+        var shouldRequest by remember { mutableStateOf(true) }
+        var listenToStatus by remember { mutableStateOf(true) }
+        var currentStatus by remember { mutableStateOf<PermissionStatus?>(null) }
+
+        LaunchedEffect(multipleLauncher.permissions.getOrNull(index)?.status) {
+            listenToStatus = true
+        }
+
         object : PermissionState {
             override val permission = perm
 
@@ -120,23 +136,27 @@ internal actual fun RequestMultiPermissions(
                     val accStatus = multipleLauncher.permissions.getOrNull(index)?.status
                         ?: return PermissionStatus.Denied
 
-                    return when (accStatus) {
-                        is com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
-                        is com.google.accompanist.permissions.PermissionStatus.Denied -> {
-                            if (shouldRequestList.getOrNull(index) == true || accStatus.shouldShowRationale) {
-                                PermissionStatus.Denied
-                            } else {
-                                PermissionStatus.DeniedPermanently
+                    if (listenToStatus) {
+                        val status = when (accStatus) {
+                            is com.google.accompanist.permissions.PermissionStatus.Granted -> PermissionStatus.Granted
+                            is com.google.accompanist.permissions.PermissionStatus.Denied -> {
+                                if (shouldRequest || accStatus.shouldShowRationale) {
+                                    PermissionStatus.Denied
+                                } else {
+                                    PermissionStatus.DeniedPermanently
+                                }
                             }
                         }
+                        currentStatus = status
                     }
+
+                    return currentStatus ?: PermissionStatus.Denied
                 }
 
             override fun launchPermissionRequest() {
+                listenToStatus = false
+                shouldRequest = false
                 multipleLauncher.launchMultiplePermissionRequest()
-                if (index in shouldRequestList.indices) {
-                    shouldRequestList[index] = false
-                }
             }
 
             override fun openAppSettings() = openAppSettingsPlatform()
