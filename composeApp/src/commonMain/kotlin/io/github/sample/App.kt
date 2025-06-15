@@ -141,15 +141,21 @@ fun SinglePermissionsScreen() {
                     PermissionStatus.DeniedPermanently -> state.openAppSettings()
                     PermissionStatus.Unavailable -> {
                         try {
-                            if (permission is LocationInUsePermission || permission is LocationAlwaysPermission) {
-                                LocationInUsePermission.openPrivacySettings()
-                            } else if (permission is BluetoothPermission) {
-                                BluetoothPermission.openBluetoothSettingsCMP()
-                            } else {
+                            when (permission) {
+                                is LocationInUsePermission, is LocationAlwaysPermission -> {
+                                    LocationInUsePermission.openPrivacySettings()
+                                }
 
-                                println("Service settings cannot be opened for ${permission.name} on any platform.")
+                                is BluetoothPermission -> {
+                                    BluetoothPermission.openBluetoothSettingsCMP()
+                                }
+
+                                else -> {
+                                    clickedUnavailablePermission = permission.name
+                                    showUnavailableDialog = true
+                                }
                             }
-                        } catch (e: Exception) {
+                        } catch (e: UnsupportedOperationException) {
                             clickedUnavailablePermission = permission.name
                             showUnavailableDialog = true
                         }

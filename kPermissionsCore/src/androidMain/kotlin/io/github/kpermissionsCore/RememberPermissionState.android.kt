@@ -32,9 +32,9 @@ internal actual fun RequestPermission(
             override fun checkPermissionStatus(): PermissionStatus {
                 return permission.checkPermissionStatus()
             }
-
         }
     }
+
     val androidPermission = permission.androidPermissionName
     val currentSdk = android.os.Build.VERSION.SDK_INT
     val minSdk = permission.minSdk
@@ -103,8 +103,8 @@ internal actual fun RequestPermission(
             return permission.checkPermissionStatus()
         }
     }
-
 }
+
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -160,6 +160,7 @@ internal actual fun RequestMultiPermissions(
                 if (!denied.shouldShowRationale && askedBefore) PermissionStatus.DeniedPermanently
                 else PermissionStatus.Denied
             }
+
             else -> PermissionStatus.Denied
         }
 

@@ -17,6 +17,7 @@ actual interface Permission {
 }
 
 fun Permission.checkPermissionStatus(): PermissionStatus {
+
     val sdkInt = Build.VERSION.SDK_INT
 
     if (androidPermissionName == null ||
