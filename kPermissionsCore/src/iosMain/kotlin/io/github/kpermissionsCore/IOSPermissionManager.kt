@@ -4,7 +4,6 @@ import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
 import kotlin.experimental.ExperimentalObjCName
 
-
 private fun getStatus(permission: Permission): PermissionStatus =
     permission.getPermissionStatus()
 
@@ -15,16 +14,22 @@ fun requestPermission(
     permissionRequest: ((Boolean) -> Unit) -> Unit,
     onResult: (Boolean) -> Unit
 ) {
-    if (!permission.isServiceAvailable()) {
-        onResult(false)
-        return
-    }
-    val currentStatus = getStatus(permission)
-    if (currentStatus == PermissionStatus.Granted) {
-        onResult(true)
-    } else {
-        permissionRequest { granted ->
-            onResult(granted)
+    val status = getStatus(permission)
+
+    when (status) {
+        is PermissionStatus.Granted -> {
+            onResult(true)
+        }
+
+        is PermissionStatus.Unavailable,
+        is PermissionStatus.NotDeclared -> {
+            onResult(false)
+        }
+
+        else -> {
+            permissionRequest { granted ->
+                onResult(granted)
+            }
         }
     }
 }
@@ -41,16 +46,22 @@ fun requestPermissionWithStatus(
     permissionRequest: ((Boolean) -> Unit) -> Unit,
     onResult: (PermissionStatus) -> Unit
 ) {
-    if (!permission.isServiceAvailable()) {
-        onResult(PermissionStatus.Unavailable)
-        return
-    }
-    val currentStatus = getStatus(permission)
-    if (currentStatus == PermissionStatus.Granted) {
-        onResult(PermissionStatus.Granted)
-    } else {
-        permissionRequest { granted ->
-            onResult(if (granted) PermissionStatus.Granted else getStatus(permission))
+    when (val current = getStatus(permission)) {
+        is PermissionStatus.Granted,
+        is PermissionStatus.Unavailable,
+        is PermissionStatus.NotDeclared -> {
+            onResult(current)
+        }
+
+        else -> {
+            permissionRequest { granted ->
+                if (granted) {
+                    onResult(PermissionStatus.Granted)
+                } else {
+                    // إعادة التحقق بعد الرفض
+                    onResult(getStatus(permission))
+                }
+            }
         }
     }
 }
@@ -71,22 +82,27 @@ fun requestMultiplePermissionsWithStatus(
     }
 
     permissions.forEach { permission ->
-        if (!permission.isServiceAvailable()) {
-            allGranted = false
-            remaining--
-            if (remaining == 0) onResult(allGranted)
-            return@forEach
-        }
-        val currentStatus = getStatus(permission)
+        val status = getStatus(permission)
 
-        if (currentStatus == PermissionStatus.Granted) {
-            remaining--
-            if (remaining == 0) onResult(allGranted)
-        } else {
-            onRequest(permission) { granted ->
-                if (!granted) allGranted = false
+        when (status) {
+            is PermissionStatus.Granted -> {
                 remaining--
                 if (remaining == 0) onResult(allGranted)
+            }
+
+            is PermissionStatus.Unavailable,
+            is PermissionStatus.NotDeclared -> {
+                allGranted = false
+                remaining--
+                if (remaining == 0) onResult(allGranted)
+            }
+
+            else -> {
+                onRequest(permission) { granted ->
+                    if (!granted) allGranted = false
+                    remaining--
+                    if (remaining == 0) onResult(allGranted)
+                }
             }
         }
     }

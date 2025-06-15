@@ -5,6 +5,7 @@ sealed interface PermissionStatus {
     data object Denied : PermissionStatus
     data object DeniedPermanently : PermissionStatus
     data object Unavailable : PermissionStatus
+    data object NotDeclared : PermissionStatus
 }
 
 val PermissionStatus.isGranted: Boolean
@@ -18,6 +19,9 @@ val PermissionStatus.isDeniedPermanently: Boolean
 
 val PermissionStatus.Unavailable: Boolean
     get() = this == PermissionStatus.Unavailable
+
+val PermissionStatus.NotDeclared: Boolean
+    get() = this == PermissionStatus.NotDeclared
 
 
 /**

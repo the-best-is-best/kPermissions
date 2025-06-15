@@ -22,4 +22,4 @@ fun Permission.getIgnore(): PlatformIgnore {
 }
 
 
-expect fun Permission.refreshStatusCMP(): PermissionStatus
+expect fun Permission.checkPermissionStatusCMP(): PermissionStatus

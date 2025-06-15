@@ -4,6 +4,6 @@ import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kPermissions_api.checkPermissionStatus
 
-actual fun Permission.refreshStatusCMP(): PermissionStatus {
+actual fun Permission.checkPermissionStatusCMP(): PermissionStatus {
     return this.checkPermissionStatus()
 }

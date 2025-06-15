@@ -29,7 +29,9 @@ actual fun RequestPermission(
     }
 
     if (fixedStatus != null) {
-        onPermissionResult(fixedStatus == PermissionStatus.Granted)
+        LaunchedEffect(permission) {
+            onPermissionResult(fixedStatus == PermissionStatus.Granted)
+        }
         return object : PermissionState {
             override val permission: Permission = permission
             override var status: PermissionStatus
@@ -44,7 +46,7 @@ actual fun RequestPermission(
     fun getStatus() = permission.getPermissionStatus()
     var stateValue by remember { mutableStateOf(getStatus()) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(permission) {
         onPermissionResult(stateValue == PermissionStatus.Granted)
     }
 
@@ -66,7 +68,8 @@ actual fun RequestPermission(
 
         override fun launchPermissionRequest() {
             permission.permissionRequest { granted ->
-                status = if (granted) PermissionStatus.Granted else PermissionStatus.Denied
+                status =
+                    if (granted) PermissionStatus.Granted else permission.checkPermissionStatus()
                 onPermissionResult(granted)
             }
         }
@@ -79,6 +82,7 @@ actual fun RequestPermission(
         }
     }
 }
+
 @Composable
 internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
@@ -102,7 +106,7 @@ internal actual fun RequestMultiPermissions(
         val fixedStatus = when {
             isIgnored || isOutOfSdk -> PermissionStatus.Granted
             unavailable -> PermissionStatus.Unavailable
-            else -> PermissionStatus.Unavailable // fallback
+            else -> perm.checkPermissionStatus()
         }
 
         object : PermissionState {
@@ -121,24 +125,20 @@ internal actual fun RequestMultiPermissions(
 
     var stateMap by remember { mutableStateOf(getStatuses()) }
 
-    fun checkAllGranted(): Boolean {
+    fun checkAllGranted(): Boolean = permissions.all { perm ->
+        val isIgnored = perm.getIgnore() == PlatformIgnore.IOS
+        val isOutOfSdk = (perm.minSdk?.let { currentIosVersion < it } ?: false) ||
+                (perm.maxSdk?.let { currentIosVersion > it } ?: false)
+        val unavailable = !perm.isServiceAvailable()
 
-        val allGranted = permissions.all { perm ->
-            val isIgnored = perm.getIgnore() == PlatformIgnore.IOS
-            val isOutOfSdk = (perm.minSdk?.let { currentIosVersion < it } ?: false) ||
-                    (perm.maxSdk?.let { currentIosVersion > it } ?: false)
-            val unavailable = !perm.isServiceAvailable()
-
-            when {
-                isIgnored || isOutOfSdk -> true
-                unavailable -> false
-                else -> (stateMap[perm.name] == PermissionStatus.Granted)
-            }
+        when {
+            isIgnored || isOutOfSdk -> true
+            unavailable -> false
+            else -> stateMap[perm.name] == PermissionStatus.Granted
         }
-        return allGranted
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(permissions) {
         onPermissionsResult(checkAllGranted())
     }
 
@@ -163,7 +163,8 @@ internal actual fun RequestMultiPermissions(
 
             override fun launchPermissionRequest() {
                 permission.permissionRequest { granted ->
-                    status = if (granted) PermissionStatus.Granted else PermissionStatus.Denied
+                    status =
+                        if (granted) PermissionStatus.Granted else permission.checkPermissionStatus()
                     onPermissionsResult(checkAllGranted())
                 }
             }

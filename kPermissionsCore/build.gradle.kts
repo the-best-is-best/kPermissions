@@ -140,7 +140,8 @@ kotlin {
                 // dependencies declared in commonMain.'
                 implementation(libs.androidx.startup.runtime)
                 implementation(libs.accompanist.permissions)
-                implementation(libs.compose.utils.core)
+                implementation(libs.androidx.core.ktx)
+                //implementation(libs.compose.utils.core)
 
             }
         }
