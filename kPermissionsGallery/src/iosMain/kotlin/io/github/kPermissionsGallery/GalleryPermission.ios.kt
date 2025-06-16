@@ -50,7 +50,7 @@ actual object GalleryPermission : Permission {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return getGalleryPermissionStatus()
     }
     private var _minSdk: Int? = null

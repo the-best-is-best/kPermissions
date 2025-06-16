@@ -20,7 +20,7 @@ actual object ReadAudioPermission : Permission {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
 

@@ -19,7 +19,7 @@ actual object WriteStoragePermission : Permission {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
 
@@ -53,7 +53,7 @@ actual object ReadStoragePermission : Permission {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
 

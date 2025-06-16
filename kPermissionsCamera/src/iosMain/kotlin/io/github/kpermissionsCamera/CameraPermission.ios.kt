@@ -44,7 +44,7 @@ actual object CameraPermission : Permission {
         return AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo) != null
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return getCameraPermissionStatus()
     }
 

@@ -33,7 +33,7 @@ actual object NotificationPermission : Permission {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         var result: PermissionStatus = PermissionStatus.Denied
 
         val semaphore = dispatch_semaphore_create(0)

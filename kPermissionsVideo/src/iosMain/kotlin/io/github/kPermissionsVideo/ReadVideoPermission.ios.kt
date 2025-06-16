@@ -19,7 +19,7 @@ actual object ReadVideoPermission : Permission {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
 

@@ -39,22 +39,25 @@ actual object LocationInUsePermission : Permission {
     }
 
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus =
+        withContext(Dispatchers.Default) {
         if (!CLLocationManager.locationServicesEnabled()) {
-            return PermissionStatus.DeniedPermanently
+            return@withContext PermissionStatus.DeniedPermanently
         }
 
-        return when (CLLocationManager.authorizationStatus()) {
+            return@withContext when (CLLocationManager.authorizationStatus()) {
             kCLAuthorizationStatusAuthorizedWhenInUse,
-            kCLAuthorizationStatusAuthorizedAlways
-                -> PermissionStatus.Granted
+            kCLAuthorizationStatusAuthorizedAlways -> PermissionStatus.Granted
 
-            kCLAuthorizationStatusDenied -> PermissionStatus.DeniedPermanently
+                kCLAuthorizationStatusDenied,
             kCLAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
-            kCLAuthorizationStatusNotDetermined -> PermissionStatus.Denied
-            else -> PermissionStatus.Denied
+
+                kCLAuthorizationStatusNotDetermined -> PermissionStatus.Denied
+
+                else -> PermissionStatus.Denied
         }
     }
+
 
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = { callback ->
