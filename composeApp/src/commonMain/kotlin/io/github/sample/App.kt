@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +29,6 @@ import io.github.kPermissionsGallery.GalleryPermission
 import io.github.kPermissionsStorage.ReadStoragePermission
 import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsVideo.ReadVideoPermission
-import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissionlocationwheninuseext.openPrivacySettings
 import io.github.kpermissionnotification.NotificationPermission
@@ -43,6 +41,8 @@ import io.github.kpermissionscmpbluetooth.openBluetoothSettingsCMP
 import io.github.kpermissionslocationAlways.LocationAlwaysPermission
 import io.github.kpermissionslocationChecker.locationServiceEnabledFlow
 import io.github.kpermissionslocationWhenInUse.LocationInUsePermission
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 enum class PermissionScreen { Single, Multi }
@@ -107,11 +107,22 @@ fun SinglePermissionsScreen() {
     var showUnavailableDialog by remember { mutableStateOf(false) }
     var clickedUnavailablePermission by remember { mutableStateOf<String?>(null) }
 
-    val isLocationEnabled by locationServiceEnabledFlow.collectAsState(initial = false)
-    val isBluetoothOn by bluetoothStateFlow().collectAsState(initial = false)
 
-    LaunchedEffect(isLocationEnabled) {}
-    LaunchedEffect(isBluetoothOn) {}
+    LaunchedEffect(Unit) {
+        launch {
+            locationServiceEnabledFlow.collectLatest { isEnabled ->
+                println("Location enabled = $isEnabled")
+                // مثلاً: showLocationWarning = !isEnabled
+            }
+        }
+
+        launch {
+            bluetoothStateFlow().collectLatest { isOn ->
+                println("Bluetooth ON = $isOn")
+                // مثلاً: showBluetoothWarning = !isOn
+            }
+        }
+    }
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
@@ -192,7 +203,7 @@ fun SinglePermissionsScreen() {
 
 @Composable
 fun MultiPermissionTestScreen() {
-    val requiredPermissions = listOf<Permission>(
+    val requiredPermissions = listOf(
         NotificationPermission,
         GalleryPermission
     )

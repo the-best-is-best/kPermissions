@@ -78,7 +78,6 @@ internal actual fun RequestPermission(
         }
 
         override fun openAppSettings() = openAppSettingsPlatform()
-        override fun checkPermissionStatus() = status
 
     }
 }
@@ -163,7 +162,6 @@ internal actual fun RequestMultiPermissions(
 
             override fun openAppSettings() = openAppSettingsPlatform()
 
-            override fun checkPermissionStatus() = status
         }
     } + (permissions - filteredPermissions.toSet()).map {
         object : PermissionState {
@@ -171,7 +169,6 @@ internal actual fun RequestMultiPermissions(
             override val status = PermissionStatus.Granted
             override fun launchPermissionRequest() {}
             override fun openAppSettings() = openAppSettingsPlatform()
-            override fun checkPermissionStatus() = PermissionStatus.Granted
         }
     }
 }
@@ -183,5 +180,4 @@ private fun grantedState(permission: Permission) = object : PermissionState {
     override val status = PermissionStatus.Granted
     override fun launchPermissionRequest() {}
     override fun openAppSettings() = openAppSettingsPlatform()
-    override fun checkPermissionStatus() = PermissionStatus.Granted
 }
