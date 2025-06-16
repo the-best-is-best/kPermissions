@@ -46,7 +46,7 @@ actual object GalleryPermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = permissionRequest()
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 

@@ -15,7 +15,7 @@ actual object WriteStoragePermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 
@@ -49,7 +49,7 @@ actual object ReadStoragePermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 

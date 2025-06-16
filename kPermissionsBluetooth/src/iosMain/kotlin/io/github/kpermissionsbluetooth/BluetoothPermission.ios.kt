@@ -2,16 +2,23 @@ package io.github.kpermissionsbluetooth
 
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
+import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.useContents
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBManager
 import platform.CoreBluetooth.CBManagerAuthorizationAllowedAlways
 import platform.CoreBluetooth.CBManagerAuthorizationDenied
 import platform.CoreBluetooth.CBManagerAuthorizationNotDetermined
+import platform.CoreBluetooth.CBManagerAuthorizationRestricted
+import platform.CoreBluetooth.CBManagerStatePoweredOff
 import platform.CoreBluetooth.CBManagerStatePoweredOn
+import platform.CoreBluetooth.CBManagerStateResetting
+import platform.CoreBluetooth.CBManagerStateUnauthorized
 import platform.CoreBluetooth.CBManagerStateUnknown
-import platform.Foundation.NSSelectorFromString
+import platform.Foundation.NSOperatingSystemVersion
+import platform.Foundation.NSProcessInfo
 import platform.darwin.NSObject
 
 @OptIn(ExperimentalForeignApi::class)
@@ -30,7 +37,7 @@ actual object BluetoothPermission : Permission {
     }
 
     // ============ Service Availability ============
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return CBCentralManager().state == CBManagerStatePoweredOn
     }
 
@@ -41,21 +48,35 @@ actual object BluetoothPermission : Permission {
 
 
     private fun getBluetoothStatus(): PermissionStatus {
-        return if (CBManager.resolveClassMethod(NSSelectorFromString("authorization"))) {
+        val versionCValue: CValue<NSOperatingSystemVersion> =
+            NSProcessInfo.processInfo.operatingSystemVersion
+        val (major, minor, patch) = versionCValue.useContents {
+            Triple(majorVersion, minorVersion, patchVersion)
+        }
+        // iOS 13+ API to get bluetooth authorization status
+        return if (major >= 13) {
             when (CBManager.authorization) {
                 CBManagerAuthorizationAllowedAlways -> PermissionStatus.Granted
                 CBManagerAuthorizationNotDetermined -> PermissionStatus.Denied
                 CBManagerAuthorizationDenied -> PermissionStatus.DeniedPermanently
+                CBManagerAuthorizationRestricted -> PermissionStatus.DeniedPermanently
                 else -> PermissionStatus.DeniedPermanently
             }
         } else {
-            when (CBCentralManager().state) {
+            // For older iOS versions, fallback to checking CBCentralManager state
+            val centralManager = CBCentralManager(
+                null,
+                null
+            ) // delegate null (may cause warning but ok for state check)
+            when (centralManager.state) {
                 CBManagerStatePoweredOn -> PermissionStatus.Granted
-                CBManagerStateUnknown -> PermissionStatus.Denied
+                CBManagerStateUnauthorized -> PermissionStatus.DeniedPermanently
+                CBManagerStateUnknown, CBManagerStatePoweredOff, CBManagerStateResetting -> PermissionStatus.Denied
                 else -> PermissionStatus.DeniedPermanently
             }
         }
     }
+
 
     // ============ Request ============
     override val permissionRequest: ((Boolean) -> Unit) -> Unit

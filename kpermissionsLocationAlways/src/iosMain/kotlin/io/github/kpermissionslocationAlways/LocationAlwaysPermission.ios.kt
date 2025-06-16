@@ -2,6 +2,8 @@ package io.github.kpermissionslocationAlways
 
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.CLLocationManagerDelegateProtocol
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
@@ -29,16 +31,19 @@ actual object LocationAlwaysPermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun isServiceAvailable(): Boolean {
-        return CLLocationManager.locationServicesEnabled()
+    override suspend fun isServiceAvailable(): Boolean {
+        return withContext(Dispatchers.Default) {
+            CLLocationManager.locationServicesEnabled()
+        }
+
     }
 
 
     override fun getPermissionStatus(): PermissionStatus {
+        println("status: ${CLLocationManager.authorizationStatus()}")
         val status = when (CLLocationManager.authorizationStatus()) {
             kCLAuthorizationStatusAuthorizedWhenInUse -> PermissionStatus.DeniedPermanently
             kCLAuthorizationStatusAuthorizedAlways -> PermissionStatus.Granted
-
             kCLAuthorizationStatusDenied -> PermissionStatus.DeniedPermanently
             kCLAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
             kCLAuthorizationStatusNotDetermined -> PermissionStatus.Denied

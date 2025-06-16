@@ -2,8 +2,17 @@ package io.github.kpermissionsCore
 
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-internal fun requestPermissionsSequentially(
+private suspend fun Permission.permissionRequestSuspend(): Boolean =
+    suspendCoroutine { continuation ->
+        this.permissionRequest { granted ->
+            continuation.resume(granted)
+        }
+    }
+
+internal suspend fun requestPermissionsSequentially(
     permissions: List<Permission>,
     index: Int = 0,
     grantedSoFar: Boolean = true,
@@ -37,25 +46,24 @@ internal fun requestPermissionsSequentially(
         }
 
         else -> {
-            permission.permissionRequest { granted ->
-                val updatedGranted = grantedSoFar && granted
-                requestPermissionsSequentially(
-                    permissions,
-                    index + 1,
-                    updatedGranted,
-                    onComplete
-                )
-            }
+            // ✅ Use suspend version of permissionRequest
+            val granted = permission.permissionRequestSuspend()
+            val updatedGranted = grantedSoFar && granted
+            requestPermissionsSequentially(
+                permissions,
+                index + 1,
+                updatedGranted,
+                onComplete
+            )
         }
     }
 }
 
-
-internal fun requestPermissionsSequentially(
+internal suspend fun requestPermissionsSequentially(
     permissions: List<Permission>,
     index: Int = 0,
     grantedSoFar: Boolean = true,
-    onRequest: (Permission, (Boolean) -> Unit) -> Unit,
+    onRequest: suspend (Permission) -> Boolean,
     onComplete: (Boolean) -> Unit
 ) {
     if (index >= permissions.size) {
@@ -88,15 +96,14 @@ internal fun requestPermissionsSequentially(
         }
 
         else -> {
-            onRequest(permission) { granted ->
-                requestPermissionsSequentially(
-                    permissions,
-                    index + 1,
-                    grantedSoFar && granted,
-                    onRequest,
-                    onComplete
-                )
-            }
+            val granted = onRequest(permission)
+            requestPermissionsSequentially(
+                permissions,
+                index + 1,
+                grantedSoFar && granted,
+                onRequest,
+                onComplete
+            )
         }
     }
 }
