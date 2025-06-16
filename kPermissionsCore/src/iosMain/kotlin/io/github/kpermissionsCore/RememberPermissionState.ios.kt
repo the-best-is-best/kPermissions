@@ -5,15 +5,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
+import kotlinx.coroutines.launch
 
 internal val PermissionStatus.canRequest: Boolean
     get() = this == PermissionStatus.Denied || this == PermissionStatus.NotDeclared
+
 
 @Composable
 actual fun RequestPermission(
@@ -23,44 +26,38 @@ actual fun RequestPermission(
     val isIgnored = permission.getIgnore() == PlatformIgnore.IOS
     val isOutOfSdk = (permission.minSdk?.let { currentIosVersion < it } ?: false) ||
             (permission.maxSdk?.let { currentIosVersion > it } ?: false)
-    val unavailable = !permission.isServiceAvailable()
 
     val fixedStatus = when {
         isIgnored || isOutOfSdk -> PermissionStatus.Granted
-        unavailable -> PermissionStatus.Unavailable
         else -> null
     }
+    val coroutineScope = rememberCoroutineScope()
 
     if (fixedStatus != null) {
         LaunchedEffect(permission) {
             onPermissionResult(fixedStatus == PermissionStatus.Granted)
         }
         return object : PermissionState {
-            override val permission: Permission = permission
-            override var status: PermissionStatus
-                get() = fixedStatus
-                set(_) {}
+            override val permission = permission
+            override var status: PermissionStatus = fixedStatus
             override fun launchPermissionRequest() {}
-            override fun openAppSettings() {}
+            override fun openAppSettings() = Unit
+            override suspend fun refreshStatus() {
+                val newStatus = permission.getPermissionStatus()
+                if (newStatus != status) {
+                    status = newStatus
+                    onPermissionResult(newStatus == PermissionStatus.Granted)
+                }
+            }
         }
     }
 
-    fun getStatus() = permission.getPermissionStatus()
-    var stateValue by remember { mutableStateOf(getStatus()) }
+    var stateValue by remember { mutableStateOf<PermissionStatus>(PermissionStatus.Denied) }
 
-    LaunchedEffect(stateValue) {
-        onPermissionResult(stateValue == PermissionStatus.Granted)
-    }
-
-    OnAppResumed {
-        val newStatus = getStatus()
-        if (newStatus != stateValue) {
-            stateValue = newStatus
-        }
-    }
 
     return object : PermissionState {
-        override val permission: Permission = permission
+        override val permission = permission
+
         override var status: PermissionStatus
             get() = stateValue
             set(value) {
@@ -68,42 +65,71 @@ actual fun RequestPermission(
             }
 
         override fun launchPermissionRequest() {
-            if (!stateValue.canRequest) return
-
-            permission.permissionRequest { granted ->
-                val newStatus =
-                    if (granted) PermissionStatus.Granted else permission.getPermissionStatus()
-                if (newStatus != stateValue) {
-                    stateValue = newStatus
+            if (stateValue.canRequest) {
+                permission.permissionRequest { granted ->
+                    if (granted) {
+                        coroutineScope.launch {
+                            val serviceAvailable = permission.isServiceAvailable()
+                            stateValue =
+                                if (serviceAvailable) PermissionStatus.Granted else PermissionStatus.Unavailable
+                            onPermissionResult(serviceAvailable)
+                        }
+                    } else {
+                        stateValue = PermissionStatus.Denied
+                        onPermissionResult(false)
+                    }
                 }
             }
         }
 
+
+
         override fun openAppSettings() = openAppSettingsPlatform()
 
+        override suspend fun refreshStatus() {
+            val newStatus = permission.getPermissionStatus()
+            if (newStatus != status) {
+                status = newStatus
+                onPermissionResult(newStatus == PermissionStatus.Granted)
+            }
+        }
     }
 }
-
 
 @Composable
 internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
     onPermissionsResult: (Boolean) -> Unit
 ): List<PermissionState> {
+    val coroutineScope = rememberCoroutineScope()
 
-    val filtered = permissions.filter {
-        it.getIgnore() != PlatformIgnore.IOS &&
-                (it.minSdk?.let { min -> currentIosVersion >= min } ?: true) &&
-                (it.maxSdk?.let { max -> currentIosVersion <= max } ?: true) &&
-                it.isServiceAvailable()
+    // State map لتخزين صلاحية كل Permission
+    var serviceAvailableMap by remember { mutableStateOf<Map<Permission, Boolean>>(emptyMap()) }
+
+    // نفذ فحص isServiceAvailable لكل صلاحية بشكل غير متزامن مرة واحدة عند البداية أو عند تغيير permissions
+    LaunchedEffect(permissions) {
+        val results = mutableMapOf<Permission, Boolean>()
+        for (perm in permissions) {
+            results[perm] = perm.isServiceAvailable() // هنا تستدعي suspend function
+        }
+        serviceAvailableMap = results
     }
+
+    // الآن يمكننا فلترة الصلاحيات بناءً على نتائج isServiceAvailable المحفوظة في serviceAvailableMap
+    val filtered = permissions.filter { perm ->
+        perm.getIgnore() != PlatformIgnore.IOS &&
+                (perm.minSdk?.let { currentIosVersion >= it } ?: true) &&
+                (perm.maxSdk?.let { currentIosVersion <= it } ?: true) &&
+                (serviceAvailableMap[perm] ?: false) // نتأكد من أنها متاحة
+    }
+
     val ignoredPermissions = permissions - filtered.toSet()
 
     val ignoredStates = ignoredPermissions.map { perm ->
         val isIgnored = perm.getIgnore() == PlatformIgnore.IOS
         val isOutOfSdk = (perm.minSdk?.let { currentIosVersion < it } ?: false) ||
                 (perm.maxSdk?.let { currentIosVersion > it } ?: false)
-        val unavailable = !perm.isServiceAvailable()
+        val unavailable = !(serviceAvailableMap[perm] ?: false)
 
         val fixedStatus = when {
             isIgnored || isOutOfSdk -> PermissionStatus.Granted
@@ -118,6 +144,7 @@ internal actual fun RequestMultiPermissions(
                 set(_) {}
             override fun launchPermissionRequest() {}
             override fun openAppSettings() {}
+            override suspend fun refreshStatus() {}
         }
     }
 
@@ -130,7 +157,7 @@ internal actual fun RequestMultiPermissions(
         val isIgnored = perm.getIgnore() == PlatformIgnore.IOS
         val isOutOfSdk = (perm.minSdk?.let { currentIosVersion < it } ?: false) ||
                 (perm.maxSdk?.let { currentIosVersion > it } ?: false)
-        val unavailable = !perm.isServiceAvailable()
+        val unavailable = !(serviceAvailableMap[perm] ?: false)
 
         when {
             isIgnored || isOutOfSdk -> true
@@ -139,21 +166,14 @@ internal actual fun RequestMultiPermissions(
         }
     }
 
-    LaunchedEffect(permissions) {
+    LaunchedEffect(stateMap) {
         onPermissionsResult(checkAllGranted())
-    }
-
-    OnAppResumed {
-        val newStatuses = getStatuses()
-        if (newStatuses != stateMap) {
-            stateMap = newStatuses
-            onPermissionsResult(checkAllGranted())
-        }
     }
 
     val actualStates = filtered.map { permission ->
         object : PermissionState {
             override val permission: Permission = permission
+
             override var status: PermissionStatus
                 get() = stateMap[permission.name] ?: PermissionStatus.Unavailable
                 set(value) {
@@ -163,20 +183,29 @@ internal actual fun RequestMultiPermissions(
                 }
 
             override fun launchPermissionRequest() {
-                if (permissions.isEmpty()) {
+                if (filtered.isEmpty()) {
                     onPermissionsResult(true)
                     return
                 }
-                requestPermissionsSequentially(filtered) { allGranted ->
-                    onPermissionsResult(allGranted)
+                coroutineScope.launch {
+                    requestPermissionsSequentially(filtered) { allGranted ->
+                        stateMap = getStatuses()
+                        onPermissionsResult(allGranted)
+                    }
                 }
             }
 
-
             override fun openAppSettings() = openAppSettingsPlatform()
+
+            override suspend fun refreshStatus() {
+                val newStatus = permission.getPermissionStatus()
+                if (newStatus != status) {
+                    status = newStatus
+                    onPermissionsResult(checkAllGranted())
+                }
+            }
         }
     }
 
     return actualStates + ignoredStates
 }
-

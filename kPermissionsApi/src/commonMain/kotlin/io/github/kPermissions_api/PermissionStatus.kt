@@ -65,4 +65,6 @@ interface PermissionState {
      */
     fun openAppSettings()
 
+    suspend fun refreshStatus()
+
 }

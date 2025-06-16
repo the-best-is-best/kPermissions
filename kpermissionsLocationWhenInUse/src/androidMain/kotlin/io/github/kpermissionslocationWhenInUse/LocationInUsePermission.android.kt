@@ -28,7 +28,7 @@ actual object LocationInUsePermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         val locationManager =
             AppContextProvider.appContext.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
         return locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true ||

@@ -9,11 +9,11 @@ actual interface Permission {
     actual val minSdk: Int?
     actual val maxSdk: Int?
     actual fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?)
-    actual fun isServiceAvailable(): Boolean
+    actual suspend fun isServiceAvailable(): Boolean
 }
 
 
-fun Permission.refreshState(): PermissionStatus {
+suspend fun Permission.refreshState(): PermissionStatus {
     val sdkInt = Build.VERSION.SDK_INT
 
     // If permission name is null or not applicable for this SDK version, consider it granted
