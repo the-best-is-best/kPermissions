@@ -2,4 +2,4 @@ package io.github.kpermissionlocationwheninuseext
 
 import io.github.kpermissionslocationWhenInUse.LocationInUsePermission
 
-expect fun LocationInUsePermission.openPrivacySettings()
+expect suspend fun LocationInUsePermission.openPrivacySettings()

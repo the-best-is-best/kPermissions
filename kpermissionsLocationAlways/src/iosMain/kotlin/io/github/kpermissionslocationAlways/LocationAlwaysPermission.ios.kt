@@ -40,7 +40,8 @@ actual object LocationAlwaysPermission : Permission {
 
 
     override fun getPermissionStatus(): PermissionStatus {
-        println("status: ${CLLocationManager.authorizationStatus()}")
+        println("status always permission: ${CLLocationManager.authorizationStatus()}")
+        println("kCLAuthorizationStatusAuthorizedAlways: $kCLAuthorizationStatusAuthorizedAlways")
         val status = when (CLLocationManager.authorizationStatus()) {
             kCLAuthorizationStatusAuthorizedWhenInUse -> PermissionStatus.DeniedPermanently
             kCLAuthorizationStatusAuthorizedAlways -> PermissionStatus.Granted

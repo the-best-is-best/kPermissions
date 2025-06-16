@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,6 +87,7 @@ fun App() {
         }
     }
 }
+
 @Composable
 fun SinglePermissionsScreen() {
     val permissions = listOf(
@@ -105,51 +107,49 @@ fun SinglePermissionsScreen() {
     var showUnavailableDialog by remember { mutableStateOf(false) }
     var clickedUnavailablePermission by remember { mutableStateOf<String?>(null) }
 
+
+    // Check unavailable services at launch
     LaunchedEffect(Unit) {
         val unavailable = permissions.filterNot { it.isServiceAvailable() }.map { it.name }
         unavailablePermissions = unavailable
     }
+    val scope = rememberCoroutineScope()
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(top = 16.dp).verticalScroll(rememberScrollState())
     ) {
+        // 🔔 Show permanent location warning if service is OFF
+
+
         permissions.forEach { permission ->
             val state = rememberPermissionState(permission) { granted ->
                 println("${permission.name} granted = $granted")
             }
 
+
+            // Refresh Bluetooth & Location state
             LaunchedEffect(Unit) {
                 launch {
-                    locationServiceEnabledFlow.collectLatest { isEnabled ->
-                        println("Location enabled = $isEnabled")
-                        state.refreshStatus()
-                    }
+                    locationServiceEnabledFlow.collectLatest { state.refreshStatus() }
                 }
                 launch {
-                    bluetoothStateFlow().collectLatest { isOn ->
-                        println("Bluetooth ON = $isOn")
-                        state.refreshStatus()
-                    }
+                    bluetoothStateFlow().collectLatest { state.refreshStatus() }
                 }
             }
 
             val onRequest: () -> Unit = {
                 when (state.status) {
-                    PermissionStatus.Granted -> {
-                        println("${permission.name} is already granted.")
-                    }
-                    PermissionStatus.Denied -> {
-                        state.launchPermissionRequest()
-                    }
-                    PermissionStatus.DeniedPermanently -> {
-                        state.openAppSettings()
-                    }
+                    PermissionStatus.Granted -> println("${permission.name} is already granted.")
+                    PermissionStatus.Denied -> state.launchPermissionRequest()
+                    PermissionStatus.DeniedPermanently -> state.openAppSettings()
                     PermissionStatus.Unavailable -> {
                         try {
                             when (permission) {
                                 is LocationInUsePermission, is LocationAlwaysPermission -> {
-                                    LocationInUsePermission.openPrivacySettings()
+                                    scope.launch {
+                                        LocationInUsePermission.openPrivacySettings()
+                                    }
                                 }
                                 is BluetoothPermission -> {
                                     BluetoothPermission.openBluetoothSettingsCMP()
@@ -171,6 +171,7 @@ fun SinglePermissionsScreen() {
             Button(onClick = onRequest) {
                 Text("Request ${permission.name} Permission")
             }
+
             Text(text = "${permission.name} Permission Status: ${state.status}")
         }
 

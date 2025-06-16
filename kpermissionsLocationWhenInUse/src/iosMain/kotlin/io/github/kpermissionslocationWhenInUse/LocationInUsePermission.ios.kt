@@ -40,6 +40,10 @@ actual object LocationInUsePermission : Permission {
 
 
     override fun getPermissionStatus(): PermissionStatus {
+        if (!CLLocationManager.locationServicesEnabled()) {
+            return PermissionStatus.DeniedPermanently
+        }
+
         return when (CLLocationManager.authorizationStatus()) {
             kCLAuthorizationStatusAuthorizedWhenInUse,
             kCLAuthorizationStatusAuthorizedAlways
