@@ -116,7 +116,7 @@ kotlin {
                 implementation(libs.kotlin.stdlib)
                 // Add KMP dependencies here
                 api(projects.kPermissionsApi)
-                api(projects.kPermissionsCore)
+
 
                 implementation(libs.kotlinx.coroutines.core)
 

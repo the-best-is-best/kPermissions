@@ -20,7 +20,6 @@ import kotlinx.coroutines.launch
 @Composable
 actual fun RequestPermission(
     permission: Permission,
-    onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
     val isIgnored = permission.getIgnore() == PlatformIgnore.IOS
     val isOutOfSdk = (permission.minSdk?.let { currentIosVersion < it } ?: false) ||
@@ -35,9 +34,7 @@ actual fun RequestPermission(
 
 
     if (fixedStatus != null) {
-        LaunchedEffect(permission) {
-            onPermissionResult(fixedStatus == PermissionStatus.Granted)
-        }
+
         return object : PermissionState {
             override val permission = permission
             override var status: PermissionStatus = fixedStatus
@@ -74,7 +71,6 @@ actual fun RequestPermission(
                     coroutineScope.launch {
                         getRefreshStatus()
                     }
-                    onPermissionResult(granted)
                 }
             }
         }
@@ -89,7 +85,6 @@ actual fun RequestPermission(
             val newStatus = getStatus(permission)
 
             stateValue = newStatus
-            onPermissionResult(newStatus == PermissionStatus.Granted)
 
         }
     }
@@ -98,7 +93,6 @@ actual fun RequestPermission(
 @Composable
 internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
-    onPermissionsResult: (Boolean) -> Unit
 ): List<PermissionState> {
 
     val coroutineScope = rememberCoroutineScope()
@@ -126,13 +120,11 @@ internal actual fun RequestMultiPermissions(
         )
     }
 
-    // تحديث أولي لحالة كل صلاحية
     LaunchedEffect(Unit) {
         val statuses = filtered.associate { it.name to getStatus(it) }
         stateMap = statuses
     }
 
-    // التحقق من توفر الخدمة (GPS, Bluetooth, ... إلخ)
     var serviceAvailableMap by remember { mutableStateOf<Map<Permission, Boolean>>(emptyMap()) }
     LaunchedEffect(permissions) {
         val results = permissions.associateWith { it.isServiceAvailable() }
@@ -154,21 +146,14 @@ internal actual fun RequestMultiPermissions(
         }
     }
 
-    // عند العودة من الإعدادات
     OnAppResumed {
         coroutineScope.launch {
             val newStatuses = filtered.associate { it.name to getStatus(it) }
             stateMap = newStatuses
-            onPermissionsResult(checkAllGranted(newStatuses))
         }
     }
 
-    // عند تغير أي حالة صلاحية
-    LaunchedEffect(stateMap) {
-        onPermissionsResult(checkAllGranted())
-    }
 
-    // الحالات الفعلية
     val actualStates = filtered.map { permission ->
         val statusState = derivedStateOf {
             stateMap[permission.name] ?: PermissionStatus.Denied
@@ -205,7 +190,6 @@ internal actual fun RequestMultiPermissions(
                     }
 
                     stateMap = updated
-                    onPermissionsResult(checkAllGranted(updated))
                 }
             }
 
@@ -215,7 +199,6 @@ internal actual fun RequestMultiPermissions(
                 val newStatus = getStatus(permission)
                 if (newStatus != status) {
                     status = newStatus
-                    onPermissionsResult(checkAllGranted())
                 }
             }
         }

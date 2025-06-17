@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
+            implementation(projects.kPermissionsCore)
             implementation(projects.kPermissionsCamera)
             implementation(projects.kPermissionsStorage)
             implementation(projects.kPermissionsGallery)

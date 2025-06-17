@@ -13,97 +13,20 @@ private suspend fun Permission.permissionRequestSuspend(): Boolean =
     }
 
 internal suspend fun requestPermissionsSequentially(
-    permissions: List<Permission>,
-    index: Int = 0,
-    grantedSoFar: Boolean = true,
-    onComplete: (Boolean) -> Unit
-) {
-    if (index >= permissions.size) {
-        onComplete(grantedSoFar)
-        return
-    }
+    permissions: List<Permission>
+): List<PermissionStatus> {
+    return permissions.map { permission ->
+        when (val status = getStatus(permission)) {
+            is PermissionStatus.Granted,
+            is PermissionStatus.DeniedPermanently,
+            is PermissionStatus.Unavailable,
+            is PermissionStatus.NotDeclared -> status
 
-    val permission = permissions[index]
-    when (val status = getStatus(permission)) {
-        is PermissionStatus.Granted,
-        is PermissionStatus.DeniedPermanently -> {
-            requestPermissionsSequentially(
-                permissions,
-                index + 1,
-                grantedSoFar && status is PermissionStatus.Granted,
-                onComplete
-            )
-        }
+            is PermissionStatus.Denied -> {
 
-        is PermissionStatus.Unavailable,
-        is PermissionStatus.NotDeclared -> {
-            requestPermissionsSequentially(
-                permissions,
-                index + 1,
-                false,
-                onComplete
-            )
-        }
-
-        else -> {
-            // ✅ Use suspend version of permissionRequest
-            val granted = permission.permissionRequestSuspend()
-            val updatedGranted = grantedSoFar && granted
-            requestPermissionsSequentially(
-                permissions,
-                index + 1,
-                updatedGranted,
-                onComplete
-            )
-        }
-    }
-}
-
-internal suspend fun requestPermissionsSequentially(
-    permissions: List<Permission>,
-    index: Int = 0,
-    grantedSoFar: Boolean = true,
-    onRequest: suspend (Permission) -> Boolean,
-    onComplete: (Boolean) -> Unit
-) {
-    if (index >= permissions.size) {
-        onComplete(grantedSoFar)
-        return
-    }
-
-    val permission = permissions[index]
-    when (val status = getStatus(permission)) {
-        is PermissionStatus.Granted,
-        is PermissionStatus.DeniedPermanently -> {
-            requestPermissionsSequentially(
-                permissions,
-                index + 1,
-                grantedSoFar && status is PermissionStatus.Granted,
-                onRequest,
-                onComplete
-            )
-        }
-
-        is PermissionStatus.Unavailable,
-        is PermissionStatus.NotDeclared -> {
-            requestPermissionsSequentially(
-                permissions,
-                index + 1,
-                false,
-                onRequest,
-                onComplete
-            )
-        }
-
-        else -> {
-            val granted = onRequest(permission)
-            requestPermissionsSequentially(
-                permissions,
-                index + 1,
-                grantedSoFar && granted,
-                onRequest,
-                onComplete
-            )
+                val granted = permission.permissionRequestSuspend()
+                if (granted) PermissionStatus.Granted else getStatus(permission)
+            }
         }
     }
 }

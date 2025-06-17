@@ -24,47 +24,51 @@ internal val PermissionStatus.canRequest: Boolean
 @ObjCName("requestPermission")
 suspend fun requestPermission(
     permission: Permission,
-    permissionRequest: ((Boolean) -> Unit) -> Unit,
-    onResult: (Boolean) -> Unit
-) {
+
+    ): PermissionStatus {
 
     val status = getStatus(permission)
 
     when (status) {
         is PermissionStatus.Granted -> {
-            onResult(true)
+            return PermissionStatus.Granted
         }
 
-        is PermissionStatus.Unavailable,
+        is PermissionStatus.Unavailable -> {
+            return PermissionStatus.Unavailable
+        }
         is PermissionStatus.NotDeclared -> {
-            onResult(false)
+            return PermissionStatus.NotDeclared
         }
 
-        else -> {
-            permissionRequest { granted ->
-                onResult(granted)
+        PermissionStatus.Denied -> {
+            val granted = suspendCoroutine { continuation ->
+                permission.permissionRequest { granted ->
+                    continuation.resume(granted)
+                }
             }
+
+            return if (granted) {
+                PermissionStatus.Granted
+            } else {
+                getStatus(permission) // 👈 هنا تقدر تستدعيها برا callback لأنها في Coroutine دلوقتي
+            }
+        }
+
+        PermissionStatus.DeniedPermanently -> {
+            return PermissionStatus.DeniedPermanently
         }
     }
 }
 
 
 @OptIn(ExperimentalObjCName::class)
-@ObjCName("requestMultiplePermissionsWithStatus")
-suspend fun requestMultiplePermissionsWithStatus(
+@ObjCName("requestMultiplePermissions")
+suspend fun requestMultiplePermissions(
     permissions: List<Permission>,
-    onRequest: (Permission, (Boolean) -> Unit) -> Unit,
-    onResult: (Boolean) -> Unit
-) {
-    requestPermissionsSequentially(
+
+    ): List<PermissionStatus> {
+    return requestPermissionsSequentially(
         permissions = permissions,
-        onRequest = { permission ->
-            suspendCoroutine { continuation ->
-                onRequest(permission) { granted ->
-                    continuation.resume(granted)
-                }
-            }
-        },
-        onComplete = onResult
     )
 }

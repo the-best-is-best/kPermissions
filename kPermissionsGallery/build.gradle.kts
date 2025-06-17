@@ -14,7 +14,7 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "kpermissions-gallery", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-gallery", "1.0.1")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
@@ -119,7 +119,7 @@ kotlin {
                 // Add KMP dependencies here
                 //   implementation(compose.runtime)
                 api(projects.kPermissionsApi)
-                api(projects.kPermissionsCore)
+
 
             }
         }

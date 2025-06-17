@@ -14,7 +14,7 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "kpermissions-camera", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-camera", "1.0.1")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
@@ -120,7 +120,7 @@ kotlin {
                 //implementation(compose.runtime)
 
                 api(projects.kPermissionsApi)
-                api(projects.kPermissionsCore)
+
 
             }
         }

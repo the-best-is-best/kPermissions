@@ -10,14 +10,14 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "kpermissions-location-when-in-use", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-location-when-in-use", "1.0.1")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
         name.set("KPermissionsLocationWhenInUse")
-        description.set("KPermissionsWhenInUse is a Kotlin Multiplatform (KMP) permission module that provides access to **location when in use** permissions on Android and iOS.")
+        description.set("KPermissionsWhenInUse is a Kotlin Multiplatform (KMP) permission module that provides access to location when in use permissions on Android and iOS.")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {
@@ -115,7 +115,7 @@ kotlin {
                 implementation(libs.kotlin.stdlib)
                 // Add KMP dependencies here
                 api(projects.kPermissionsApi)
-                api(projects.kPermissionsCore)
+
 
                 implementation(libs.kotlinx.coroutines.core)
 
