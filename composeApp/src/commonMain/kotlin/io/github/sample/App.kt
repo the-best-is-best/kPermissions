@@ -17,10 +17,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +43,8 @@ import io.github.kpermissionscmpbluetooth.openBluetoothSettingsCMP
 import io.github.kpermissionslocationAlways.LocationAlwaysPermission
 import io.github.kpermissionslocationChecker.locationServiceEnabledFlow
 import io.github.kpermissionslocationWhenInUse.LocationInUsePermission
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 enum class PermissionScreen { Single, Multi }
@@ -101,61 +103,68 @@ fun SinglePermissionsScreen() {
         BluetoothPermission
     )
 
-    val unavailablePermissions = permissions.filterNot { it.isServiceAvailable() }.map { it.name }
-
+    var unavailablePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
     var showUnavailableDialog by remember { mutableStateOf(false) }
     var clickedUnavailablePermission by remember { mutableStateOf<String?>(null) }
 
 
-    val isLocationEnabled by locationServiceEnabledFlow.collectAsState(initial = false)
-    val isBluetoothOn by bluetoothStateFlow().collectAsState(initial = false)
+    // Check unavailable services at launch
+    LaunchedEffect(Unit) {
+        val unavailable = permissions.filterNot { it.isServiceAvailable() }.map { it.name }
+        unavailablePermissions = unavailable
+    }
+    val scope = rememberCoroutineScope()
 
     Column(
-
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(top = 16.dp)
-            .verticalScroll(rememberScrollState())
-
+        modifier = Modifier.padding(top = 16.dp).verticalScroll(rememberScrollState())
     ) {
+        // 🔔 Show permanent location warning if service is OFF
+
+
         permissions.forEach { permission ->
             val state = rememberPermissionState(permission) { granted ->
                 println("${permission.name} granted = $granted")
             }
-            if (state.permission is LocationInUsePermission || state.permission is LocationAlwaysPermission) {
-                LaunchedEffect(isLocationEnabled) {
-                    LocationAlwaysPermission.isServiceAvailable()
-                    LocationInUsePermission.isServiceAvailable()
-                    state.refreshStatus()
+
+
+            // Refresh Bluetooth & Location state
+            LaunchedEffect(Unit) {
+                launch {
+                    locationServiceEnabledFlow.collectLatest { state.refreshStatus() }
                 }
-            }
-            if (state.permission is BluetoothPermission) {
-                LaunchedEffect(isBluetoothOn) {
-                    BluetoothPermission.isServiceAvailable()
-                    state.refreshStatus()
+                launch {
+                    bluetoothStateFlow().collectLatest { state.refreshStatus() }
                 }
             }
 
             val onRequest: () -> Unit = {
                 when (state.status) {
+                    PermissionStatus.Granted -> println("${permission.name} is already granted.")
                     PermissionStatus.Denied -> state.launchPermissionRequest()
                     PermissionStatus.DeniedPermanently -> state.openAppSettings()
                     PermissionStatus.Unavailable -> {
                         try {
-                            if (permission is LocationInUsePermission || permission is LocationAlwaysPermission) {
-                                LocationInUsePermission.openPrivacySettings()
-                            } else if (permission is BluetoothPermission) {
-                                BluetoothPermission.openBluetoothSettingsCMP()
-                            } else {
-
-                                println("Service settings cannot be opened for ${permission.name} on any platform.")
+                            when (permission) {
+                                is LocationInUsePermission, is LocationAlwaysPermission -> {
+                                    scope.launch {
+                                        LocationInUsePermission.openPrivacySettings()
+                                    }
+                                }
+                                is BluetoothPermission -> {
+                                    BluetoothPermission.openBluetoothSettingsCMP()
+                                }
+                                else -> {
+                                    clickedUnavailablePermission = permission.name
+                                    showUnavailableDialog = true
+                                }
                             }
-                        } catch (e: Exception) {
+                        } catch (e: UnsupportedOperationException) {
                             clickedUnavailablePermission = permission.name
                             showUnavailableDialog = true
                         }
-
                     }
-                    else -> println("${permission.name} already: ${state.status}")
+                    PermissionStatus.NotDeclared -> {}
                 }
             }
 
@@ -163,8 +172,7 @@ fun SinglePermissionsScreen() {
                 Text("Request ${permission.name} Permission")
             }
 
-            Text("${permission.name} Permission Status: ${state.status}")
-
+            Text(text = "${permission.name} Permission Status: ${state.status}")
         }
 
         if (unavailablePermissions.isNotEmpty()) {
@@ -188,35 +196,59 @@ fun SinglePermissionsScreen() {
 
 @Composable
 fun MultiPermissionTestScreen() {
-    val requiredPermissions = listOf<Permission>(
-        CameraPermission,
+    val requiredPermissions = listOf(
+        NotificationPermission,
         GalleryPermission
     )
 
-    val availablePermissions = remember {
-        requiredPermissions.filter { it.isServiceAvailable() }
-    }
+    // State to hold available permissions list (after checking service availability)
+    var availablePermissions by remember { mutableStateOf<List<Permission>>(emptyList()) }
+    var unavailablePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
 
-    val unavailablePermissions = remember {
-        requiredPermissions.filterNot { it.isServiceAvailable() }.map { it.name }
+    // Run suspend calls to check service availability on composition
+    LaunchedEffect(Unit) {
+        val available = mutableListOf<Permission>()
+        val unavailable = mutableListOf<String>()
+        for (p in requiredPermissions) {
+            if (p.isServiceAvailable()) {
+                available.add(p)
+            } else {
+                unavailable.add(p.name)
+            }
+        }
+        availablePermissions = available
+        unavailablePermissions = unavailable
     }
 
     var showUnavailableDialog by remember { mutableStateOf(false) }
+    var shouldTriggerLauncher by remember { mutableStateOf(false) }
 
+    // Collect permission states only after availablePermissions is ready
     val states = rememberMultiplePermissionsState(
         permissions = availablePermissions,
         onPermissionsResult = { granted ->
             println("All permissions granted? $granted")
-        }
+        },
     )
 
     var allGranted by remember { mutableStateOf(false) }
 
+    // Update allGranted when statuses change
     LaunchedEffect(states.map { it.status }) {
         allGranted = states.all { it.status == PermissionStatus.Granted }
     }
 
+    // Launch permission request if triggered
+    LaunchedEffect(shouldTriggerLauncher) {
+        if (shouldTriggerLauncher) {
+            states.firstOrNull()?.launchPermissionRequest()
+            shouldTriggerLauncher = false
 
+            if (states.any { it.status == PermissionStatus.DeniedPermanently }) {
+                states.first().openAppSettings()
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -229,20 +261,10 @@ fun MultiPermissionTestScreen() {
                 showUnavailableDialog = true
                 return@Button
             }
-
-            states.forEach { state ->
-
-            when (state.status) {
-                    PermissionStatus.Denied -> state.launchPermissionRequest()
-                    PermissionStatus.DeniedPermanently -> state.openAppSettings()
-                    else -> Unit
-                }
-            }
-
+            shouldTriggerLauncher = true
         }) {
             Text("Request All Permissions")
         }
-
 
         Text("All Permissions Granted: $allGranted")
 

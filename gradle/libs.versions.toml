@@ -12,7 +12,7 @@ androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.9.0"
 androidx-testExt = "1.2.1"
 composeMultiplatform = "1.8.1"
-composeUtilsCore = "3.0.1"
+#composeUtilsCore = "3.0.1"
 junit = "4.13.2"
 kotlin = "2.1.21"
 kotlinStdlib = "2.1.21"
@@ -21,10 +21,11 @@ runner = "1.6.2"
 core = "1.6.1"
 startupRuntime = "1.2.0"
 mavenPublish = "0.32.0"
+
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startupRuntime" }
-compose-utils-core = { module = "io.github.the-best-is-best:compose-utils-core", version.ref = "composeUtilsCore" }
+#compose-utils-core = { module = "io.github.the-best-is-best:compose-utils-core", version.ref = "composeUtilsCore" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }

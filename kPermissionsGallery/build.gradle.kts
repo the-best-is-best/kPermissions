@@ -14,14 +14,14 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissionsGallery", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-gallery", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
         name.set("KPermissionsGallery")
-        description.set("Plugin for request gallery permission android and ios KMM")
+        description.set("kPermissionsGallery is a Kotlin Multiplatform permission module that provides access to the gallery (external image picker) on Android and iOS.")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {

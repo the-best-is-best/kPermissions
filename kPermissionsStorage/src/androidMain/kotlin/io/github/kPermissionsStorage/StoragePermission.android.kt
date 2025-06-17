@@ -30,7 +30,7 @@ actual object WriteStoragePermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 
@@ -57,7 +57,7 @@ actual object ReadStoragePermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 

@@ -27,7 +27,7 @@ actual object BluetoothPermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         val bluetoothManager =
             AppContextProvider.appContext.getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager
         val adapter = bluetoothManager?.adapter

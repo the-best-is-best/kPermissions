@@ -2,6 +2,6 @@ package io.github.kpermissionscmplocationalways
 
 import io.github.kpermissionslocationAlways.LocationAlwaysPermission
 
-actual fun LocationAlwaysPermission.openPrivacySettings() {
+actual suspend fun LocationAlwaysPermission.openPrivacySettings() {
     this.openServiceSettings()
 }

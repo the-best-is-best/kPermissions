@@ -21,5 +21,6 @@ fun Permission.getIgnore(): PlatformIgnore {
     return ignoreMap[this] ?: PlatformIgnore.None
 }
 
+expect suspend fun Permission.refreshStatusCMP(): PermissionStatus
 
-expect fun Permission.refreshStatusCMP(): PermissionStatus
+

@@ -1,3 +1,27 @@
+<h1 align="center">KPermissions</h1>
+<br>
+
+<div align="center">
+
+<a href="https://opensource.org/licenses/Apache-2.0">
+  <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/>
+</a>
+
+<a href="https://android-arsenal.com/api?level=21" rel="nofollow">
+  <img alt="API" src="https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat" />
+</a>
+
+<img src="https://img.shields.io/badge/Platform-Android-brightgreen.svg?logo=android" alt="Badge Android" />
+<img src="https://img.shields.io/badge/iOS-12%2B-blue.svg?logo=apple" alt="iOS 12+ Badge" />
+
+<a href="https://github.com/the-best-is-best/">
+  <img alt="Profile" src="https://img.shields.io/badge/github-%23181717.svg?&style=for-the-badge&logo=github&logoColor=white" height="20"/>
+</a>
+
+</div>
+
+---
+
 # 🔐 kPermissions
 
 **kPermissions** is a Kotlin Multiplatform library that helps you manage runtime permissions on **Android** and **iOS**, with full modularity and optional support for **Jetpack Compose Multiplatform (CMP)**.
@@ -156,7 +180,7 @@ To enable additional control like SDK version limits or platform ignoring for pe
 
 ```kotlin
 implementation("io.github.kpermissions:kpermissions-cmp:<version>")
-
+```
 
 This module allows you to:
 

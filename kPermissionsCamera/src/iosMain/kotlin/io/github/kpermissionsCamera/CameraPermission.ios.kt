@@ -40,11 +40,11 @@ actual object CameraPermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = cameraPermissionRequest()
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo) != null
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return getCameraPermissionStatus()
     }
 
@@ -61,11 +61,6 @@ actual object CameraPermission : Permission {
     override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
-    }
-
-
-    override fun refreshStatus(): PermissionStatus {
-        return getCameraPermissionStatus()
     }
 
 

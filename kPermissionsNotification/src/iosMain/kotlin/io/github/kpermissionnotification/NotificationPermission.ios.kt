@@ -29,11 +29,11 @@ actual object NotificationPermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         var result: PermissionStatus = PermissionStatus.Denied
 
         val semaphore = dispatch_semaphore_create(0)
@@ -63,9 +63,6 @@ actual object NotificationPermission : Permission {
         return result
     }
 
-    override fun refreshStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = { callback ->

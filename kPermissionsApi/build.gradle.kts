@@ -1,6 +1,66 @@
+import com.vanniktech.maven.publish.SonatypeHost
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+
+    id("maven-publish")
+    id("signing")
+    alias(libs.plugins.maven.publish)
+}
+
+mavenPublishing {
+    coordinates("io.github.the-best-is-best", "KPermissionsApi", "1.0.1")
+
+    publishToMavenCentral(SonatypeHost.S01, true)
+    signAllPublications()
+
+    pom {
+        name.set("KPermissionsApi")
+        description.set("KPermissionsApi is a Kotlin Multiplatform Mobile (KMM) package that provides a base permission contract for Android and iOS. It simplifies managing permissions in a shared codebase, allowing developers to request and handle permissions uniformly across platforms without duplicating code.")
+        url.set("https://github.com/the-best-is-best/kPermissions")
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://opensource.org/licenses/Apache-2.0")
+            }
+        }
+        issueManagement {
+            system.set("GitHub")
+            url.set("https://github.com/the-best-is-best/kPermissions/issues")
+        }
+        scm {
+            connection.set("scm:git:https://github.com/the-best-is-best/kPermissions.git")
+            url.set("https://github.com/the-best-is-best/kPermissions")
+        }
+        developers {
+            developer {
+                id.set("MichelleRaouf")
+                name.set("Michelle Raouf")
+                email.set("eng.michelle.raouf@gmail.com")
+            }
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications)
+}
+
+tasks.withType<PublishToMavenRepository> {
+    val isMac = getCurrentOperatingSystem().isMacOsX
+    onlyIf {
+        isMac.also {
+            if (!isMac) logger.error(
+                """
+                Publishing the library requires macOS to be able to generate iOS artifacts.
+                Run the task on a Mac or use GitHub Actions to publish automatically.
+                """.trimIndent()
+            )
+        }
+    }
 }
 
 kotlin {
@@ -74,6 +134,7 @@ kotlin {
                 // Add Android-specific dependencies here. Note that this source set depends on
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
+                implementation(libs.androidx.startup.runtime)
                 implementation(libs.androidx.core.ktx)
             }
         }

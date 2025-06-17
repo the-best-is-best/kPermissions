@@ -14,14 +14,14 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissionsAudio", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-audio", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
         name.set("KPermissionsAudio")
-        description.set("Plugin for request audio permission android and ios KMM")
+        description.set("kPermissionsAudio is a Kotlin Multiplatform permission module that provides support for the `ReadAudio` permission on **Android** (API 33+).")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {

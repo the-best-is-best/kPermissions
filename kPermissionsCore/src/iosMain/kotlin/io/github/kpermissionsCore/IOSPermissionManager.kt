@@ -2,92 +2,69 @@ package io.github.kpermissionsCore
 
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.experimental.ExperimentalObjCName
 
+internal suspend fun getStatus(permission: Permission): PermissionStatus {
+    if (!permission.isServiceAvailable() && permission.getPermissionStatus() == PermissionStatus.DeniedPermanently) {
+        return PermissionStatus.Unavailable
+    }
+    if (!permission.isServiceAvailable() && permission.getPermissionStatus() == PermissionStatus.Granted) {
+        return PermissionStatus.Unavailable
+    }
+    return permission.getPermissionStatus()
+}
 
-private fun getStatus(permission: Permission): PermissionStatus =
-    permission.getPermissionStatus()
+internal val PermissionStatus.canRequest: Boolean
+    get() = this == PermissionStatus.Denied || this == PermissionStatus.NotDeclared
+
 
 @OptIn(ExperimentalObjCName::class)
 @ObjCName("requestPermission")
-fun requestPermission(
+suspend fun requestPermission(
     permission: Permission,
     permissionRequest: ((Boolean) -> Unit) -> Unit,
     onResult: (Boolean) -> Unit
 ) {
-    if (!permission.isServiceAvailable()) {
-        onResult(false)
-        return
-    }
-    val currentStatus = getStatus(permission)
-    if (currentStatus == PermissionStatus.Granted) {
-        onResult(true)
-    } else {
-        permissionRequest { granted ->
-            onResult(granted)
+
+    val status = getStatus(permission)
+
+    when (status) {
+        is PermissionStatus.Granted -> {
+            onResult(true)
+        }
+
+        is PermissionStatus.Unavailable,
+        is PermissionStatus.NotDeclared -> {
+            onResult(false)
+        }
+
+        else -> {
+            permissionRequest { granted ->
+                onResult(granted)
+            }
         }
     }
 }
 
-@OptIn(ExperimentalObjCName::class)
-@ObjCName("currentStatus")
-fun currentStatus(permission: Permission): PermissionStatus =
-    getStatus(permission)
-
-@OptIn(ExperimentalObjCName::class)
-@ObjCName("requestPermissionWithStatus")
-fun requestPermissionWithStatus(
-    permission: Permission,
-    permissionRequest: ((Boolean) -> Unit) -> Unit,
-    onResult: (PermissionStatus) -> Unit
-) {
-    if (!permission.isServiceAvailable()) {
-        onResult(PermissionStatus.Unavailable)
-        return
-    }
-    val currentStatus = getStatus(permission)
-    if (currentStatus == PermissionStatus.Granted) {
-        onResult(PermissionStatus.Granted)
-    } else {
-        permissionRequest { granted ->
-            onResult(if (granted) PermissionStatus.Granted else getStatus(permission))
-        }
-    }
-}
 
 @OptIn(ExperimentalObjCName::class)
 @ObjCName("requestMultiplePermissionsWithStatus")
-fun requestMultiplePermissionsWithStatus(
+suspend fun requestMultiplePermissionsWithStatus(
     permissions: List<Permission>,
     onRequest: (Permission, (Boolean) -> Unit) -> Unit,
     onResult: (Boolean) -> Unit
 ) {
-    var allGranted = true
-    var remaining = permissions.size
-
-    if (remaining == 0) {
-        onResult(true)
-        return
-    }
-
-    permissions.forEach { permission ->
-        if (!permission.isServiceAvailable()) {
-            allGranted = false
-            remaining--
-            if (remaining == 0) onResult(allGranted)
-            return@forEach
-        }
-        val currentStatus = getStatus(permission)
-
-        if (currentStatus == PermissionStatus.Granted) {
-            remaining--
-            if (remaining == 0) onResult(allGranted)
-        } else {
-            onRequest(permission) { granted ->
-                if (!granted) allGranted = false
-                remaining--
-                if (remaining == 0) onResult(allGranted)
+    requestPermissionsSequentially(
+        permissions = permissions,
+        onRequest = { permission ->
+            suspendCoroutine { continuation ->
+                onRequest(permission) { granted ->
+                    continuation.resume(granted)
+                }
             }
-        }
-    }
+        },
+        onComplete = onResult
+    )
 }

@@ -2,6 +2,8 @@ package io.github.kpermissionslocationWhenInUse
 
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.CLLocationManagerDelegateProtocol
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
@@ -30,23 +32,32 @@ actual object LocationInUsePermission : Permission {
     }
 
 
-    override fun isServiceAvailable(): Boolean {
-        return CLLocationManager.locationServicesEnabled()
-    }
-
-
-    override fun getPermissionStatus(): PermissionStatus {
-        return when (CLLocationManager.authorizationStatus()) {
-            kCLAuthorizationStatusAuthorizedWhenInUse,
-            kCLAuthorizationStatusAuthorizedAlways
-                -> PermissionStatus.Granted
-
-            kCLAuthorizationStatusDenied -> PermissionStatus.DeniedPermanently
-            kCLAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
-            kCLAuthorizationStatusNotDetermined -> PermissionStatus.Denied
-            else -> PermissionStatus.Denied
+    override suspend fun isServiceAvailable(): Boolean {
+        return withContext(Dispatchers.Default) {
+            CLLocationManager.locationServicesEnabled()
         }
     }
+
+
+    override suspend fun getPermissionStatus(): PermissionStatus =
+        withContext(Dispatchers.Default) {
+        if (!CLLocationManager.locationServicesEnabled()) {
+            return@withContext PermissionStatus.DeniedPermanently
+        }
+
+            return@withContext when (CLLocationManager.authorizationStatus()) {
+            kCLAuthorizationStatusAuthorizedWhenInUse,
+            kCLAuthorizationStatusAuthorizedAlways -> PermissionStatus.Granted
+
+                kCLAuthorizationStatusDenied,
+            kCLAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
+
+                kCLAuthorizationStatusNotDetermined -> PermissionStatus.Denied
+
+                else -> PermissionStatus.Denied
+        }
+    }
+
 
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = { callback ->
@@ -55,10 +66,6 @@ actual object LocationInUsePermission : Permission {
             manager.delegate = delegate
             manager.requestWhenInUseAuthorization()
         }
-
-    override fun refreshStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 }
 
 private class LocationPermissionDelegate(

@@ -2,6 +2,8 @@ package io.github.kpermissionslocationAlways
 
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.CLLocationManagerDelegateProtocol
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
@@ -29,22 +31,28 @@ actual object LocationAlwaysPermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun isServiceAvailable(): Boolean {
-        return CLLocationManager.locationServicesEnabled()
+    override suspend fun isServiceAvailable(): Boolean {
+        return withContext(Dispatchers.Default) {
+            CLLocationManager.locationServicesEnabled()
+        }
+
     }
 
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus =
+        withContext(Dispatchers.Default) {
+            if (!CLLocationManager.locationServicesEnabled()) {
+                return@withContext PermissionStatus.DeniedPermanently
+            }
         val status = when (CLLocationManager.authorizationStatus()) {
             kCLAuthorizationStatusAuthorizedWhenInUse -> PermissionStatus.DeniedPermanently
             kCLAuthorizationStatusAuthorizedAlways -> PermissionStatus.Granted
-
-            kCLAuthorizationStatusDenied -> PermissionStatus.DeniedPermanently
+            kCLAuthorizationStatusDenied,
             kCLAuthorizationStatusRestricted -> PermissionStatus.DeniedPermanently
             kCLAuthorizationStatusNotDetermined -> PermissionStatus.Denied
             else -> PermissionStatus.Denied
         }
-        return status
+            return@withContext status
     }
 
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
@@ -55,9 +63,6 @@ actual object LocationAlwaysPermission : Permission {
             manager.requestAlwaysAuthorization()
         }
 
-    override fun refreshStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 }
 
 private class LocationAlwaysPermissionDelegate(

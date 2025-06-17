@@ -15,11 +15,11 @@ actual object WriteStoragePermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
 
@@ -38,9 +38,6 @@ actual object WriteStoragePermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun refreshStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 
 
 
@@ -52,11 +49,11 @@ actual object ReadStoragePermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
 
@@ -75,9 +72,6 @@ actual object ReadStoragePermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun refreshStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 
 
 }

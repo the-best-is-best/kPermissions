@@ -15,11 +15,11 @@ actual object ReadVideoPermission : Permission {
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = {}
 
-    override fun isServiceAvailable(): Boolean {
+    override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 
-    override fun getPermissionStatus(): PermissionStatus {
+    override suspend fun getPermissionStatus(): PermissionStatus {
         return PermissionStatus.Granted
     }
 
@@ -38,9 +38,6 @@ actual object ReadVideoPermission : Permission {
         _maxSdk = maxSdk
     }
 
-    override fun refreshStatus(): PermissionStatus {
-        return getPermissionStatus()
-    }
 
 
 }

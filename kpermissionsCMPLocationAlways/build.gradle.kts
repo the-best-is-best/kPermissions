@@ -1,6 +1,68 @@
+import com.vanniktech.maven.publish.SonatypeHost
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    id("maven-publish")
+    id("signing")
+    alias(libs.plugins.maven.publish)
+}
+
+mavenPublishing {
+    coordinates("io.github.the-best-is-best", "kpermissions-cmp-location-always", "1.0.0")
+
+    publishToMavenCentral(SonatypeHost.S01, true)
+    signAllPublications()
+
+    pom {
+        name.set("KPermissionsCmpLocationAlways")
+        description.set("KPermissionsCmpLocationAlways is a Compose Multiplatform (CMP) module for managing the `LocationAlwaysPermission`.")
+        url.set("https://github.com/the-best-is-best/kPermissions")
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://opensource.org/licenses/Apache-2.0")
+            }
+        }
+        issueManagement {
+            system.set("Github")
+            url.set("https://github.com/the-best-is-best/kPermissions/issues")
+        }
+        scm {
+            connection.set("https://github.com/the-best-is-best/kPermissions.git")
+            url.set("https://github.com/the-best-is-best/kPermissions")
+        }
+        developers {
+            developer {
+                id.set("MichelleRaouf")
+                name.set("Michelle Raouf")
+                email.set("eng.michelle.raouf@gmail.com")
+            }
+        }
+    }
+
+}
+
+
+
+signing {
+    useGpgCmd()
+    sign(publishing.publications)
+}
+
+tasks.withType<PublishToMavenRepository> {
+    val isMac = getCurrentOperatingSystem().isMacOsX
+    onlyIf {
+        isMac.also {
+            if (!isMac) logger.error(
+                """
+                    Publishing the library requires macOS to be able to generate iOS artifacts.
+                    Run the task on a mac or use the project GitHub workflows for publication and release.
+                """
+            )
+        }
+    }
 }
 
 kotlin {
