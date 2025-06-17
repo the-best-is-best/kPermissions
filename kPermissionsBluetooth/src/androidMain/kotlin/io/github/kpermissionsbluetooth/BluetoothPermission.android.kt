@@ -8,7 +8,7 @@ import io.github.kPermissions_api.Permission
 
 actual object BluetoothPermission : Permission {
 
-    override val name: String = "bluetooth"
+    actual override val name: String = "bluetooth"
 
     override val androidPermissionName: String? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -19,15 +19,15 @@ actual object BluetoothPermission : Permission {
 
     private var _minSdk: Int? = null
     private var _maxSdk: Int? = null
-    override val minSdk: Int? get() = _minSdk
-    override val maxSdk: Int? get() = _maxSdk
+    actual override val minSdk: Int? get() = _minSdk
+    actual override val maxSdk: Int? get() = _maxSdk
 
-    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+    actual override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
     }
 
-    override suspend fun isServiceAvailable(): Boolean {
+    actual override suspend fun isServiceAvailable(): Boolean {
         val bluetoothManager =
             AppContextProvider.appContext.getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager
         val adapter = bluetoothManager?.adapter

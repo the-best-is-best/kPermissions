@@ -23,21 +23,20 @@ import platform.darwin.NSObject
 
 @OptIn(ExperimentalForeignApi::class)
 actual object BluetoothPermission : Permission {
-
-    override val name: String get() = "bluetooth"
+    actual override val name: String get() = "bluetooth"
 
     private var _minSdk: Int? = null
     private var _maxSdk: Int? = null
-    override val minSdk: Int? get() = _minSdk
-    override val maxSdk: Int? get() = _maxSdk
+    actual override val minSdk: Int? get() = _minSdk
+    actual override val maxSdk: Int? get() = _maxSdk
 
-    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+    actual override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
     }
 
     // ============ Service Availability ============
-    override suspend fun isServiceAvailable(): Boolean {
+    actual override suspend fun isServiceAvailable(): Boolean {
         return CBCentralManager().state == CBManagerStatePoweredOn
     }
 
