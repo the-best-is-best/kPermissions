@@ -9,7 +9,7 @@ import android.provider.Settings
 import io.github.kPermissions_api.Permission
 
 actual object LocationAlwaysPermission : Permission {
-    override val name: String
+    actual override val name: String
         get() = "location_always"
 
     override val androidPermissionName: String?
@@ -22,18 +22,18 @@ actual object LocationAlwaysPermission : Permission {
     private var _minSdk: Int? = Build.VERSION_CODES.Q
     private var _maxSdk: Int? = null
 
-    override val minSdk: Int?
+    actual override val minSdk: Int?
         get() = _minSdk
 
-    override val maxSdk: Int?
+    actual override val maxSdk: Int?
         get() = _maxSdk
 
-    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+    actual override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
     }
 
-    override suspend fun isServiceAvailable(): Boolean {
+    actual override suspend fun isServiceAvailable(): Boolean {
         val locationManager =
             AppContextProvider.appContext.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
         return locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true ||

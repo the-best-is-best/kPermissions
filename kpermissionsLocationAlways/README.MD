@@ -8,7 +8,7 @@ ecosystem.
 
 ---
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.the-best-is-best/kpermissions-always)](https://central.sonatype.com/artifact/io.github.the-best-is-best/kpermissions-always)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.the-best-is-best/kpermissions-location-always)](https://central.sonatype.com/artifact/io.github.the-best-is-best/kpermissions-location-always)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Supported Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS-green)
 

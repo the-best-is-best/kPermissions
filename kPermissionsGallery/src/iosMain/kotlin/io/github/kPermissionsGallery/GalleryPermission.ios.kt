@@ -41,12 +41,12 @@ internal fun permissionRequest(): ((Boolean) -> Unit) -> Unit {
 
 actual object GalleryPermission : Permission {
 
-    override val name: String
+    actual override val name: String
         get() = "gallery"
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
         get() = permissionRequest()
 
-    override suspend fun isServiceAvailable(): Boolean {
+    actual override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 
@@ -56,13 +56,13 @@ actual object GalleryPermission : Permission {
     private var _minSdk: Int? = null
     private var _maxSdk: Int? = null
 
-    override val minSdk: Int?
+    actual override val minSdk: Int?
         get() = _minSdk
 
-    override val maxSdk: Int?
+    actual override val maxSdk: Int?
         get() = _maxSdk
 
-    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+    actual override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
     }

@@ -11,7 +11,7 @@ actual object WriteStoragePermission : Permission {
         this.setIgnore(PlatformIgnore.IOS)
     }
 
-    override val name: String
+    actual override val name: String
         get() = "write_storage"
     override val androidPermissionName: String?
         get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) Manifest.permission.WRITE_EXTERNAL_STORAGE else null
@@ -19,18 +19,18 @@ actual object WriteStoragePermission : Permission {
     private var _minSdk: Int? = null
     private var _maxSdk: Int? = null
 
-    override val minSdk: Int?
+    actual override val minSdk: Int?
         get() = _minSdk
 
-    override val maxSdk: Int?
+    actual override val maxSdk: Int?
         get() = _maxSdk
 
-    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+    actual override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
     }
 
-    override suspend fun isServiceAvailable(): Boolean {
+    actual override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 
@@ -38,7 +38,7 @@ actual object WriteStoragePermission : Permission {
 }
 
 actual object ReadStoragePermission : Permission {
-    override val name: String
+    actual override val name: String
         get() = "read_storage"
     override val androidPermissionName: String?
         get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_EXTERNAL_STORAGE else null
@@ -46,18 +46,18 @@ actual object ReadStoragePermission : Permission {
     private var _minSdk: Int? = null
     private var _maxSdk: Int? = null
 
-    override val minSdk: Int?
+    actual override val minSdk: Int?
         get() = _minSdk
 
-    override val maxSdk: Int?
+    actual override val maxSdk: Int?
         get() = _maxSdk
 
-    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+    actual override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
     }
 
-    override suspend fun isServiceAvailable(): Boolean {
+    actual override suspend fun isServiceAvailable(): Boolean {
         return true
     }
 

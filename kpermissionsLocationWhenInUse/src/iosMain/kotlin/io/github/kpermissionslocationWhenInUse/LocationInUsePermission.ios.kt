@@ -15,24 +15,24 @@ import platform.darwin.NSObject
 
 actual object LocationInUsePermission : Permission {
 
-    override val name: String
+    actual override val name: String
         get() = "location_in_use"
 
     private var _minSdk: Int? = null
     private var _maxSdk: Int? = null
 
-    override val minSdk: Int?
+    actual override val minSdk: Int?
         get() = _minSdk
-    override val maxSdk: Int?
+    actual override val maxSdk: Int?
         get() = _maxSdk
 
-    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+    actual override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
     }
 
 
-    override suspend fun isServiceAvailable(): Boolean {
+    actual override suspend fun isServiceAvailable(): Boolean {
         return withContext(Dispatchers.Default) {
             CLLocationManager.locationServicesEnabled()
         }

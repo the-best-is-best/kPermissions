@@ -10,13 +10,13 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "kpermissions-always", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-location-always", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
-        name.set("KPermissionsAlways")
+        name.set("KPermissionsLocationAlways")
         description.set("KPermissionsAlways is a Kotlin Multiplatform (KMP) permission module that provides access to location always permissions on Android and iOS.")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
