@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
@@ -22,7 +21,6 @@ import io.github.kpermissions_cmp.getIgnore
 @Composable
 internal actual fun RequestPermission(
     permission: Permission,
-    onPermissionResult: (Boolean) -> Unit
 ): PermissionState {
     val androidPermission = permission.androidPermissionName
     val currentSdk = android.os.Build.VERSION.SDK_INT
@@ -32,7 +30,6 @@ internal actual fun RequestPermission(
         (permission.minSdk != null && currentSdk < permission.minSdk!!) ||
         (permission.maxSdk != null && currentSdk > permission.maxSdk!!)
     ) {
-        LaunchedEffect(Unit) { onPermissionResult(true) }
         return grantedState(permission)
     }
 
@@ -52,7 +49,6 @@ internal actual fun RequestPermission(
             } else {
                 true
             }
-        onPermissionResult(accStatus is com.google.accompanist.permissions.PermissionStatus.Granted && isServiceActive)
     }
 
     var currentStatus by remember { mutableStateOf<PermissionStatus?>(null) }
@@ -101,7 +97,6 @@ internal actual fun RequestPermission(
 @Composable
 internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
-    onPermissionsResult: (Boolean) -> Unit
 ): List<PermissionState> {
     val currentSdk = android.os.Build.VERSION.SDK_INT
 
@@ -117,34 +112,6 @@ internal actual fun RequestMultiPermissions(
     val androidPermissions = filteredPermissions.mapNotNull { it.androidPermissionName }
     val multipleLauncher = rememberMultiplePermissionsState(androidPermissions)
 
-    // تحديث حالة الإذن لجميع الصلاحيات المراقبة
-    LaunchedEffect(multipleLauncher.permissions.map { it.status }) {
-        snapshotFlow { multipleLauncher.permissions.map { it.status } }
-            .collect { statusList ->
-                val mappedStatuses = statusList.mapIndexed { index, accStatus ->
-                    if (accStatus is com.google.accompanist.permissions.PermissionStatus.Granted) {
-                        // نتحقق من تفعيل الخدمة لكل صلاحية ممنوحة
-                        val perm = filteredPermissions.getOrNull(index)
-                        if (perm != null) {
-                            val isActive = perm.isServiceAvailable()
-                            if (isActive) PermissionStatus.Granted else PermissionStatus.Unavailable
-                        } else {
-                            PermissionStatus.Denied // أو اختيار منطقي آخر
-                        }
-                    } else {
-                        when (accStatus) {
-                            is com.google.accompanist.permissions.PermissionStatus.Denied -> {
-                                if (accStatus.shouldShowRationale) PermissionStatus.Denied else PermissionStatus.DeniedPermanently
-                            }
-
-                            else -> PermissionStatus.Denied
-                        }
-                    }
-                }
-                onPermissionsResult(mappedStatuses.all { it == PermissionStatus.Granted })
-            }
-    }
-
     return filteredPermissions.mapIndexed { index, perm ->
 
         var shouldRequest by remember { mutableStateOf(true) }
@@ -154,13 +121,13 @@ internal actual fun RequestMultiPermissions(
 
         val accStatus = multipleLauncher.permissions.getOrNull(index)?.status
 
-        // عندما تتغير حالة الإذن، نتحقق من حالة الخدمة إذا كانت ممنوحة
         LaunchedEffect(accStatus) {
             listenToStatus = true
-            if (accStatus is com.google.accompanist.permissions.PermissionStatus.Granted) {
-                isServiceActive = perm.isServiceAvailable()
+            isServiceActive =
+                if (accStatus is com.google.accompanist.permissions.PermissionStatus.Granted) {
+                    perm.isServiceAvailable()
             } else {
-                isServiceActive = true // افتراضي في حالة عدم السماح
+                    true
             }
         }
 
@@ -171,16 +138,16 @@ internal actual fun RequestMultiPermissions(
                 get() {
                     if (!perm.isDeclaredInManifest()) return PermissionStatus.NotDeclared
 
-                    val accStatus = multipleLauncher.permissions.getOrNull(index)?.status
+                    val getAccStatus = multipleLauncher.permissions.getOrNull(index)?.status
                         ?: return PermissionStatus.Denied
 
                     if (listenToStatus) {
-                        val status = when (accStatus) {
+                        val status = when (getAccStatus) {
                             is com.google.accompanist.permissions.PermissionStatus.Granted -> {
                                 if (isServiceActive) PermissionStatus.Granted else PermissionStatus.Unavailable
                             }
                             is com.google.accompanist.permissions.PermissionStatus.Denied -> {
-                                if (shouldRequest || accStatus.shouldShowRationale) {
+                                if (shouldRequest || getAccStatus.shouldShowRationale) {
                                     PermissionStatus.Denied
                                 } else {
                                     PermissionStatus.DeniedPermanently

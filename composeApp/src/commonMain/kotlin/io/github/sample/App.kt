@@ -123,9 +123,7 @@ fun SinglePermissionsScreen() {
 
 
         permissions.forEach { permission ->
-            val state = rememberPermissionState(permission) { granted ->
-                println("${permission.name} granted = $granted")
-            }
+            val state = rememberPermissionState(permission)
 
 
             // Refresh Bluetooth & Location state
@@ -226,9 +224,6 @@ fun MultiPermissionTestScreen() {
     // Collect permission states only after availablePermissions is ready
     val states = rememberMultiplePermissionsState(
         permissions = availablePermissions,
-        onPermissionsResult = { granted ->
-            println("All permissions granted? $granted")
-        },
     )
 
     var allGranted by remember { mutableStateOf(false) }

@@ -10,40 +10,36 @@ import io.github.kPermissions_api.PermissionStatus
 @Composable
 internal expect fun RequestPermission(
     permission: Permission,
-    onPermissionResult: (Boolean) -> Unit,
 ): PermissionState
 
 
 @Composable
 internal expect fun RequestMultiPermissions(
     permissions: List<Permission>,
-    onPermissionsResult: (Boolean) -> Unit,
 ): List<PermissionState>
 
 @Composable
 fun rememberPermissionState(
     permission: Permission,
-    onPermissionResult: (Boolean) -> Unit,
 ): PermissionState {
     val isInspection = LocalInspectionMode.current
 
     return if (isInspection)
         rememberPreviewPermissionState(permission)
     else
-        RequestPermission(permission, onPermissionResult)
+        RequestPermission(permission)
 }
 
 @Composable
 fun rememberMultiplePermissionsState(
     permissions: List<Permission>,
-    onPermissionsResult: (Boolean) -> Unit,
 ): List<PermissionState> {
     val isInspection = LocalInspectionMode.current
 
     return if (isInspection)
         permissions.map { rememberPreviewPermissionState(it) }
     else
-        RequestMultiPermissions(permissions, onPermissionsResult)
+        RequestMultiPermissions(permissions)
 }
 
 

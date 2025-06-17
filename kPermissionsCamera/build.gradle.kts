@@ -120,7 +120,7 @@ kotlin {
                 //implementation(compose.runtime)
 
                 api(projects.kPermissionsApi)
-                api(projects.kPermissionsCore)
+
 
             }
         }

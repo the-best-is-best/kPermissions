@@ -117,7 +117,7 @@ kotlin {
                 // Add KMP dependencies here
                 // implementation(compose.runtime)
                 api(projects.kPermissionsApi)
-                api(projects.kPermissionsCore)
+
                 implementation(projects.kPermissionsCMP)
 
             }
