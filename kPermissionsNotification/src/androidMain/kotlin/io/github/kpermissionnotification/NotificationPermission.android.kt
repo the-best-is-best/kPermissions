@@ -4,7 +4,7 @@ import android.os.Build
 import io.github.kPermissions_api.Permission
 
 actual object NotificationPermission : Permission {
-    override val name: String
+    actual override val name: String
         get() = "notification"
 
     override val androidPermissionName: String?
@@ -16,17 +16,17 @@ actual object NotificationPermission : Permission {
 
     private var _minSdk: Int? = null
     private var _maxSdk: Int? = null
-    override val minSdk: Int?
+    actual override val minSdk: Int?
         get() = _minSdk
-    override val maxSdk: Int?
+    actual override val maxSdk: Int?
         get() = _maxSdk
 
-    override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
+    actual override fun setMainAndMaxSdk(minSdk: Int?, maxSdk: Int?) {
         _minSdk = minSdk
         _maxSdk = maxSdk
     }
 
-    override suspend fun isServiceAvailable(): Boolean {
+    actual override suspend fun isServiceAvailable(): Boolean {
         return true
 
     }

@@ -24,8 +24,6 @@
 
 # 🔐 kPermissions
 
-# 🔐 kPermissions
-
 **kPermissions** is a Kotlin Multiplatform library that helps you manage runtime permissions on **Android** and **iOS**, with full modularity and optional support for **Jetpack Compose Multiplatform (CMP)**.
 
 ---

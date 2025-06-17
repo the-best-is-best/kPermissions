@@ -11,14 +11,14 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissionsApi", "1.0.0")
+    coordinates("io.github.the-best-is-best", "KPermissionsApi", "1.0.1")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
         name.set("KPermissionsApi")
-        description.set("Base permission contract for android and iOS for Kotlin Multiplatform")
+        description.set("KPermissionsApi is a Kotlin Multiplatform Mobile (KMM) package that provides a base permission contract for Android and iOS. It simplifies managing permissions in a shared codebase, allowing developers to request and handle permissions uniformly across platforms without duplicating code.")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {

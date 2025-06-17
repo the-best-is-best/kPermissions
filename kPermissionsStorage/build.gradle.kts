@@ -14,14 +14,14 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissionsStorage", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-storage", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
         name.set("KPermissionsStorage")
-        description.set("Plugin for request storage permission android and ios KMM")
+        description.set("KPermissionsStorage is a Kotlin Multiplatform module that provides permission handling for accessing external storage, supporting both **read** and **write** access based on Android SDK levels. iOS is treated as always granted.\n")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {
