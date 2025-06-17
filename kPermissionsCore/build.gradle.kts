@@ -14,14 +14,18 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissionsCore", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-core", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
         name.set("KPermissionsCore")
-        description.set("Plugin for request permissions android and ios KMM")
+        description.set(
+            """Core permission management for Kotlin Multiplatform (KMP) with Compose support.**  
+This package provides the essential composable APIs and utilities for requesting single and multiple permissions, checking statuses, handling unavailable services, and navigating to system settings on both Android and iOS.
+"""
+        )
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {

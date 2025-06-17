@@ -14,14 +14,14 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissionsVideo", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-video", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
         name.set("KPermissionsVideo")
-        description.set("Plugin for request video permission android and ios KMM")
+        description.set("KPermissionsVideo is a Kotlin Multiplatform module that handles permission for reading videos from media storage. It's part of the [kPermissions](https://github.com/the-best-is-best/kPermissions) ecosystem.")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {

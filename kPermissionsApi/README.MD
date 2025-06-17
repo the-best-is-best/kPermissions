@@ -51,7 +51,7 @@ KPermissionsApi is available on `mavenCentral()`.
 
 ```kotlin
 dependencies {
-    implementation("io.github.the-best-is-best:kpermissionsapi:1.0.0")
+    implementation("io.github.the-best-is-best:KPermissionsApi:1.0.0")
 }
 ```
 

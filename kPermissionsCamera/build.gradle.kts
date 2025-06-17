@@ -14,14 +14,14 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "KPermissionsCamera", "1.0.0")
+    coordinates("io.github.the-best-is-best", "kpermissions-camera", "1.0.0")
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()
 
     pom {
         name.set("KPermissionsCamera")
-        description.set("Plugin for request camera permission android and ios KMM")
+        description.set("kPermissionsCamera is a Kotlin Multiplatform permission module that provides support for Camera access permission on Android and iOS.")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {
