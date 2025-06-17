@@ -17,7 +17,7 @@ mavenPublishing {
 
     pom {
         name.set("KPermissionsLocationWhenInUse")
-        description.set("KPermissionsWhenInUse is a Kotlin Multiplatform (KMP) permission module that provides access to **location when in use** permissions on Android and iOS.")
+        description.set("KPermissionsWhenInUse is a Kotlin Multiplatform (KMP) permission module that provides access to location when in use permissions on Android and iOS.")
         url.set("https://github.com/the-best-is-best/kPermissions")
         licenses {
             license {
