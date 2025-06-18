@@ -55,13 +55,15 @@
 
 ```kotlin
 dependencies {
-    imple
-    location - when - in - use("io.github.kpermissions:kpermissions-gallery:<version>")
+    implementation("io.github.kpermissions:kpermissions-gallery:<version>")
     // Add more as needed
 }
 ```
 
 ## 📌 Note
+
+⚠️ You do not need to add kpermissions-core manually.
+It's included automatically inside each permission module via api(...).
 
 but need add it as api and all permissions for export it if u need use native ui
 

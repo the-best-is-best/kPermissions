@@ -125,7 +125,7 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.ui)
 
-                implementation(projects.kPermissionsApi)
+                api(projects.kPermissionsApi)
                 implementation(projects.kPermissionsCMP)
 
             }

@@ -34,29 +34,19 @@ dependencies {
 - Request single permission:
 
 ```kotlin
-val permissionState = rememberPermissionState(CameraPermission) { granted ->
-    if (granted) {
-        // Permission granted
-    } else {
-        // Permission denied
-    }
-}
+val permissionState = rememberPermissionState(CameraPermission)
+
+permissionState.state
+
 
 ```
 
 - Request multiple permissions:
 
 ```kotlin
-val permissionsState = rememberMultiplePermissionsState(
+val permissionsStates = rememberMultiplePermissionsState(
     listOf(CameraPermission, LocationPermission)
-) { allGranted ->
-    if (allGranted) {
-        // All permissions granted
-    } else {
-        // Some permissions denied
-    }
-}
-
+)
 ```
 
 ### Open app settings
