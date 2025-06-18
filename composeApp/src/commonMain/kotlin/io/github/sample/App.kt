@@ -188,6 +188,7 @@ fun SinglePermissionsScreen() {
         )
     }
 }
+
 @Composable
 fun MultiPermissionTestScreen() {
     val requiredPermissions = listOf(
@@ -240,11 +241,9 @@ fun MultiPermissionTestScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
-            if (unavailablePermissions.isNotEmpty()) {
-                showUnavailableDialog = true
-            } else {
-                shouldTriggerLauncher = true
-            }
+
+        shouldTriggerLauncher = true
+
         }) {
             Text("Request All Permissions")
         }
