@@ -254,10 +254,15 @@ fun MultiPermissionTestScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
-            items(requiredPermissions.size) { index ->
-                val perm = states.permissions[index]
-                val status = states.statuses[index]
-                Text("${perm.name}: ${status::class.simpleName}")
+            items(states.permissions.size) { index ->
+                // تأكد من أن عدد permissions و statuses متساوي
+                val perm = states.permissions.getOrNull(index)
+                val status = states.statuses.getOrNull(index)
+                if (perm != null && status != null) {
+                    Text("${perm.name}: ${status::class.simpleName}")
+                } else {
+                    Text("Permission or status missing at index $index")
+                }
             }
         }
     }
@@ -269,4 +274,5 @@ fun MultiPermissionTestScreen() {
         )
     }
 }
+
 
