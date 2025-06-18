@@ -198,7 +198,7 @@ internal actual fun RequestMultiPermissions(
     var requestTriggered by remember { mutableStateOf(false) }
 
     // تحديث snapshot عند أي تغيير في permission state
-    LaunchedEffect(multipleLauncher.permissions) {
+    LaunchedEffect(multipleLauncher.permissions, requestTriggered) {
         snapshotFlow { multipleLauncher.permissions.map { it.status } }
             .collectLatest {
                 filteredPermissions.forEach { perm ->
