@@ -20,13 +20,9 @@ implementation("io.github.the-best-is-best:kpermissions-bluetooth:1.0.0")
 
 To request the Bluetooth permission:
 
-val state = rememberPermissionState(BluetoothPermission) { granted ->
-if (granted) {
-// Bluetooth permission granted
-} else {
-// Bluetooth permission denied
-}
-}
+```kotlin
+val state = rememberPermissionState(BluetoothPermission)
+```
 
 To observe Bluetooth state:
 

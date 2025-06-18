@@ -32,13 +32,7 @@ implementation("io.github.the-best-is-best:kpermissions-gallery:<version>")
 val permission = rememberPermissionState(GalleryPermission)
 
 LaunchedEffect(Unit) {
-permission.launchPermissionRequest { granted ->
-if (granted) {
-// ✅ Can open gallery
-} else {
-// ❌ Permission denied
-}
-}
+permission.launchPermissionRequest()
 }
 
 ---
@@ -57,7 +51,7 @@ if (granted) {
 
 ## 🔒 Permissions Required
 
-### Android:
+### Android
 
 Add to your AndroidManifest.xml:
 
@@ -68,7 +62,7 @@ Add to your AndroidManifest.xml:
 
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-### iOS:
+### iOS
 
 Add to Info.plist:
 
@@ -79,8 +73,9 @@ Add to Info.plist:
 
 ## 🔗 See Also
 
-GitHub: https://github.com/the-best-is-best/kPermissions  
-Maven Central: https://central.sonatype.com/artifact/io.github.the-best-is-best/kpermissions-gallery
+GitHub: <https://github.com/the-best-is-best/kPermissions>  
+Maven
+Central: <https://central.sonatype.com/artifact/io.github.the-best-is-best/kpermissions-gallery>
 
 ---
 
