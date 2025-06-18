@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import io.github.kPermissions_api.MultiPermissionState
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
@@ -90,11 +91,11 @@ actual fun RequestPermission(
     }
 
 }
+
 @Composable
 internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
-): List<PermissionState> {
-
+): MultiPermissionState {
     val coroutineScope = rememberCoroutineScope()
 
     val filtered = permissions.filter { perm ->
@@ -104,6 +105,7 @@ internal actual fun RequestMultiPermissions(
     }
 
     val ignoredPermissions = permissions - filtered.toSet()
+
     val ignoredStates = ignoredPermissions.map { perm ->
         object : PermissionState {
             override val permission: Permission = perm
@@ -131,28 +133,12 @@ internal actual fun RequestMultiPermissions(
         serviceAvailableMap = results
     }
 
-    fun checkAllGranted(currentMap: Map<String, PermissionStatus> = stateMap): Boolean {
-        return permissions.all { perm ->
-            val isIgnored = perm.getIgnore() == PlatformIgnore.IOS
-            val isOutOfSdk = (perm.minSdk?.let { currentIosVersion < it } ?: false) ||
-                    (perm.maxSdk?.let { currentIosVersion > it } ?: false)
-            val unavailable = !(serviceAvailableMap[perm] ?: true)
-
-            when {
-                isIgnored || isOutOfSdk -> true
-                unavailable -> false
-                else -> currentMap[perm.name] == PermissionStatus.Granted
-            }
-        }
-    }
-
     OnAppResumed {
         coroutineScope.launch {
             val newStatuses = filtered.associate { it.name to getStatus(it) }
             stateMap = newStatuses
         }
     }
-
 
     val actualStates = filtered.map { permission ->
         val statusState = derivedStateOf {
@@ -204,5 +190,22 @@ internal actual fun RequestMultiPermissions(
         }
     }
 
-    return actualStates + ignoredStates
+    val allStates = actualStates + ignoredStates
+
+    return remember(allStates, stateMap) {
+        object : MultiPermissionState {
+            override val permissions: List<Permission> = allStates.map { it.permission }
+            override val statuses: List<PermissionStatus> = allStates.map { it.status }
+
+            override fun launchPermissionsRequest() {
+                allStates.forEach { it.launchPermissionRequest() }
+            }
+
+            override fun openAppSettings() = openAppSettingsPlatform()
+
+            override suspend fun refreshStatuses() {
+                allStates.forEach { it.refreshStatus() }
+            }
+        }
+    }
 }
