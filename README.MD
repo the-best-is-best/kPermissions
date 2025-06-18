@@ -55,8 +55,6 @@
 
 ```kotlin
 dependencies {
-    implementation("io.github.the-best-is-best:kpermissions-core:<latest-version>")
-
     implementation("io.github.kpermissions:kpermissions-gallery:<version>")
     // Add more as needed
 }
