@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -30,7 +29,6 @@ import io.github.kPermissionsGallery.GalleryPermission
 import io.github.kPermissionsStorage.ReadStoragePermission
 import io.github.kPermissionsStorage.WriteStoragePermission
 import io.github.kPermissionsVideo.ReadVideoPermission
-import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissionlocationwheninuseext.openPrivacySettings
 import io.github.kpermissionnotification.NotificationPermission
@@ -191,59 +189,50 @@ fun SinglePermissionsScreen() {
     }
 }
 
-
 @Composable
 fun MultiPermissionTestScreen() {
     val requiredPermissions = listOf(
         NotificationPermission,
+        ReadStoragePermission,
+        CameraPermission,
         GalleryPermission
     )
 
-    // State to hold available permissions list (after checking service availability)
-    var availablePermissions by remember { mutableStateOf<List<Permission>>(emptyList()) }
+    // حالة الصلاحيات الغير متاحة بسبب الخدمة
     var unavailablePermissions by remember { mutableStateOf<List<String>>(emptyList()) }
 
-    // Run suspend calls to check service availability on composition
+    // تشغيل الفحص عند الإنشاء
     LaunchedEffect(Unit) {
-        val available = mutableListOf<Permission>()
         val unavailable = mutableListOf<String>()
         for (p in requiredPermissions) {
-            if (p.isServiceAvailable()) {
-                available.add(p)
-            } else {
+            if (!p.isServiceAvailable()) {
                 unavailable.add(p.name)
             }
         }
-        availablePermissions = available
         unavailablePermissions = unavailable
     }
 
     var showUnavailableDialog by remember { mutableStateOf(false) }
     var shouldTriggerLauncher by remember { mutableStateOf(false) }
 
-    // Collect permission states only after availablePermissions is ready
+    // حالة الصلاحيات المتعددة
     val states = rememberMultiplePermissionsState(
-        permissions = availablePermissions,
+        permissions = requiredPermissions
     )
 
-    var allGranted by remember { mutableStateOf(false) }
-
-    // Update allGranted when statuses change
-    LaunchedEffect(states.map { it.status }) {
-        allGranted = states.all { it.status == PermissionStatus.Granted }
-    }
-
-    // Launch permission request if triggered
+    // تنفيذ الطلب عند التفعيل
     LaunchedEffect(shouldTriggerLauncher) {
         if (shouldTriggerLauncher) {
-            states.firstOrNull()?.launchPermissionRequest()
+            states.launchPermissionsRequest()
             shouldTriggerLauncher = false
 
-            if (states.any { it.status == PermissionStatus.DeniedPermanently }) {
-                states.first().openAppSettings()
+            if (states.anyPermissionDeniedPermanently()) {
+                states.openAppSettings()
             }
         }
     }
+
+    val allGranted = states.allPermissionsGranted()
 
     Column(
         modifier = Modifier
@@ -252,11 +241,9 @@ fun MultiPermissionTestScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
-            if (unavailablePermissions.isNotEmpty()) {
-                showUnavailableDialog = true
-                return@Button
-            }
-            shouldTriggerLauncher = true
+
+        shouldTriggerLauncher = true
+
         }) {
             Text("Request All Permissions")
         }
@@ -266,8 +253,15 @@ fun MultiPermissionTestScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
-            items(states) { state ->
-                Text("${state.permission.name}: ${state.status}")
+            items(states.permissions.size) { index ->
+                // تأكد من أن عدد permissions و statuses متساوي
+                val perm = states.permissions.getOrNull(index)
+                val status = states.statuses.getOrNull(index)
+                if (perm != null && status != null) {
+                    Text("${perm.name}: ${status::class.simpleName}")
+                } else {
+                    Text("Permission or status missing at index $index")
+                }
             }
         }
     }
@@ -279,3 +273,5 @@ fun MultiPermissionTestScreen() {
         )
     }
 }
+
+

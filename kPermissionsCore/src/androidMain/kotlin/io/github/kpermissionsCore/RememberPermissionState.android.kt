@@ -3,16 +3,24 @@ package io.github.kpermissionsCore
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import io.github.kPermissions_api.MultiPermissionState
+import io.github.kPermissions_api.NotDeclared
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
+import io.github.kPermissions_api.Unavailable
 import io.github.kPermissions_api.isDeclaredInManifest
+import io.github.kPermissions_api.isDenied
+import io.github.kPermissions_api.isDeniedPermanently
+import io.github.kPermissions_api.isGranted
 import io.github.kPermissions_api.refreshState
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
@@ -41,7 +49,7 @@ internal actual fun RequestPermission(
 
     val accStatus = launcher.status
 
-    LaunchedEffect(accStatus) {
+    LaunchedEffect(accStatus, shouldRequest) {
         listenToStatus = true
         isServiceActive =
             if (accStatus is com.google.accompanist.permissions.PermissionStatus.Granted) {
@@ -50,6 +58,7 @@ internal actual fun RequestPermission(
                 true
             }
     }
+
 
     var currentStatus by remember { mutableStateOf<PermissionStatus?>(null) }
 
@@ -80,6 +89,7 @@ internal actual fun RequestPermission(
             listenToStatus = false
             launcher.launchPermissionRequest()
             shouldRequest = false
+
         }
 
         override fun openAppSettings() = openAppSettingsPlatform()
@@ -97,9 +107,10 @@ internal actual fun RequestPermission(
 @Composable
 internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
-): List<PermissionState> {
+): MultiPermissionState {
     val currentSdk = android.os.Build.VERSION.SDK_INT
 
+    // تصفية الصلاحيات المناسبة للأندرويد وحسب SDK
     val filteredPermissions = remember(permissions) {
         permissions.filter {
             it.getIgnore() != PlatformIgnore.Android &&
@@ -112,84 +123,114 @@ internal actual fun RequestMultiPermissions(
     val androidPermissions = filteredPermissions.mapNotNull { it.androidPermissionName }
     val multipleLauncher = rememberMultiplePermissionsState(androidPermissions)
 
-    return filteredPermissions.mapIndexed { index, perm ->
+    val currentStatusMap = remember { mutableStateMapOf<Permission, PermissionStatus>() }
 
-        var shouldRequest by remember { mutableStateOf(true) }
-        var listenToStatus by remember { mutableStateOf(true) }
-        var currentStatus by remember { mutableStateOf<PermissionStatus?>(null) }
-        var isServiceActive by remember { mutableStateOf(true) } // متغير حالة الخدمة
 
-        val accStatus = multipleLauncher.permissions.getOrNull(index)?.status
-
-        LaunchedEffect(accStatus) {
-            listenToStatus = true
-            isServiceActive =
-                if (accStatus is com.google.accompanist.permissions.PermissionStatus.Granted) {
-                    perm.isServiceAvailable()
-            } else {
-                    true
-            }
-        }
+    // بناء PermissionState لكل صلاحية
+    val permissionStates = filteredPermissions.map { perm ->
 
         object : PermissionState {
             override val permission = perm
 
             override val status: PermissionStatus
-                get() {
-                    if (!perm.isDeclaredInManifest()) return PermissionStatus.NotDeclared
-
-                    val getAccStatus = multipleLauncher.permissions.getOrNull(index)?.status
-                        ?: return PermissionStatus.Denied
-
-                    if (listenToStatus) {
-                        val status = when (getAccStatus) {
-                            is com.google.accompanist.permissions.PermissionStatus.Granted -> {
-                                if (isServiceActive) PermissionStatus.Granted else PermissionStatus.Unavailable
-                            }
-                            is com.google.accompanist.permissions.PermissionStatus.Denied -> {
-                                if (shouldRequest || getAccStatus.shouldShowRationale) {
-                                    PermissionStatus.Denied
-                                } else {
-                                    PermissionStatus.DeniedPermanently
-                                }
-                            }
-                        }
-                        currentStatus = status
-                    }
-
-                    return currentStatus ?: PermissionStatus.Denied
-                }
+                get() = currentStatusMap[perm] ?: PermissionStatus.Denied
 
             override fun launchPermissionRequest() {
-                listenToStatus = false
-                shouldRequest = false
+                // التعامل مع طلب الصلاحيات يتم دفعة واحدة من الخارج
+            }
+
+            override fun openAppSettings() = openAppSettingsPlatform()
+
+            override suspend fun refreshStatus() {
+                permission.refreshState()
+                val getAccStatus =
+                    multipleLauncher.permissions.find { it.permission == perm.androidPermissionName }?.status
+                val status = when (getAccStatus) {
+                    is com.google.accompanist.permissions.PermissionStatus.Granted ->
+                        if (perm.isServiceAvailable()) PermissionStatus.Granted else PermissionStatus.Unavailable
+
+                    is com.google.accompanist.permissions.PermissionStatus.Denied ->
+                        if (getAccStatus.shouldShowRationale) PermissionStatus.Denied else PermissionStatus.DeniedPermanently
+
+                    else -> PermissionStatus.Denied
+                }
+                currentStatusMap[perm] = status
+            }
+        }
+    }
+
+    val grantedPermissions = (permissions - filteredPermissions.toSet()).map { grantedState(it) }
+    val allPermissionStates = remember(permissionStates, grantedPermissions) {
+        permissionStates + grantedPermissions
+    }
+
+    var statusesSnapshot by remember { mutableStateOf(allPermissionStates.map { it.status }) }
+
+    // تحديث الحالة فور بدء الـ Composable (يعني أول ما تدخل الشاشة)
+
+
+    var isFirstRun by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { multipleLauncher.permissions.map { it.status } }
+            .collect {
+                // هنا تحدّث currentStatusMap و statusesSnapshot
+                filteredPermissions.forEach { perm ->
+                    perm.refreshState()
+                    val accStatus =
+                        multipleLauncher.permissions.find { it.permission == perm.androidPermissionName }?.status
+                    val status = when (accStatus) {
+                        is com.google.accompanist.permissions.PermissionStatus.Granted ->
+                            if (perm.isServiceAvailable()) PermissionStatus.Granted else PermissionStatus.Unavailable
+
+                        is com.google.accompanist.permissions.PermissionStatus.Denied ->
+                            if (isFirstRun) PermissionStatus.Denied else
+                                if (accStatus.shouldShowRationale) PermissionStatus.Denied else PermissionStatus.DeniedPermanently
+
+                        else -> PermissionStatus.Denied
+                    }
+                    currentStatusMap[perm] = status
+                }
+                statusesSnapshot = allPermissionStates.map { it.status }
+            }
+    }
+
+    return remember(allPermissionStates) {
+        object : MultiPermissionState {
+            override val permissions = allPermissionStates.map { it.permission }
+
+            override val statuses: List<PermissionStatus>
+                get() = statusesSnapshot
+
+            override fun launchPermissionsRequest() {
+                isFirstRun = false
                 multipleLauncher.launchMultiplePermissionRequest()
             }
 
             override fun openAppSettings() = openAppSettingsPlatform()
-            override suspend fun refreshStatus() {
-                perm.refreshState()
-                if (multipleLauncher.permissions.getOrNull(index)?.status is com.google.accompanist.permissions.PermissionStatus.Granted) {
-                    isServiceActive = perm.isServiceAvailable()
-                }
+
+            override suspend fun refreshStatuses() {
+                allPermissionStates.forEach { it.refreshStatus() }
+                statusesSnapshot = allPermissionStates.map { it.status }
             }
-        }
-    } + (permissions - filteredPermissions.toSet()).map {
-        object : PermissionState {
-            override val permission = it
-            override val status = PermissionStatus.Granted
-            override fun launchPermissionRequest() {}
-            override fun openAppSettings() = openAppSettingsPlatform()
-            override suspend fun refreshStatus() {
-                it.refreshState()
-            }
+
+            override fun allPermissionsGranted() = statusesSnapshot.all { it.isGranted }
+
+            override fun anyPermissionDenied() = statusesSnapshot.any { it.isDenied }
+
+            override fun anyPermissionDeniedPermanently() =
+                statusesSnapshot.any { it.isDeniedPermanently }
+
+            override fun anyPermissionUnavailable() = statusesSnapshot.any { it.Unavailable }
+
+            override fun anyPermissionNotDeclared() = statusesSnapshot.any { it.NotDeclared }
         }
     }
 }
 
 
 @Composable
-private fun grantedState(permission: Permission) = object : PermissionState {
+private fun grantedState(permission: Permission): PermissionState = object : PermissionState {
     override val permission = permission
     override val status = PermissionStatus.Granted
     override fun launchPermissionRequest() {}
@@ -198,4 +239,3 @@ private fun grantedState(permission: Permission) = object : PermissionState {
         permission.refreshState()
     }
 }
-

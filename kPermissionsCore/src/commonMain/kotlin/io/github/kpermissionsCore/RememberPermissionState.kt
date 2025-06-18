@@ -3,6 +3,7 @@ package io.github.kpermissionsCore
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalInspectionMode
+import io.github.kPermissions_api.MultiPermissionState
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
@@ -16,7 +17,7 @@ internal expect fun RequestPermission(
 @Composable
 internal expect fun RequestMultiPermissions(
     permissions: List<Permission>,
-): List<PermissionState>
+): MultiPermissionState
 
 @Composable
 fun rememberPermissionState(
@@ -33,11 +34,11 @@ fun rememberPermissionState(
 @Composable
 fun rememberMultiplePermissionsState(
     permissions: List<Permission>,
-): List<PermissionState> {
+): MultiPermissionState {
     val isInspection = LocalInspectionMode.current
 
     return if (isInspection)
-        permissions.map { rememberPreviewPermissionState(it) }
+        rememberPreviewMultiPermissionState(permissions)
     else
         RequestMultiPermissions(permissions)
 }
@@ -60,4 +61,28 @@ private fun rememberPreviewPermissionState(
     }
 }
 
+
+@Composable
+private fun rememberPreviewMultiPermissionState(
+    permissions: List<Permission>,
+): MultiPermissionState = remember {
+    object : MultiPermissionState {
+        override val permissions: List<Permission>
+            get() = permissions
+        override val statuses: List<PermissionStatus>
+            get() = listOf(PermissionStatus.Granted)
+
+        override fun launchPermissionsRequest() {
+        }
+
+        override fun openAppSettings() {
+
+        }
+
+        override suspend fun refreshStatuses() {
+        }
+
+    }
+
+}
 
