@@ -2,6 +2,7 @@ package io.github.kpermissionsCore
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,7 @@ import io.github.kPermissions_api.isGranted
 import io.github.kPermissions_api.refreshState
 import io.github.kpermissions_cmp.PlatformIgnore
 import io.github.kpermissions_cmp.getIgnore
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -170,28 +172,47 @@ internal actual fun RequestMultiPermissions(
 
 
     var isFirstRun by remember { mutableStateOf(true) }
+    var requested by remember { mutableStateOf(false) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
+    suspend fun refreshAllStatuses() {
+        filteredPermissions.forEach { perm ->
+            perm.refreshState()
+            val accStatus =
+                multipleLauncher.permissions.find { it.permission == perm.androidPermissionName }?.status
+
+            val status = when (accStatus) {
+                is com.google.accompanist.permissions.PermissionStatus.Granted ->
+                    if (perm.isServiceAvailable()) PermissionStatus.Granted else PermissionStatus.Unavailable
+
+                is com.google.accompanist.permissions.PermissionStatus.Denied ->
+                    if (isFirstRun) PermissionStatus.Denied
+                    else if (accStatus.shouldShowRationale) PermissionStatus.Denied
+                    else PermissionStatus.DeniedPermanently
+
+                else -> PermissionStatus.Denied
+            }
+
+            currentStatusMap[perm] = status
+        }
+
+        statusesSnapshot = allPermissionStates.map { it.status }
+    }
+
+
+    SideEffect {
+        if (isFirstRun && requested) {
+            requested = true
+            isFirstRun = false
+            scope.launch {
+                refreshAllStatuses()
+            }
+        }
+    }
+    LaunchedEffect(!isFirstRun) {
         snapshotFlow { multipleLauncher.permissions.map { it.status } }
             .collect {
-                // هنا تحدّث currentStatusMap و statusesSnapshot
-                filteredPermissions.forEach { perm ->
-                    perm.refreshState()
-                    val accStatus =
-                        multipleLauncher.permissions.find { it.permission == perm.androidPermissionName }?.status
-                    val status = when (accStatus) {
-                        is com.google.accompanist.permissions.PermissionStatus.Granted ->
-                            if (perm.isServiceAvailable()) PermissionStatus.Granted else PermissionStatus.Unavailable
-
-                        is com.google.accompanist.permissions.PermissionStatus.Denied ->
-                            if (isFirstRun) PermissionStatus.Denied else
-                                if (accStatus.shouldShowRationale) PermissionStatus.Denied else PermissionStatus.DeniedPermanently
-
-                        else -> PermissionStatus.Denied
-                    }
-                    currentStatusMap[perm] = status
-                }
-                statusesSnapshot = allPermissionStates.map { it.status }
+                refreshAllStatuses()
             }
     }
 
@@ -203,7 +224,7 @@ internal actual fun RequestMultiPermissions(
                 get() = statusesSnapshot
 
             override fun launchPermissionsRequest() {
-                isFirstRun = false
+                requested = true
                 multipleLauncher.launchMultiplePermissionRequest()
             }
 
