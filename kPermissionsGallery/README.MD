@@ -29,11 +29,13 @@ implementation("io.github.the-best-is-best:kpermissions-gallery:<version>")
 
 ## 🧪 Usage Example
 
+```kotlin
 val permission = rememberPermissionState(GalleryPermission)
 
 LaunchedEffect(Unit) {
 permission.launchPermissionRequest()
 }
+```
 
 ---
 
