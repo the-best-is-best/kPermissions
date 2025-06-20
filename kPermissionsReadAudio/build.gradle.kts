@@ -14,7 +14,11 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "kpermissions-read-audio", "1.0.1")
+    coordinates(
+        "io.github.the-best-is-best",
+        "kpermissions-read-audio",
+        libs.versions.kpermissions.get()
+    )
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()

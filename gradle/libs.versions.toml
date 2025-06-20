@@ -22,6 +22,8 @@ core = "1.6.1"
 startupRuntime = "1.2.0"
 mavenPublish = "0.32.0"
 
+kpermissions = "1.1.0"
+
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startupRuntime" }

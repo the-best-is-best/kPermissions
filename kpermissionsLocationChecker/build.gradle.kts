@@ -10,7 +10,11 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "kpermissions-location-checker", "1.0.0")
+    coordinates(
+        "io.github.the-best-is-best",
+        "kpermissions-location-checker",
+        libs.versions.kpermissions.get()
+    )
 
     publishToMavenCentral(SonatypeHost.S01, true)
     signAllPublications()

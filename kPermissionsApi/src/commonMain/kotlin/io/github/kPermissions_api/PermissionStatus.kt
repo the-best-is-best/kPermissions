@@ -17,10 +17,10 @@ val PermissionStatus.isDenied: Boolean
 val PermissionStatus.isDeniedPermanently: Boolean
     get() = this == PermissionStatus.DeniedPermanently
 
-val PermissionStatus.Unavailable: Boolean
+val PermissionStatus.isUnavailable: Boolean
     get() = this == PermissionStatus.Unavailable
 
-val PermissionStatus.NotDeclared: Boolean
+val PermissionStatus.isNotDeclared: Boolean
     get() = this == PermissionStatus.NotDeclared
 
 
@@ -80,11 +80,11 @@ interface MultiPermissionState {
     }
 
     fun anyPermissionUnavailable(): Boolean {
-        return statuses.any { it.Unavailable }
+        return statuses.any { it.isUnavailable }
     }
 
     fun anyPermissionNotDeclared(): Boolean {
-        return statuses.any { it.NotDeclared }
+        return statuses.any { it.isNotDeclared }
     }
 }
 
