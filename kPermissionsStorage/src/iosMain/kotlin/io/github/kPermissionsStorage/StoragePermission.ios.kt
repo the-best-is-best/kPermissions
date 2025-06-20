@@ -44,6 +44,9 @@ actual object WriteStoragePermission : Permission {
 }
 
 actual object ReadStoragePermission : Permission {
+    init {
+        this.setIgnore(PlatformIgnore.IOS)
+    }
     actual override val name: String
         get() = "read_storage"
     override val permissionRequest: ((Boolean) -> Unit) -> Unit
