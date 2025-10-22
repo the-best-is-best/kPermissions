@@ -1,4 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem
 
 plugins {
@@ -12,11 +11,12 @@ plugins {
     id("signing")
     alias(libs.plugins.maven.publish)
 }
+val libVersion: String by rootProject.extra
 
 mavenPublishing {
-    coordinates("io.github.the-best-is-best", "kpermissions-gallery", "1.0.1")
+    coordinates("io.github.the-best-is-best", "kpermissions-gallery", libVersion)
 
-    publishToMavenCentral(SonatypeHost.S01, true)
+    publishToMavenCentral( true)
     signAllPublications()
 
     pom {

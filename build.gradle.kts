@@ -9,3 +9,5 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary) apply false
     alias(libs.plugins.maven.publish) apply false
 }
+
+extra["libraryVersion"] = "2.0.0"
