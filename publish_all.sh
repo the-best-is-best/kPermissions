@@ -22,11 +22,10 @@ modules=(
     ":kpermissionsLocationChecker"
 )
 
-
 for module in "${modules[@]}"
 do
     echo "🔄 Publishing $module..."
-    ./gradlew "$module:publishAndReleaseToMavenCentral" --no-configuration-cache || {
+    ./gradlew "${module}:publishAndReleaseToMavenCentral" --no-configuration-cache || {
         echo "❌ Failed to publish $module"
         exit 1
     }
