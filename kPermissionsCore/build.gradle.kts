@@ -122,9 +122,9 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.stdlib)
                 // Add KMP dependencies here
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.ui)
+                implementation("org.jetbrains.compose.runtime:runtime:1.10.0")
+                implementation("org.jetbrains.compose.foundation:foundation:1.10.0")
+                implementation("org.jetbrains.compose.ui:ui:1.10.0")
 
                 api(projects.kPermissionsApi)
                 implementation(projects.kPermissionsCMP)
@@ -151,13 +151,13 @@ kotlin {
             }
         }
 
-        getByName("androidDeviceTest") {
-            dependencies {
-                implementation(libs.androidx.runner)
-                implementation(libs.androidx.core)
-                implementation(libs.androidx.testExt.junit)
-            }
-        }
+//        getByName("androidDeviceTest") {
+//            dependencies {
+//                implementation(libs.androidx.runner)
+//                implementation(libs.androidx.core)
+//                implementation(libs.androidx.testExt.junit)
+//            }
+//        }
 
         iosMain {
             dependencies {
