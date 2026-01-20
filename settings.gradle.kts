@@ -28,7 +28,8 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp")
+include(":sharedUI")
+include(":androidSimple")
 include(":kPermissionsCore")
 include(":kPermissionsCamera")
 include(":kPermissionsStorage")
