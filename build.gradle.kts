@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.androidKotlinMultiplatformLibrary) apply false
     alias(libs.plugins.maven.publish) apply false
+    alias(libs.plugins.android.lint) apply false
 }
 
 extra["libVersion"] = "3.0.0"
