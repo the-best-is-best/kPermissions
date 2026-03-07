@@ -10,6 +10,8 @@ import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVMediaTypeVideo
 import platform.AVFoundation.authorizationStatusForMediaType
 import platform.AVFoundation.requestAccessForMediaType
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 
 
 private fun getCameraPermissionStatus(): PermissionStatus {
@@ -26,10 +28,14 @@ internal fun cameraPermissionRequest(): ((Boolean) -> Unit) -> Unit = { callback
     val status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
 
     if (status == AVAuthorizationStatusAuthorized) {
-        callback(true)
+        dispatch_async(dispatch_get_main_queue()) {
+            callback(true)
+        }
     } else {
         AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { granted ->
-            callback(granted)
+            dispatch_async(dispatch_get_main_queue()) {
+                callback(granted)
+            }
         }
     }
 }

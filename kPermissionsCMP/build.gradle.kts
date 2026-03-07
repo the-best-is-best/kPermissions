@@ -3,6 +3,10 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurr
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
+
     id("maven-publish")
     id("signing")
     alias(libs.plugins.maven.publish)
@@ -73,7 +77,7 @@ kotlin {
     // Target declarations - add or remove as needed below. These define
     // which platforms this KMP module supports.
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
-    androidLibrary {
+    android {
         namespace = "io.github.kpermissions_cmp"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -99,7 +103,7 @@ kotlin {
 
 
     listOf(
-        iosX64(),
+       // iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
     ).forEach { target ->
@@ -119,6 +123,10 @@ kotlin {
                 implementation(libs.kotlin.stdlib)
                 // Add KMP dependencies here
                 api(projects.kPermissionsApi)
+                implementation(projects.kPermissionsCore)
+                implementation(libs.runtime)
+                implementation(libs.foundation)
+                implementation(libs.ui)
             }
         }
 
@@ -133,6 +141,8 @@ kotlin {
                 // Add Android-specific dependencies here. Note that this source set depends on
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
+                implementation(libs.androidx.startup.runtime)
+                implementation(libs.accompanist.permissions)
             }
         }
 

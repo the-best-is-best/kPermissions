@@ -3,9 +3,9 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurr
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
-
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+//
+//    alias(libs.plugins.composeMultiplatform)
+//    alias(libs.plugins.composeCompiler)
 
     id("maven-publish")
     id("signing")
@@ -77,7 +77,7 @@ kotlin {
     // Target declarations - add or remove as needed below. These define
     // which platforms this KMP module supports.
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
-    androidLibrary {
+    android {
         namespace = "io.github.kpermissionsCore"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -102,7 +102,7 @@ kotlin {
     val xcfName = "kPermissionsCoreKit"
 
     listOf(
-        iosX64(),
+      //  iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { target ->
@@ -122,12 +122,12 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.stdlib)
                 // Add KMP dependencies here
-                implementation("org.jetbrains.compose.runtime:runtime:1.10.0")
-                implementation("org.jetbrains.compose.foundation:foundation:1.10.0")
-                implementation("org.jetbrains.compose.ui:ui:1.10.0")
+//                implementation(libs.runtime)
+//                implementation(libs.foundation)
+//                implementation(libs.ui)
 
                 api(projects.kPermissionsApi)
-                implementation(projects.kPermissionsCMP)
+//                implementation(projects.kPermissionsCMP)
 
             }
         }
@@ -144,7 +144,7 @@ kotlin {
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.'
                 implementation(libs.androidx.startup.runtime)
-                implementation(libs.accompanist.permissions)
+//                implementation(libs.accompanist.permissions)
                 implementation(libs.androidx.core.ktx)
                 //implementation(libs.compose.utils.core)
 

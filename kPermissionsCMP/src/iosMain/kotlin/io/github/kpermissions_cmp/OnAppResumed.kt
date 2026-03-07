@@ -1,9 +1,11 @@
-package io.github.kpermissionsCore
+package io.github.kpermissions_cmp
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import platform.Foundation.NSNotificationCenter
+import platform.UIKit.UIApplicationDidBecomeActiveNotification
 
 
 @Composable
@@ -11,8 +13,8 @@ internal fun OnAppResumed(onResume: () -> Unit) {
     val currentOnResume by rememberUpdatedState(onResume)
 
     DisposableEffect(Unit) {
-        val observer = platform.Foundation.NSNotificationCenter.defaultCenter.addObserverForName(
-            name = platform.UIKit.UIApplicationDidBecomeActiveNotification,
+        val observer = NSNotificationCenter.defaultCenter.addObserverForName(
+            name = UIApplicationDidBecomeActiveNotification,
             `object` = null,
             queue = null
         ) { _ ->
@@ -20,7 +22,7 @@ internal fun OnAppResumed(onResume: () -> Unit) {
         }
 
         onDispose {
-            platform.Foundation.NSNotificationCenter.defaultCenter.removeObserver(observer)
+            NSNotificationCenter.defaultCenter.removeObserver(observer)
         }
     }
 }

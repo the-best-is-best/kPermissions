@@ -10,4 +10,4 @@ plugins {
     alias(libs.plugins.maven.publish) apply false
 }
 
-extra["libVersion"] = "2.0.2"
+extra["libVersion"] = "3.0.0"

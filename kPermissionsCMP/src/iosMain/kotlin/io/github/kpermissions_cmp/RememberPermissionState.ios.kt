@@ -1,4 +1,4 @@
-package io.github.kpermissionsCore
+package io.github.kpermissions_cmp
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,8 +12,10 @@ import io.github.kPermissions_api.MultiPermissionState
 import io.github.kPermissions_api.Permission
 import io.github.kPermissions_api.PermissionState
 import io.github.kPermissions_api.PermissionStatus
-import io.github.kpermissions_cmp.PlatformIgnore
-import io.github.kpermissions_cmp.getIgnore
+import io.github.kpermissionsCore.IOSPermissionManager
+import io.github.kpermissionsCore.IOSPermissionManager.canRequest
+import io.github.kpermissionsCore.currentIosVersion
+import io.github.kpermissionsCore.openAppSettingsPlatform
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 
@@ -23,8 +25,8 @@ actual fun RequestPermission(
     permission: Permission,
 ): PermissionState {
     val isIgnored = permission.getIgnore() == PlatformIgnore.IOS
-    val isOutOfSdk = (permission.minSdk?.let { currentIosVersion < it } ?: false) ||
-            (permission.maxSdk?.let { currentIosVersion > it } ?: false)
+    val isOutOfSdk = (permission.minSdk?.let { IOSPermissionManager.currentIosVersion < it } ?: false) ||
+            (permission.maxSdk?.let { IOSPermissionManager.currentIosVersion > it } ?: false)
 
     val fixedStatus = when {
         isIgnored || isOutOfSdk -> PermissionStatus.Granted
@@ -51,7 +53,7 @@ actual fun RequestPermission(
 
     OnAppResumed {
         coroutineScope.launch {
-            val newStatus = getStatus(permission)
+            val newStatus = IOSPermissionManager.getStatus(permission)
             if (newStatus != stateValue) {
                 stateValue = newStatus
             }
@@ -83,7 +85,7 @@ actual fun RequestPermission(
         }
 
         private suspend fun getRefreshStatus() {
-            val newStatus = getStatus(permission)
+            val newStatus = IOSPermissionManager.getStatus(permission)
 
             stateValue = newStatus
 
@@ -100,8 +102,8 @@ internal actual fun RequestMultiPermissions(
 
     val filtered = permissions.filter { perm ->
         perm.getIgnore() != PlatformIgnore.IOS &&
-                (perm.minSdk?.let { currentIosVersion >= it } ?: true) &&
-                (perm.maxSdk?.let { currentIosVersion <= it } ?: true)
+                (perm.minSdk?.let { IOSPermissionManager.currentIosVersion >= it } ?: true) &&
+                (perm.maxSdk?.let { IOSPermissionManager.currentIosVersion <= it } ?: true)
     }
 
     val ignoredPermissions = permissions - filtered.toSet()
@@ -123,7 +125,7 @@ internal actual fun RequestMultiPermissions(
     }
 
     LaunchedEffect(Unit) {
-        val statuses = filtered.associate { it.name to getStatus(it) }
+        val statuses = filtered.associate { it.name to IOSPermissionManager.getStatus(it) }
         stateMap = statuses
     }
 
@@ -135,7 +137,7 @@ internal actual fun RequestMultiPermissions(
 
     OnAppResumed {
         coroutineScope.launch {
-            val newStatuses = filtered.associate { it.name to getStatus(it) }
+            val newStatuses = filtered.associate { it.name to IOSPermissionManager.getStatus(it) }
             stateMap = newStatuses
         }
     }
@@ -165,13 +167,13 @@ internal actual fun RequestMultiPermissions(
                             val completable = CompletableDeferred<Unit>()
                             p.permissionRequest {
                                 coroutineScope.launch {
-                                    updated[p.name] = getStatus(p)
+                                    updated[p.name] = IOSPermissionManager.getStatus(p)
                                     completable.complete(Unit)
                                 }
                             }
                             completable.await()
                         } else {
-                            updated[p.name] = getStatus(p)
+                            updated[p.name] = IOSPermissionManager.getStatus(p)
                         }
                     }
 
@@ -182,7 +184,7 @@ internal actual fun RequestMultiPermissions(
             override fun openAppSettings() = openAppSettingsPlatform()
 
             override suspend fun refreshStatus() {
-                val newStatus = getStatus(permission)
+                val newStatus = IOSPermissionManager.getStatus(permission)
                 if (newStatus != status) {
                     status = newStatus
                 }

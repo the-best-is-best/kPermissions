@@ -12,6 +12,8 @@ import platform.CoreLocation.kCLAuthorizationStatusDenied
 import platform.CoreLocation.kCLAuthorizationStatusNotDetermined
 import platform.CoreLocation.kCLAuthorizationStatusRestricted
 import platform.darwin.NSObject
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 
 actual object LocationAlwaysPermission : Permission {
 
@@ -71,8 +73,10 @@ private class LocationAlwaysPermissionDelegate(
 
     override fun locationManagerDidChangeAuthorization(manager: CLLocationManager) {
         val status = CLLocationManager.authorizationStatus()
-        callback(
-            status == kCLAuthorizationStatusAuthorizedAlways
-        )
+        dispatch_async(dispatch_get_main_queue()) {
+            callback(
+                status == kCLAuthorizationStatusAuthorizedAlways
+            )
+        }
     }
 }

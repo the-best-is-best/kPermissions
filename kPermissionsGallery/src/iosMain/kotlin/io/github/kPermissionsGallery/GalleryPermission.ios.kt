@@ -8,6 +8,8 @@ import platform.Photos.PHAuthorizationStatusLimited
 import platform.Photos.PHAuthorizationStatusNotDetermined
 import platform.Photos.PHAuthorizationStatusRestricted
 import platform.Photos.PHPhotoLibrary
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 
 private fun getGalleryPermissionStatus(): PermissionStatus {
     return when (PHPhotoLibrary.authorizationStatus()) {
@@ -25,12 +27,19 @@ internal fun permissionRequest(): ((Boolean) -> Unit) -> Unit {
         val status = PHPhotoLibrary.authorizationStatus()
 
         if (status == PHAuthorizationStatusAuthorized || status == PHAuthorizationStatusLimited) {
-            callback(true)
+            dispatch_async(dispatch_get_main_queue()) {
+                callback(true)
+            }
         } else {
             PHPhotoLibrary.requestAuthorization { newStatus ->
                 when (newStatus) {
-                    PHAuthorizationStatusAuthorized, PHAuthorizationStatusLimited -> callback(true)
-                    else -> callback(false)
+                    PHAuthorizationStatusAuthorized, PHAuthorizationStatusLimited ->         dispatch_async(dispatch_get_main_queue()) {
+                        callback(true)
+                    }
+                    else ->
+                        dispatch_async(dispatch_get_main_queue()) {
+                           callback(false)
+                    }
                 }
             }
         }

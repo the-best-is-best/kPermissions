@@ -16,7 +16,7 @@ internal suspend fun requestPermissionsSequentially(
     permissions: List<Permission>
 ): List<PermissionStatus> {
     return permissions.map { permission ->
-        when (val status = getStatus(permission)) {
+        when (val status = IOSPermissionManager.getStatus(permission)) {
             is PermissionStatus.Granted,
             is PermissionStatus.DeniedPermanently,
             is PermissionStatus.Unavailable,
@@ -25,7 +25,7 @@ internal suspend fun requestPermissionsSequentially(
             is PermissionStatus.Denied -> {
 
                 val granted = permission.permissionRequestSuspend()
-                if (granted) PermissionStatus.Granted else getStatus(permission)
+                if (granted) PermissionStatus.Granted else IOSPermissionManager.getStatus(permission)
             }
         }
     }

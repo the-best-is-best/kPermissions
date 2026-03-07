@@ -127,7 +127,9 @@ private fun getRecordAudioPermissionStatus(): PermissionStatus {
 internal fun requestRecordAudioPermission(): ((Boolean) -> Unit) -> Unit {
     return { callback ->
         AVAudioSession.sharedInstance().requestRecordPermission { granted ->
-            callback(granted)
+            dispatch_async(dispatch_get_main_queue()) {
+                    callback(granted)
+            }
         }
     }
 }

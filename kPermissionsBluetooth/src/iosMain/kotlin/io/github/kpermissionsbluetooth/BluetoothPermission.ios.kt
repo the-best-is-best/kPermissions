@@ -20,6 +20,8 @@ import platform.CoreBluetooth.CBManagerStateUnknown
 import platform.Foundation.NSOperatingSystemVersion
 import platform.Foundation.NSProcessInfo
 import platform.darwin.NSObject
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 
 @OptIn(ExperimentalForeignApi::class)
 actual object BluetoothPermission : Permission {
@@ -83,7 +85,9 @@ actual object BluetoothPermission : Permission {
             CBCentralManager(object : NSObject(), CBCentralManagerDelegateProtocol {
                 override fun centralManagerDidUpdateState(central: CBCentralManager) {
                     val granted = central.state == CBManagerStatePoweredOn
-                    callback(granted)
+                    dispatch_async(dispatch_get_main_queue()) {
+                       callback(granted)
+                    }
                 }
             }, null)
         }

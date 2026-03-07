@@ -11,6 +11,8 @@ import platform.UserNotifications.UNAuthorizationStatusNotDetermined
 import platform.UserNotifications.UNAuthorizationStatusProvisional
 import platform.UserNotifications.UNUserNotificationCenter
 import platform.darwin.DISPATCH_TIME_FOREVER
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 import platform.darwin.dispatch_semaphore_create
 import platform.darwin.dispatch_semaphore_signal
 import platform.darwin.dispatch_semaphore_wait
@@ -70,7 +72,9 @@ actual object NotificationPermission : Permission {
             center.requestAuthorizationWithOptions(
                 UNAuthorizationOptionAlert or UNAuthorizationOptionSound or UNAuthorizationOptionBadge
             ) { granted, _ ->
-                callback(granted)
+                dispatch_async(dispatch_get_main_queue()) {
+                    callback(granted)
+                }
             }
         }
 }

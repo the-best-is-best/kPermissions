@@ -69,7 +69,7 @@ kotlin {
     // Target declarations - add or remove as needed below. These define
     // which platforms this KMP module supports.
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
-    androidLibrary {
+    android {
         namespace = "io.github.kPermissions_api"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -93,11 +93,11 @@ kotlin {
     // https://developer.android.com/kotlin/multiplatform/migrate
     val xcfName = "kPermissionsApiKit"
 
-    iosX64 {
-        binaries.framework {
-            baseName = xcfName
-        }
-    }
+//    iosX64 {
+//        binaries.framework {
+//            baseName = xcfName
+//        }
+//    }
 
     iosArm64 {
         binaries.framework {

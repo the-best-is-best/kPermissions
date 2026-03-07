@@ -1,5 +1,6 @@
-package io.github.kpermissionsCore
+package io.github.kpermissions_cmp
 
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -23,9 +24,9 @@ import io.github.kPermissions_api.isDenied
 import io.github.kPermissions_api.isDeniedPermanently
 import io.github.kPermissions_api.isGranted
 import io.github.kPermissions_api.refreshState
-import io.github.kpermissions_cmp.PlatformIgnore
-import io.github.kpermissions_cmp.getIgnore
+import io.github.kpermissionsCore.openAppSettingsPlatform
 import kotlinx.coroutines.launch
+import kotlin.text.get
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -33,7 +34,7 @@ internal actual fun RequestPermission(
     permission: Permission,
 ): PermissionState {
     val androidPermission = permission.androidPermissionName
-    val currentSdk = android.os.Build.VERSION.SDK_INT
+    val currentSdk = Build.VERSION.SDK_INT
 
     if (androidPermission == null ||
         permission.getIgnore() == PlatformIgnore.Android ||
@@ -110,7 +111,7 @@ internal actual fun RequestPermission(
 internal actual fun RequestMultiPermissions(
     permissions: List<Permission>,
 ): MultiPermissionState {
-    val currentSdk = android.os.Build.VERSION.SDK_INT
+    val currentSdk = Build.VERSION.SDK_INT
 
     // تصفية الصلاحيات المناسبة للأندرويد وحسب SDK
     val filteredPermissions = remember(permissions) {

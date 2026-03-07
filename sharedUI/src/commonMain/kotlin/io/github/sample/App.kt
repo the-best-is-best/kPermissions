@@ -34,8 +34,8 @@ import io.github.kPermissions_api.PermissionStatus
 import io.github.kpermissionlocationwheninuseext.openPrivacySettings
 import io.github.kpermissionnotification.NotificationPermission
 import io.github.kpermissionsCamera.CameraPermission
-import io.github.kpermissionsCore.rememberMultiplePermissionsState
-import io.github.kpermissionsCore.rememberPermissionState
+import io.github.kpermissions_cmp.rememberMultiplePermissionsState
+import io.github.kpermissions_cmp.rememberPermissionState
 import io.github.kpermissionsbluetooth.BluetoothPermission
 import io.github.kpermissionsbluetooth.bluetoothStateFlow
 import io.github.kpermissionscmpbluetooth.openBluetoothSettingsCMP
